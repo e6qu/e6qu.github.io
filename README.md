@@ -29,5 +29,5 @@ their licenses are in `assets/fonts/`.
 
 The `featured` list in `portfolio.json` controls the showcase. Theme selection
 follows the system until changed with the sun/moon button, then persists locally.
-Idle termites start after ten seconds and clear on pointer, keyboard or scroll
+Idle termites start after two seconds and clear on pointer, keyboard or scroll
 activity. They pause in background tabs and respect reduced motion.
