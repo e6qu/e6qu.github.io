@@ -345,23 +345,6 @@
       "counted_commit": null
     },
     {
-      "name": "frankencode",
-      "url": "https://github.com/e6qu/frankencode",
-      "description": "An OpenCode derivative with agent-driven context editing.",
-      "languages": [
-        "TypeScript",
-        "MDX"
-      ],
-      "default_branch": "dev",
-      "license": "MIT",
-      "license_url": "https://github.com/e6qu/frankencode/blob/dev/LICENSE",
-      "last_contribution": "2026-06-06T18:30:07Z",
-      "contribution_url": "https://github.com/e6qu/frankencode/commit/c90d2a2d440dd557a14307621234d10d6eec60fb",
-      "source_lines": null,
-      "test_lines": null,
-      "counted_commit": null
-    },
-    {
       "name": "blerp",
       "url": "https://github.com/e6qu/blerp",
       "description": "An identity service.",

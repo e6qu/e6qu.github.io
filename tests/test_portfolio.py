@@ -14,7 +14,7 @@ class PortfolioTests(unittest.TestCase):
         base = {'name': 'actual-software', 'owner': {'login': 'e6qu'}, 'fork': False, 'private': False}
         self.assertTrue(eligible(base, config))
         for changes in [{'fork': True}, {'private': True}, {'name': 'agentter'},
-                        {'name': 'new-throwaway-project'}, {'name': 'language-research'},
+                        {'name': 'new-throwaway-project'}, {'name': 'language-research'}, {'name': 'frankencode'},
                         {'owner': {'login': 'someone-else'}}]:
             self.assertFalse(eligible({**base, **changes}, config))
 

@@ -35,7 +35,7 @@ def row(project):
     description = f'<p class="description">{e(project["description"])}</p>' if project['description'] else ''
     return f'''<li class="project" data-name="{e(project['name'])}" data-search="{e(' '.join([project['name'], project['description'], *project['languages']]).lower())}" data-date="{e(date or '')}" data-code="{project.get('source_lines') or 0}" data-tests="{project.get('test_lines') or 0}">
   <div class="project-info"><h3><a class="project-link" href="{e(project['url'])}">{e(project['name'])}<span class="outbound" aria-hidden="true">↗</span></a></h3>{description}<p class="project-meta"><span class="languages">{e(languages)}</span><span class="license">{license_html}</span></p></div>
-  <div class="project-numbers"><span class="metric"><span class="mobile-label">SLOC</span>{count('source_lines')}</span><span class="metric"><span class="mobile-label">Test SLOC</span>{count('test_lines')}</span><span class="contribution"><span class="mobile-label">Last contribution</span>{date_html}</span></div>
+  <div class="project-numbers"><span class="metric"><span class="sr-only">SLOC: </span><span class="mobile-label" aria-hidden="true">SLOC</span>{count('source_lines')}</span><span class="metric"><span class="sr-only">Test SLOC: </span><span class="mobile-label" aria-hidden="true">Test SLOC</span>{count('test_lines')}</span><span class="contribution"><span class="sr-only">Last contribution: </span><span class="mobile-label" aria-hidden="true">Last contribution</span>{date_html}</span></div>
 </li>'''
 
 

@@ -8,12 +8,16 @@
     "slowpokeapi": "AGPL-3.0 OR MIT",
     "tui-gpu": "AGPL-3.0"
   },
+  "excluded_paths": {
+    "fun-refactor": ["grammars/**", "tests/**/results/**", "tests/**/workspace/**"]
+  },
   "excluded": {
     "e6qu.github.io": "The portfolio itself",
     "rust-lean-aeneas": "Tutorials and research",
     "language-research": "Language research",
     "agentter": "Documentation and research",
     "hairballs": "Framework exploration",
+    "frankencode": "OpenCode fork",
     "test-throwaway-1771771184": "Throwaway repository"
   },
   "excluded_patterns": ["*throwaway*", "*research*"],
@@ -39,7 +43,6 @@
     "mermollusc": "A visual editor for Mermaid and architecture diagrams.",
     "termiclaw": "A terminal agent built around Claude Code and tmux.",
     "shimanism": "Portable interfaces to managed cloud services.",
-    "frankencode": "An OpenCode derivative with agent-driven context editing.",
     "funveil": "Control file and line visibility in AI agent workspaces.",
     "slowpokeapi": "An API for currency, crypto and precious-metal exchange rates.",
     "blerp": "An identity service.",
