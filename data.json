@@ -1,0 +1,564 @@
+{
+  "updated_at": "2026-10-08T12:00:40.115934+00:00",
+  "projects": [
+    {
+      "name": "theseus",
+      "url": "https://github.com/e6qu/theseus",
+      "description": "Deterministic testing for Linux services in microVMs.",
+      "languages": [
+        "Rust",
+        "Python"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/theseus/blob/main/LICENSE",
+      "last_contribution": "2026-10-08T11:31:16Z",
+      "contribution_url": "https://github.com/e6qu/theseus/commit/68d352cf6ad0befe241a81ab5233667d76d5014a",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "zzira",
+      "url": "https://github.com/e6qu/zzira",
+      "description": "A Jira-compatible, local-first issue tracker.",
+      "languages": [
+        "Go",
+        "TypeScript",
+        "Go Template"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/zzira/blob/main/LICENSE",
+      "last_contribution": "2026-10-08T10:52:58Z",
+      "contribution_url": "https://github.com/e6qu/zzira/commit/cb052a5ff1dab68b5fc35c92505857a1ed3c9a6b",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "fun-with-pipes",
+      "url": "https://github.com/e6qu/fun-with-pipes",
+      "description": "A typed, pipe-oriented programming language.",
+      "languages": [
+        "Rust",
+        "C"
+      ],
+      "default_branch": "main",
+      "license": "MIT",
+      "license_url": "https://github.com/e6qu/fun-with-pipes/blob/main/LICENSE",
+      "last_contribution": "2026-10-08T10:33:04Z",
+      "contribution_url": "https://github.com/e6qu/fun-with-pipes/commit/dbdaee4448d4ccd62720f04d3f866d429db800aa",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "fun-refactor",
+      "url": "https://github.com/e6qu/fun-refactor",
+      "description": "Multi-language refactoring and code intelligence with tree-sitter.",
+      "languages": [
+        "C",
+        "Rust",
+        "Python"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/fun-refactor/blob/main/LICENSE",
+      "last_contribution": "2026-10-08T09:22:37Z",
+      "contribution_url": "https://github.com/e6qu/fun-refactor/commit/3b633a9c00e505d0578faf35f95168cf1abfabac",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "pos3ql",
+      "url": "https://github.com/e6qu/pos3ql",
+      "description": "A PostgreSQL-compatible database on object storage.",
+      "languages": [
+        "Rust"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/pos3ql/blob/main/LICENSE",
+      "last_contribution": "2026-10-08T08:41:26Z",
+      "contribution_url": "https://github.com/e6qu/pos3ql/commit/51a21b6b7393022b92c4f6f86c889e9fa3394b93",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "emdysi",
+      "url": "https://github.com/e6qu/emdysi",
+      "description": "An English parser, grammar checker and prose linter.",
+      "languages": [
+        "Rust",
+        "Python"
+      ],
+      "default_branch": "main",
+      "license": "MIT",
+      "license_url": "https://github.com/e6qu/emdysi/blob/main/LICENSE",
+      "last_contribution": "2026-10-07T23:17:05Z",
+      "contribution_url": "https://github.com/e6qu/emdysi/commit/aad941fd34a4b610c875fe1aaa6146dee97b065b",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "sockerless-cloud",
+      "url": "https://github.com/e6qu/sockerless-cloud",
+      "description": "Local simulators for AWS, Google Cloud and Azure APIs.",
+      "languages": [
+        "Go",
+        "TypeScript"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/sockerless-cloud/blob/main/LICENSE",
+      "last_contribution": "2026-10-07T22:48:44Z",
+      "contribution_url": "https://github.com/e6qu/sockerless-cloud/commit/d32c1f0c7cd2f4d2dc3736f53a1ab7898fa76e31",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "bleephub",
+      "url": "https://github.com/e6qu/bleephub",
+      "description": "A self-hosted, GitHub-compatible collaboration platform.",
+      "languages": [
+        "Go",
+        "TypeScript"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/bleephub/blob/main/LICENSE",
+      "last_contribution": "2026-10-07T22:20:58Z",
+      "contribution_url": "https://github.com/e6qu/bleephub/commit/4a41ad4e67a44a8359b38c6c772143da608596e0",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "e6irc",
+      "url": "https://github.com/e6qu/e6irc",
+      "description": "An IRCv3 server with bridges, a bouncer and CLI clients.",
+      "languages": [
+        "Rust",
+        "JavaScript"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/e6irc/blob/main/LICENSE",
+      "last_contribution": "2026-10-07T17:46:47Z",
+      "contribution_url": "https://github.com/e6qu/e6irc/commit/3219b684240ae127fc87e44fb0add63111643ac9",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "sclaude",
+      "url": "https://github.com/e6qu/sclaude",
+      "description": "A sandbox wrapper for Claude Code and Codex.",
+      "languages": [
+        "Shell"
+      ],
+      "default_branch": "main",
+      "license": "MIT",
+      "license_url": "https://github.com/e6qu/sclaude/blob/main/LICENSE",
+      "last_contribution": "2026-10-07T13:42:04Z",
+      "contribution_url": "https://github.com/e6qu/sclaude/commit/6670e8ae6926a35c4ea74d62ec89ffbbb2b62493",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "someoldchat",
+      "url": "https://github.com/e6qu/someoldchat",
+      "description": "A Slack-compatible chat platform.",
+      "languages": [
+        "Go"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/someoldchat/blob/main/LICENSE",
+      "last_contribution": "2026-10-06T11:12:15Z",
+      "contribution_url": "https://github.com/e6qu/someoldchat/commit/01fbf6988ea103e8e9c8085ab69b20933301ea8d",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "shauth",
+      "url": "https://github.com/e6qu/shauth",
+      "description": "An OpenID Connect identity service.",
+      "languages": [
+        "Go",
+        "Shell",
+        "JavaScript"
+      ],
+      "default_branch": "main",
+      "license": "Not specified",
+      "license_url": null,
+      "last_contribution": "2026-10-01T22:42:58Z",
+      "contribution_url": "https://github.com/e6qu/shauth/commit/d07da279c7f333ef0818dfa3c43298611d3a7bd1",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "regular-mario",
+      "url": "https://github.com/e6qu/regular-mario",
+      "description": "A classic platformer with deterministic replays.",
+      "languages": [
+        "TypeScript",
+        "JavaScript"
+      ],
+      "default_branch": "main",
+      "license": "Custom",
+      "license_url": "https://github.com/e6qu/regular-mario/blob/main/LICENSE",
+      "last_contribution": "2026-09-29T05:09:16Z",
+      "contribution_url": "https://github.com/e6qu/regular-mario/commit/80fc76ec66cafd1e3c3bf4c7678fb5cad933cd30",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "ecs-dev-desktop",
+      "url": "https://github.com/e6qu/ecs-dev-desktop",
+      "description": "VS Code workspaces on AWS ECS Fargate.",
+      "languages": [
+        "TypeScript",
+        "Shell",
+        "HCL"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/ecs-dev-desktop/blob/main/LICENSE",
+      "last_contribution": "2026-09-16T19:13:14Z",
+      "contribution_url": "https://github.com/e6qu/ecs-dev-desktop/commit/39d74ea6f2061116682e9fc60d8ad6ce91a73762",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "intraktible",
+      "url": "https://github.com/e6qu/intraktible",
+      "description": "An open-source decision platform.",
+      "languages": [
+        "Go",
+        "Svelte",
+        "TypeScript"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/intraktible/blob/main/LICENSE",
+      "last_contribution": "2026-09-11T16:28:49Z",
+      "contribution_url": "https://github.com/e6qu/intraktible/commit/00eb5370361322135567b0d67e5d4df407f2d27e",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "sockerless",
+      "url": "https://github.com/e6qu/sockerless",
+      "description": "A Docker-compatible API backed by cloud services.",
+      "languages": [
+        "Go",
+        "TypeScript",
+        "Shell"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/sockerless/blob/main/LICENSE",
+      "last_contribution": "2026-09-07T14:59:47Z",
+      "contribution_url": "https://github.com/e6qu/sockerless/commit/96d89f2d3b8510b290bae86c4ce2c7146e163534",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "sharecrop",
+      "url": "https://github.com/e6qu/sharecrop",
+      "description": "An AI work-sharing platform and marketplace.",
+      "languages": [
+        "Go",
+        "JavaScript",
+        "Elm"
+      ],
+      "default_branch": "main",
+      "license": "Not specified",
+      "license_url": null,
+      "last_contribution": "2026-08-02T14:57:55Z",
+      "contribution_url": "https://github.com/e6qu/sharecrop/commit/059c30670edf6c398c8092c1ab7c27d838be7ebd",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "bleeplab",
+      "url": "https://github.com/e6qu/bleeplab",
+      "description": "A GitLab-compatible CI control plane.",
+      "languages": [
+        "Go",
+        "TypeScript",
+        "Shell"
+      ],
+      "default_branch": "main",
+      "license": "Not specified",
+      "license_url": null,
+      "last_contribution": "2026-07-24T10:11:14Z",
+      "contribution_url": "https://github.com/e6qu/bleeplab/commit/89c080b11ed53f1b8354d517c2758de0dd73d6e8",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "mermollusc",
+      "url": "https://github.com/e6qu/mermollusc",
+      "description": "A visual editor for Mermaid and architecture diagrams.",
+      "languages": [
+        "TypeScript"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/mermollusc/blob/main/LICENSE",
+      "last_contribution": "2026-07-12T21:15:52Z",
+      "contribution_url": "https://github.com/e6qu/mermollusc/commit/1a952c75be8aef0290ec2eface4ac0dc103bc2c3",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "shimanism",
+      "url": "https://github.com/e6qu/shimanism",
+      "description": "Portable interfaces to managed cloud services.",
+      "languages": [
+        "Go"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/shimanism/blob/main/LICENSE",
+      "last_contribution": "2026-06-07T10:00:37Z",
+      "contribution_url": "https://github.com/e6qu/shimanism/commit/f90ee876cf58a6534e73c9d9e281d186cc382397",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "frankencode",
+      "url": "https://github.com/e6qu/frankencode",
+      "description": "An OpenCode derivative with agent-driven context editing.",
+      "languages": [
+        "TypeScript",
+        "MDX"
+      ],
+      "default_branch": "dev",
+      "license": "MIT",
+      "license_url": "https://github.com/e6qu/frankencode/blob/dev/LICENSE",
+      "last_contribution": "2026-06-06T18:30:07Z",
+      "contribution_url": "https://github.com/e6qu/frankencode/commit/c90d2a2d440dd557a14307621234d10d6eec60fb",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "blerp",
+      "url": "https://github.com/e6qu/blerp",
+      "description": "An identity service.",
+      "languages": [
+        "HTML",
+        "TypeScript"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/blerp/blob/main/LICENSE",
+      "last_contribution": "2026-05-18T16:42:11Z",
+      "contribution_url": "https://github.com/e6qu/blerp/commit/1152b1001949648900c0534bbde23b04c03c3ed8",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "looker-bi-gym",
+      "url": "https://github.com/e6qu/looker-bi-gym",
+      "description": "Browser-based business intelligence and SQL training.",
+      "languages": [
+        "TypeScript",
+        "CSS"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/looker-bi-gym/blob/main/LICENSE",
+      "last_contribution": "2026-05-18T05:19:31Z",
+      "contribution_url": "https://github.com/e6qu/looker-bi-gym/commit/b6ba57b6766a22c7b4d74523a0ea263c33a6314d",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "termiclaw",
+      "url": "https://github.com/e6qu/termiclaw",
+      "description": "A terminal agent built around Claude Code and tmux.",
+      "languages": [
+        "Python"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/termiclaw/blob/main/LICENSE",
+      "last_contribution": "2026-04-19T22:14:05Z",
+      "contribution_url": "https://github.com/e6qu/termiclaw/commit/3bcce1fda686433ea6e2506bc005c6b2f8b375f4",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "tuia",
+      "url": "https://github.com/e6qu/tuia",
+      "description": "A terminal presentation tool in Zig.",
+      "languages": [
+        "Zig"
+      ],
+      "default_branch": "main",
+      "license": "Custom",
+      "license_url": "https://github.com/e6qu/tuia/blob/main/LICENSE",
+      "last_contribution": "2026-03-20T23:39:41Z",
+      "contribution_url": "https://github.com/e6qu/tuia/commit/a1f1f630bed68eea21e0fd720d27380564fd7dd8",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "funveil",
+      "url": "https://github.com/e6qu/funveil",
+      "description": "Control file and line visibility in AI agent workspaces.",
+      "languages": [
+        "Rust"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/funveil/blob/main/LICENSE",
+      "last_contribution": "2026-03-17T22:22:22Z",
+      "contribution_url": "https://github.com/e6qu/funveil/commit/3e8093d2d972baeb93dd018c85cfa6f089085115",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "slowpokeapi",
+      "url": "https://github.com/e6qu/slowpokeapi",
+      "description": "An API for currency, crypto and precious-metal exchange rates.",
+      "languages": [
+        "Rust",
+        "HCL"
+      ],
+      "default_branch": "main",
+      "license": "Custom",
+      "license_url": "https://github.com/e6qu/slowpokeapi/blob/main/LICENSE",
+      "last_contribution": "2026-03-10T09:04:30Z",
+      "contribution_url": "https://github.com/e6qu/slowpokeapi/commit/096226ff61af288a7d25565dcf6a7874ea34344b",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "dyscount",
+      "url": "https://github.com/e6qu/dyscount",
+      "description": "Dyscount project",
+      "languages": [
+        "Python",
+        "Rust",
+        "Go"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/dyscount/blob/main/LICENSE",
+      "last_contribution": "2026-03-04T00:38:12Z",
+      "contribution_url": "https://github.com/e6qu/dyscount/commit/d540a91d3cf049eb1183cfd69d0dae5d8105c1bd",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "bleepstore",
+      "url": "https://github.com/e6qu/bleepstore",
+      "description": "An S3-compatible object store in Python, Go, Rust and Zig.",
+      "languages": [
+        "Python",
+        "Zig",
+        "Rust"
+      ],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/bleepstore/blob/main/LICENSE",
+      "last_contribution": "2026-03-01T15:06:37Z",
+      "contribution_url": "https://github.com/e6qu/bleepstore/commit/edd5683d609e0a32a1d4e6620da1ccdf51dbd4a3",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "docker-bootstrap",
+      "url": "https://github.com/e6qu/docker-bootstrap",
+      "description": "docker-bootstrap",
+      "languages": [],
+      "default_branch": "main",
+      "license": "AGPL-3.0",
+      "license_url": "https://github.com/e6qu/docker-bootstrap/blob/main/LICENSE",
+      "last_contribution": "2024-10-13T18:20:19Z",
+      "contribution_url": "https://github.com/e6qu/docker-bootstrap/commit/b5a3c43ffd4f43381adb31c5db3fcbb920d5e9ea",
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "mouse-jiggler",
+      "url": "https://github.com/e6qu/mouse-jiggler",
+      "description": "A tiny, cross-platform mouse jiggler.",
+      "languages": [
+        "Rust",
+        "C"
+      ],
+      "default_branch": "main",
+      "license": "MIT",
+      "license_url": "https://github.com/e6qu/mouse-jiggler/blob/main/LICENSE",
+      "last_contribution": null,
+      "contribution_url": null,
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "pingus",
+      "url": "https://github.com/e6qu/pingus",
+      "description": "",
+      "languages": [
+        "Java"
+      ],
+      "default_branch": "master",
+      "license": "Not specified",
+      "license_url": null,
+      "last_contribution": null,
+      "contribution_url": null,
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    },
+    {
+      "name": "tui-gpu",
+      "url": "https://github.com/e6qu/tui-gpu",
+      "description": "A GPU-accelerated terminal renderer.",
+      "languages": [
+        "Rust",
+        "WGSL"
+      ],
+      "default_branch": "main",
+      "license": "Custom",
+      "license_url": "https://github.com/e6qu/tui-gpu/blob/main/LICENSE",
+      "last_contribution": null,
+      "contribution_url": null,
+      "source_lines": null,
+      "test_lines": null,
+      "counted_commit": null
+    }
+  ]
+}

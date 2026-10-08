@@ -1,0 +1,52 @@
+{
+  "owner": "e6qu",
+  "author_emails": ["adi11235@gmail.com", "adi11235 at gmail.com", "adi11235 at gmail dot com"],
+  "repo_author_emails": {"pingus": ["adi@adi-PC", "adi@adi-PC.lan"]},
+  "license_labels": {
+    "regular-mario": "AGPL-3.0-or-later",
+    "tuia": "AGPL-3.0-or-later",
+    "slowpokeapi": "AGPL-3.0 OR MIT",
+    "tui-gpu": "AGPL-3.0"
+  },
+  "excluded": {
+    "e6qu.github.io": "The portfolio itself",
+    "rust-lean-aeneas": "Tutorials and research",
+    "language-research": "Language research",
+    "agentter": "Documentation and research",
+    "hairballs": "Framework exploration",
+    "test-throwaway-1771771184": "Throwaway repository"
+  },
+  "excluded_patterns": ["*throwaway*", "*research*"],
+  "descriptions": {
+    "fun-with-pipes": "A typed, pipe-oriented programming language.",
+    "bleephub": "A self-hosted, GitHub-compatible collaboration platform.",
+    "sockerless-cloud": "Local simulators for AWS, Google Cloud and Azure APIs.",
+    "fun-refactor": "Multi-language refactoring and code intelligence with tree-sitter.",
+    "theseus": "Deterministic testing for Linux services in microVMs.",
+    "pos3ql": "A PostgreSQL-compatible database on object storage.",
+    "zzira": "A Jira-compatible, local-first issue tracker.",
+    "emdysi": "An English parser, grammar checker and prose linter.",
+    "e6irc": "An IRCv3 server with bridges, a bouncer and CLI clients.",
+    "sclaude": "A sandbox wrapper for Claude Code and Codex.",
+    "someoldchat": "A Slack-compatible chat platform.",
+    "shauth": "An OpenID Connect identity service.",
+    "regular-mario": "A classic platformer with deterministic replays.",
+    "ecs-dev-desktop": "VS Code workspaces on AWS ECS Fargate.",
+    "intraktible": "An open-source decision platform.",
+    "sockerless": "A Docker-compatible API backed by cloud services.",
+    "sharecrop": "An AI work-sharing platform and marketplace.",
+    "bleeplab": "A GitLab-compatible CI control plane.",
+    "mermollusc": "A visual editor for Mermaid and architecture diagrams.",
+    "termiclaw": "A terminal agent built around Claude Code and tmux.",
+    "shimanism": "Portable interfaces to managed cloud services.",
+    "frankencode": "An OpenCode derivative with agent-driven context editing.",
+    "funveil": "Control file and line visibility in AI agent workspaces.",
+    "slowpokeapi": "An API for currency, crypto and precious-metal exchange rates.",
+    "blerp": "An identity service.",
+    "looker-bi-gym": "Browser-based business intelligence and SQL training.",
+    "mouse-jiggler": "A tiny, cross-platform mouse jiggler.",
+    "tui-gpu": "A GPU-accelerated terminal renderer.",
+    "tuia": "A terminal presentation tool in Zig.",
+    "bleepstore": "An S3-compatible object store in Python, Go, Rust and Zig."
+  }
+}

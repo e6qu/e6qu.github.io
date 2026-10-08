@@ -1,0 +1,233 @@
+"""Collect public repository metadata and line counts without running project code."""
+import argparse
+import fnmatch
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import tempfile
+import time
+from datetime import datetime, timezone
+from urllib.error import HTTPError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+ROOT = Path(__file__).resolve().parents[1]
+EXCLUDED_DIRS = {
+    '.git', 'node_modules', 'vendor', 'vendored', 'third_party', 'third-party',
+    'external', 'target', 'dist', 'build', 'coverage', '.venv', 'venv',
+    '__pycache__', 'generated', '_generated', '.next', '.cache',
+}
+NON_CODE = {
+    'Markdown', 'Text', 'JSON', 'YAML', 'TOML', 'XML', 'SVG', 'CSV',
+    'INI', 'reStructuredText',
+    'TeX', 'AsciiDoc', 'PO File', 'Properties', 'Unity-Prefab',
+}
+TEST_DIRS = {'test', 'tests', '__tests__', 'spec', 'specs', 'testing', 'e2e'}
+
+
+def eligible(repo, config):
+    name = repo['name']
+    return (not repo.get('private') and not repo.get('fork')
+            and repo.get('owner', {}).get('login', '').lower() == config['owner'].lower()
+            and name not in config['excluded']
+            and not any(fnmatch.fnmatch(name.lower(), p) for p in config['excluded_patterns']))
+
+
+def is_test(path):
+    p = Path(path)
+    if any(part.lower() in TEST_DIRS for part in p.parts[:-1]):
+        return True
+    return bool(re.search(
+        r'(^test[_.-]|[_.-]test\.|[_.-]tests\.|[_.-]spec\.|Tests?\.java$|Tests?\.cs$)',
+        p.name, re.IGNORECASE))
+
+
+def ignored(path):
+    p = Path(path)
+    return (any(part in EXCLUDED_DIRS for part in p.parts[:-1])
+            or p.name.endswith(('.min.js', '.min.css', '.map', '.pb.go', '.g.dart'))
+            or p.name in {'package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'})
+
+
+def rust_test_ranges(data):
+    """Find cfg(test) items and test functions using syntax, including async tests."""
+    from tree_sitter import Language, Parser
+    import tree_sitter_rust
+    parser = Parser(Language(tree_sitter_rust.language()))
+    tree = parser.parse(data)
+    # Tree-sitter recovers from invalid syntax in compiler fixtures; keep those
+    # files countable while recognizing intact test items around the error.
+    ranges = []
+
+    def visit(node):
+        attrs = []
+        for child in node.named_children:
+            if child.type == 'attribute_item':
+                attrs.append(child)
+                continue
+            if child.type in {'line_comment', 'block_comment'}:
+                continue
+            text = b' '.join(data[a.start_byte:a.end_byte] for a in attrs)
+            is_test_attr = (re.search(rb'cfg\s*\(\s*test\s*\)', text)
+                            or re.search(rb'#\[\s*(?:\w+::)*test\s*(?:\(|\])', text))
+            if is_test_attr and child.type.endswith('_item'):
+                ranges.append((attrs[0].start_byte, child.end_byte))
+            else:
+                visit(child)
+            attrs = []
+
+    visit(tree.root_node)
+    return ranges
+
+
+def split_rust(data):
+    ranges = rust_test_ranges(data)
+    source = bytearray(data)
+    tests = []
+    for start, end in ranges:
+        tests.append(data[start:end])
+        source[start:end] = bytes(10 if b == 10 else 32 for b in data[start:end])
+    return bytes(source), b'\n'.join(tests)
+
+
+def count_repo(repo, cloc):
+    with tempfile.TemporaryDirectory(prefix='portfolio-count-') as tmp:
+        tmp = Path(tmp)
+        checkout = tmp / 'repo'
+        env = dict(os.environ, GIT_TERMINAL_PROMPT='0', GIT_LFS_SKIP_SMUDGE='1')
+        subprocess.run([
+            'git', '-c', 'core.hooksPath=/dev/null', 'clone', '--quiet', '--depth=1',
+            '--single-branch', '--branch', repo['default_branch'],
+            f'https://github.com/{repo["full_name"]}.git', str(checkout),
+        ], check=True, timeout=180, env=env)
+        sha = subprocess.check_output(['git', '-C', str(checkout), 'rev-parse', 'HEAD'], text=True).strip()
+        files = subprocess.check_output(['git', '-C', str(checkout), 'ls-files', '-z']).decode().split('\0')
+        stage = tmp / 'count'
+        stage.mkdir()
+        for name in files:
+            if not name or ignored(name):
+                continue
+            path = checkout / name
+            if not path.is_file() or path.is_symlink():
+                continue
+            data = path.read_bytes()
+            # Language grammar snapshots and bundled third-party code are excluded.
+            if b'Code generated' in data[:2000] or b'@generated' in data[:2000]:
+                continue
+            bucket = 'tests' if is_test(name) else 'source'
+            pieces = [(bucket, data)]
+            if path.suffix == '.rs' and bucket == 'source':
+                src, inline = split_rust(data)
+                pieces = [('source', src), ('tests', inline)]
+            for category, content in pieces:
+                if not content.strip():
+                    continue
+                destination = stage / category / name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(content)
+        result = subprocess.run([
+            'perl', str(cloc), '--json', '--by-file', '--quiet', '--skip-uniqueness',
+            '--timeout=30', str(stage),
+        ], text=True, capture_output=True, check=True, timeout=180)
+        report = json.loads(result.stdout or '{}')
+        totals = {'source_lines': 0, 'test_lines': 0}
+        for name, counts in report.items():
+            if name in {'header', 'SUM'} or counts.get('language') in NON_CODE:
+                continue
+            relative = Path(name).relative_to(stage)
+            bucket = 'test_lines' if relative.parts[0] == 'tests' else 'source_lines'
+            totals[bucket] += counts['code']
+        return {**totals, 'counted_commit': sha}
+
+
+def api(path, token):
+    request = Request('https://api.github.com/' + path, headers={
+        'Accept': 'application/vnd.github+json',
+        'Authorization': 'Bearer ' + token,
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'e6qu-portfolio',
+    })
+    for attempt in range(3):
+        try:
+            with urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except HTTPError as error:
+            if error.code < 500 or attempt == 2:
+                raise
+            time.sleep(2 ** attempt)
+
+
+def collect(token, cloc=None):
+    config = json.loads((ROOT / 'portfolio.json').read_text())
+    owner = config['owner']
+    repos = []
+    page = 1
+    while True:
+        batch = api(f'users/{owner}/repos?per_page=100&page={page}', token)
+        repos.extend(r for r in batch if eligible(r, config))
+        if len(batch) < 100:
+            break
+        page += 1
+    projects = []
+    for repo in repos:
+        name = repo['name']
+        print(f'Collecting {name}', flush=True)
+        commits = []
+        metrics = {'source_lines': None, 'test_lines': None, 'counted_commit': None}
+        if repo['size']:
+            commits = api(f'repos/{owner}/{name}/commits?' + urlencode({
+                'author': owner, 'sha': repo['default_branch'], 'per_page': 1,
+            }), token)
+            # Some public commits use Adrian's obfuscated, unlinked Git email.
+            recent = api(f'repos/{owner}/{name}/commits?' + urlencode({
+                'sha': repo['default_branch'], 'per_page': 100,
+            }), token)
+            emails = set(config['author_emails'] + config['repo_author_emails'].get(name, []))
+            matches = [c for c in recent if c['commit']['author']['email'] in emails
+                       or (c.get('author') or {}).get('login', '').lower() == owner.lower()]
+            commits = sorted(commits + matches, key=lambda c: c['commit']['author']['date'], reverse=True)
+            if cloc:
+                metrics = count_repo(repo, cloc)
+        elif cloc:
+            metrics.update(source_lines=0, test_lines=0)
+        languages = api(f'repos/{owner}/{name}/languages', token)
+        total = sum(languages.values())
+        main_languages = [lang for lang, size in sorted(languages.items(), key=lambda x: -x[1])
+                          if total and size / total >= .05][:3]
+        license_name, license_url = 'Not specified', None
+        if repo.get('license'):
+            license_info = api(f'repos/{owner}/{name}/license', token)
+            license_url = license_info.get('html_url')
+            license_name = repo['license'].get('spdx_id') or 'Custom'
+            if license_name == 'NOASSERTION':
+                license_name = 'Custom'
+                import base64
+                text = base64.b64decode(license_info.get('content', '')).decode(errors='replace')
+                spdx = re.search(r'SPDX-License-Identifier:\s*([^\n]+)', text)
+                if spdx:
+                    license_name = spdx.group(1).strip()
+            license_name = config['license_labels'].get(name, license_name)
+        description = config['descriptions'].get(name, repo['description'] or '')
+        description = re.sub(r'\[([^]]+)\]\([^)]+\)', r'\1', description)
+        projects.append({
+            'name': name, 'url': repo['html_url'], 'description': description,
+            'languages': main_languages, 'default_branch': repo['default_branch'],
+            'license': license_name, 'license_url': license_url,
+            'last_contribution': commits[0]['commit']['author']['date'] if commits else None,
+            'contribution_url': commits[0]['html_url'] if commits else None,
+            **metrics,
+        })
+    projects.sort(key=lambda p: p['last_contribution'] or '', reverse=True)
+    return {'updated_at': datetime.now(timezone.utc).isoformat(), 'projects': projects}
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cloc', type=Path)
+    parser.add_argument('--output', type=Path, default=ROOT / 'data.json')
+    args = parser.parse_args()
+    token = os.environ.get('GH_TOKEN') or subprocess.check_output(['gh', 'auth', 'token'], text=True).strip()
+    data = collect(token, args.cloc)
+    args.output.write_text(json.dumps(data, indent=2) + '\n')
