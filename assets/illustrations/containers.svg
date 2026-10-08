@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+  <g fill="var(--art-paper)" stroke="currentColor" stroke-width="2"><rect x="38" y="82" width="190" height="182" rx="8"/><rect x="296" y="108" width="131" height="131" rx="8"/></g>
+  <path d="M38 118h190M228 174h68M427 174h65M492 174V80h91M492 174h91M492 174v94h91" stroke="currentColor" stroke-width="2"/>
+  <g fill="currentColor"><circle cx="54" cy="101" r="3"/><circle cx="67" cy="101" r="3"/><circle cx="80" cy="101" r="3"/></g>
+  <g stroke="currentColor" stroke-width="1.5" opacity=".5"><path d="M67 195h106M67 214h89M67 233h120"/></g>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="15"><text x="59" y="157">$ docker run</text><text x="319" y="168">Docker</text><text x="340" y="193">API</text></g>
+  <g fill="var(--art-accent)"><circle cx="492" cy="174" r="8"/><circle cx="583" cy="80" r="7"/><circle cx="583" cy="174" r="7"/><circle cx="583" cy="268" r="7"/></g>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="11"><text x="510" y="60">ECS</text><text x="510" y="153">Cloud Run</text><text x="510" y="301">Azure</text></g>
+</svg>

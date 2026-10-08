@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+  <path d="M60 202H580M160 202C215 202 204 88 255 88H390C447 88 423 202 480 202M255 202C305 202 293 289 345 289H530" stroke="currentColor" stroke-width="3"/>
+  <g stroke="currentColor" stroke-width="2" fill="var(--art-paper)"><circle cx="80" cy="202" r="13"/><circle cx="160" cy="202" r="13"/><circle cx="255" cy="88" r="13"/><circle cx="390" cy="88" r="13"/><circle cx="255" cy="202" r="13"/><circle cx="480" cy="202" r="13"/><circle cx="345" cy="289" r="13"/><circle cx="530" cy="289" r="13"/><circle cx="570" cy="202" r="13"/></g>
+  <circle cx="390" cy="88" r="7" fill="var(--art-accent)"/><circle cx="480" cy="202" r="7" fill="var(--art-accent)"/>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="14"><text x="45" y="160">code</text><text x="266" y="49">pull requests</text><text x="365" y="332">issues</text></g>
+</svg>

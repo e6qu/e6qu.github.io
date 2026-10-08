@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+  <path d="M124 156H284M348 156H505M505 156V235H362" stroke="currentColor" stroke-width="2" stroke-dasharray="5 7"/>
+  <g fill="var(--art-paper)" stroke="currentColor" stroke-width="2"><rect x="36" y="120" width="135" height="76" rx="8"/><rect x="247" y="115" width="128" height="86" rx="8"/></g>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="15"><text x="61" y="163">SELECT *</text><text x="274" y="163">pos3ql</text><text x="50" y="231" font-size="12" opacity=".65">PostgreSQL wire</text><text x="282" y="240" font-size="12" opacity=".65">Rust</text></g>
+  <g stroke="currentColor" stroke-width="2" fill="var(--art-paper)"><path d="M477 111v91c0 26 116 26 116 0v-91"/><ellipse cx="535" cy="111" rx="58" ry="20"/><path d="M477 153c0 26 116 26 116 0M477 185c0 26 116 26 116 0"/></g>
+  <circle cx="438" cy="156" r="8" fill="var(--art-accent)"/>
+  <text x="478" y="272" fill="currentColor" font-family="PlexMono,monospace" font-size="14">object storage</text>
+  <g stroke="currentColor" opacity=".15"><path d="M34 52h570M34 316h570M34 45v14M604 45v14M34 309v14M604 309v14"/></g>
+</svg>

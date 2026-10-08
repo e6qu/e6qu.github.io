@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+  <path d="M163 174H290M346 174H454M454 174V79H527M454 174H527M454 174V269H527" stroke="currentColor" stroke-width="2" stroke-dasharray="5 7"/>
+  <g fill="var(--art-paper)" stroke="currentColor" stroke-width="2"><rect x="33" y="130" width="154" height="86" rx="8"/><circle cx="318" cy="174" r="44"/><rect x="506" y="54" width="108" height="51" rx="8"/><rect x="506" y="149" width="108" height="51" rx="8"/><rect x="506" y="244" width="108" height="51" rx="8"/></g>
+  <g fill="currentColor" font-family="PlexMono,monospace" text-anchor="middle" font-size="16"><text x="110" y="166">SDK / CLI</text><text x="110" y="190">Terraform</text><text x="318" y="179">local</text><text x="560" y="86">AWS</text><text x="560" y="181">GCP</text><text x="560" y="276">Azure</text></g>
+  <circle cx="431" cy="174" r="8" fill="var(--art-accent)"/>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="12" opacity=".7"><text x="260" y="247">same API surface</text><text x="53" y="263">no cloud account</text></g>
+</svg>

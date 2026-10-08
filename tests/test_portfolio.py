@@ -2,13 +2,27 @@ import json
 from pathlib import Path
 import sys
 import unittest
+import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from collect import eligible, ignored, is_test, split_rust
-from build import row
+from build import row, build
 
 
 class PortfolioTests(unittest.TestCase):
+    def test_showcase_keeps_the_complete_project_list(self):
+        snapshot = json.loads((Path(__file__).resolve().parents[1] / 'data.json').read_text())
+        config = json.loads((Path(__file__).resolve().parents[1] / 'portfolio.json').read_text())
+        with tempfile.TemporaryDirectory() as temp:
+            build(snapshot, Path(temp))
+            page = (Path(temp) / 'index.html').read_text()
+        self.assertEqual(page.count('class="project"'), len(snapshot['projects']))
+        self.assertEqual(page.count('class="showcase-tab"'), len(config['featured']))
+        self.assertNotIn('{{', page)
+        for name in config['featured']:
+            self.assertIn(f'id="featured-{name}"', page)
+            self.assertIn(f'id="tab-{name}"', page)
+
     def test_repository_selection(self):
         config = json.loads((Path(__file__).resolve().parents[1] / 'portfolio.json').read_text())
         base = {'name': 'actual-software', 'owner': {'login': 'e6qu'}, 'fork': False, 'private': False}

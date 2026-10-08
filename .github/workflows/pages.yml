@@ -31,7 +31,10 @@ jobs:
           curl --fail --location --retry 3 https://github.com/AlDanial/cloc/releases/download/v2.10/cloc-2.10.pl --output /tmp/cloc.pl
           echo 'bf59272455172108072a0a106379f7509fd4349bdcfd85203bac038ccd286d83  /tmp/cloc.pl' | sha256sum --check
       - name: Test collection and rendering
-        run: python -m unittest discover -s tests -v
+        run: |
+          python -m unittest discover -s tests -v
+          node --check assets/site.js
+          node --check assets/termites.js
       - name: Refresh public projects and measure source and tests
         env:
           GH_TOKEN: ${{ github.token }}

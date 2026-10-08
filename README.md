@@ -26,3 +26,8 @@ python3 -m http.server 8000 --directory _site
 Edit exclusions and short descriptions in `portfolio.json`, layout in
 `template.html`, and styles in `assets/style.css`. Fonts are self-hosted;
 their licenses are in `assets/fonts/`.
+
+The `featured` list in `portfolio.json` controls the showcase. Theme selection
+follows the system until changed with the sun/moon button, then persists locally.
+Idle termites start after ten seconds and clear on pointer, keyboard or scroll
+activity. They pause in background tabs and respect reduced motion.

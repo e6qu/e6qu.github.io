@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#e9eff4">
+  <meta name="theme-color" content="#f5f7fc">
   <title>Adrian.Marza — GitHub projects</title>
   <meta name="description" content="Adrian Marza's public software projects: languages, source and test lines, and latest contributions.">
   <link rel="canonical" href="https://e6qu.github.io/">
@@ -14,32 +14,51 @@
   <meta property="og:image" content="https://e6qu.github.io/assets/social.png">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/archivo.ttf" as="font" type="font/ttf" crossorigin>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let saved;
+      try { saved = localStorage.getItem('theme'); } catch {}
+      document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+        ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    })();
+  </script>
   <link rel="stylesheet" href="assets/style.css">
   <script src="assets/site.js" defer></script>
+  <script src="assets/termites.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#projects">Skip to projects</a>
-  <div class="layout">
-    <header class="identity">
+  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" hidden><span aria-hidden="true">☾</span></button>
+  <div class="page-shell">
+    <header class="masthead">
       <a class="github-handle" href="https://github.com/e6qu"><span class="handle-mark" aria-hidden="true">/</span> e6qu <span aria-hidden="true">↗</span></a>
-      <div class="name-block">
-        <h1>Adrian<span class="name-dot">.</span><wbr>Marza</h1>
-      </div>
-      <div class="contact"><a href="mailto:adi11235@gmail.com">adi11235 at gmail dot com</a></div>
-      <div class="identity-bottom"><a href="#projects">Projects <span aria-hidden="true">↓</span></a><span class="small-dot" aria-hidden="true"></span></div>
+      <nav aria-label="Main"><a href="#featured">Featured</a><a href="#projects">All projects</a></nav>
     </header>
-    <main id="projects" tabindex="-1">
-      <div class="index-heading"><h2>GitHub projects<span class="heading-dot">.</span></h2><span class="project-count" id="project-count">{{COUNT}} projects</span></div>
-      <div class="tools" id="tools" hidden>
-        <label class="search-wrap"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 5 5"/></svg><span class="sr-only">Find a project or language</span><input id="search" type="search" placeholder="Find a project or language" autocomplete="off"></label>
-        <label class="sort-wrap"><span class="sr-only">Sort projects</span><select id="sort"><option value="date">Latest contribution</option><option value="name">Name</option><option value="code">SLOC</option><option value="tests">Test SLOC</option></select></label>
-      </div>
-      <div class="column-labels" aria-hidden="true"><span>Project</span><div><span>SLOC</span><span>Test SLOC</span><span>Last contribution</span></div></div>
-      <ul class="project-list" id="project-list">{{PROJECTS}}</ul>
-      <p class="empty" id="empty" hidden>No projects match. <button id="clear-search" type="button">Clear search</button></p>
-      <span id="filter-status" class="sr-only" role="status" aria-live="polite"></span>
-      <footer><span>Updated {{UPDATED}}</span><a href="https://github.com/e6qu/e6qu.github.io">Source ↗</a></footer>
+    <main>
+      <section class="identity" aria-labelledby="name">
+        <h1 id="name">Adrian<span class="name-dot">.</span><wbr>Marza</h1>
+        <div class="contact"><a href="mailto:adi11235@gmail.com">adi11235 at gmail dot com</a></div>
+      </section>
+      <section class="showcase" id="featured" aria-labelledby="featured-heading">
+        <div class="section-heading"><h2 id="featured-heading">Featured</h2><span class="section-mark" aria-hidden="true">✳</span></div>
+        <div class="showcase-panels">{{FEATURED}}</div>
+        <div class="showcase-tabs" id="showcase-tabs" hidden>{{FEATURED_TABS}}</div>
+      </section>
+      <section class="project-index" id="projects" tabindex="-1" aria-labelledby="projects-heading">
+        <div class="section-heading"><h2 id="projects-heading">All projects</h2><span class="project-count" id="project-count">{{COUNT}} projects</span></div>
+        <div class="tools" id="tools" hidden>
+          <label class="search-wrap"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 5 5"/></svg><span class="sr-only">Find a project or language</span><input id="search" type="search" placeholder="Find a project or language" autocomplete="off"></label>
+          <label class="sort-wrap"><span class="sr-only">Sort projects</span><select id="sort"><option value="date">Latest contribution</option><option value="name">Name</option><option value="code">SLOC</option><option value="tests">Test SLOC</option></select></label>
+        </div>
+        <div class="column-labels" aria-hidden="true"><span>Project</span><div><span>SLOC</span><span>Test SLOC</span><span>Last contribution</span></div></div>
+        <ul class="project-list" id="project-list">{{PROJECTS}}</ul>
+        <p class="empty" id="empty" hidden>No projects match. <button id="clear-search" type="button">Clear search</button></p>
+        <span id="filter-status" class="sr-only" role="status" aria-live="polite"></span>
+      </section>
     </main>
+    <footer><span>Updated {{UPDATED}}</span><a href="https://github.com/e6qu/e6qu.github.io">Source ↗</a></footer>
   </div>
+  <canvas id="termites" aria-hidden="true"></canvas>
 </body>
 </html>

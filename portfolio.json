@@ -1,5 +1,6 @@
 {
   "owner": "e6qu",
+  "featured": ["fun-with-pipes", "theseus", "pos3ql", "bleephub", "sockerless-cloud", "sockerless"],
   "author_emails": ["adi11235@gmail.com", "adi11235 at gmail.com", "adi11235 at gmail dot com"],
   "repo_author_emails": {"pingus": ["adi@adi-PC", "adi@adi-PC.lan"]},
   "license_labels": {

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+  <path d="M36 184H200C245 184 228 76 286 76H600M200 184C245 184 228 292 286 292H600M200 184H600" stroke="currentColor" stroke-width="2" opacity=".4"/>
+  <path d="M36 184H200C245 184 228 76 286 76H542" stroke="currentColor" stroke-width="5"/>
+  <g fill="var(--art-paper)" stroke="currentColor" stroke-width="2"><circle cx="80" cy="184" r="21"/><circle cx="200" cy="184" r="10"/><circle cx="344" cy="76" r="14"/><circle cx="452" cy="76" r="14"/><circle cx="344" cy="184" r="10"/><circle cx="452" cy="184" r="10"/><circle cx="344" cy="292" r="10"/><circle cx="452" cy="292" r="10"/></g>
+  <circle cx="80" cy="184" r="8" fill="currentColor"/><circle cx="542" cy="76" r="22" fill="var(--art-accent)"/>
+  <path d="m532 76 7 7 13-15" stroke="var(--art-paper)" stroke-width="3"/>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="14"><text x="55" y="232">seed</text><text x="290" y="40">same inputs. same timeline.</text><text x="514" y="126">replay</text></g>
+  <g stroke="currentColor" opacity=".15"><path d="M36 335h564M36 325v20M176 325v20M316 325v20M456 325v20M596 325v20"/></g>
+</svg>
