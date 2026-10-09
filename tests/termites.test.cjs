@@ -28,7 +28,7 @@ function simulation() {
   const ending = '  reset();\n})();';
   assert.ok(source.endsWith(ending + '\n'));
   vm.runInContext(source.replace(ending, `
-    globalThis.inspect = () => ({active, termites, ants});
+    globalThis.inspect = () => ({active, termites, ants, grass, butterflies});
     globalThis.paint = tick;
     reset();
   })();`), context);
@@ -49,6 +49,7 @@ test('waits ten seconds, clears both species and damage, restarts idle timer', (
   s.listeners.pointermove();
   assert.equal(s.state().active, false);
   assert.equal(s.state().termites.length + s.state().ants.length, 0);
+  assert.equal(s.state().grass.length + s.state().butterflies.length, 0);
   assert.equal(s.clears(), 1);
   assert.equal([...s.timers.values()][0].delay, 10000);
 });
@@ -191,4 +192,42 @@ test('turning in place still takes steps to reposition the supporting tripods', 
   }
   assert.equal(ant.x,start.x); assert.equal(ant.y,start.y);
   assert.ok(ant.gait>start.gait && swing);
+});
+
+test('grass sprouts slowly across the viewport and stops at a bounded population', () => {
+  const s=simulation();s.start();
+  const first=s.state().grass[0];
+  assert.equal(first.growth,0);
+  s.tick(200);assert.ok(first.growth>0 && first.growth<.01);
+  s.random(() => 0);
+  for(let now=1200;now<=101200;now+=1000)s.tick(now);
+  assert.equal(s.state().grass.length,96);
+  assert.ok(s.state().grass.some(g => g.y<100));
+  assert.ok(s.state().grass.some(g => g.y>500));
+  for(const g of s.state().grass)assert.ok(g.growth>=0 && g.growth<=1);
+  assert.equal(s.state().butterflies.length,6);
+  s.listeners.pointermove();
+  assert.equal(s.state().grass.length+s.state().butterflies.length,0);
+});
+
+test('butterflies follow changing curved flight paths without eating the page', () => {
+  const s=simulation();s.start();
+  s.state().termites.length=0;
+  const b=s.state().butterflies[0];b.x=400;b.y=300;b.angle=0;b.untilTurn=0;
+  const values=[.1,.1,.1];
+  s.random(() => values.length ? values.shift() : .9);
+  const fills=s.fills();
+  const positions=[];
+  for(let now=200;now<=1500;now+=100) {
+    const before={x:b.x,y:b.y,angle:b.angle};s.tick(now);
+    assert.ok(Math.hypot(b.x-before.x,b.y-before.y)<=2.40001);
+    assert.ok(Math.abs(b.angle-before.angle)<=.080001);
+    assert.ok(b.x>=-24 && b.x<=824 && b.y>=-24 && b.y<=624);
+    positions.push([b.x,b.y]);
+  }
+  const target={x:b.targetX,y:b.targetY};
+  s.random(() => .9);b.untilTurn=0;s.tick(1600);
+  assert.ok(b.targetX!==target.x && b.targetY!==target.y);
+  assert.ok(positions.at(-1)[0]!==positions[0][0] && positions.at(-1)[1]!==positions[0][1]);
+  assert.equal(s.fills(),fills);
 });

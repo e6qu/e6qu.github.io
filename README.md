@@ -31,5 +31,7 @@ The `featured` list in `portfolio.json` controls the showcase. Theme selection
 follows the system until changed with the sun/moon button, then persists locally.
 Idle insects start after ten seconds and take slow random walks. Each second,
 independent coin flips can add a termite and an ant, up to ten of each. Only
-termites eat the page; ants enter from screen edges. All insects and bites clear
-on pointer, keyboard or scroll activity. They pause in background tabs and respect reduced motion.
+termites eat the page; ants enter from screen edges. Grass gradually sprouts
+across the page, and butterflies follow wandering flight paths. The idle scene
+clears on pointer, keyboard or scroll activity, pauses in background tabs, and
+respects reduced motion.
