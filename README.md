@@ -29,5 +29,7 @@ their licenses are in `assets/fonts/`.
 
 The `featured` list in `portfolio.json` controls the showcase. Theme selection
 follows the system until changed with the sun/moon button, then persists locally.
-Idle termites start after two seconds and clear on pointer, keyboard or scroll
+Idle insects start after ten seconds and take slow random walks. Each second,
+independent coin flips can add a termite and an ant, up to ten of each. Only
+termites eat the page. All insects and bites clear on pointer, keyboard or scroll
 activity. They pause in background tabs and respect reduced motion.
