@@ -176,3 +176,19 @@ test('ant turns preserve planted feet and avoid instant heading reversals', () =
   }
   assert.ok(ant.angle>.5);
 });
+
+test('turning in place still takes steps to reposition the supporting tripods', () => {
+  const s=simulation(); s.start();
+  const values=[1,0,0,.5];
+  s.random(() => values.length ? values.shift() : .5); s.tick(1100);
+  const ant=s.state().ants[0],shift=400-ant.x;
+  ant.x+=shift; for(const foot of ant.legs)foot.x+=shift;
+  ant.speed=0;ant.turnTarget=.75;ant.untilTurn=10;
+  const start={x:ant.x,y:ant.y,gait:ant.gait};
+  let swing=false;
+  for(let now=1200;now<=3100;now+=100) {
+    s.tick(now); swing ||= ant.legs.some(foot => !foot.stance);
+  }
+  assert.equal(ant.x,start.x); assert.equal(ant.y,start.y);
+  assert.ok(ant.gait>start.gait && swing);
+});

@@ -70,11 +70,12 @@
     const error=Math.atan2(Math.sin(heading-t.angle),Math.cos(heading-t.angle));
     const target=t.turnTarget*(1-weight)+error*2*weight;
     t.turn+=(target-t.turn)*(1-Math.exp(-elapsed*4));
-    t.angle+=t.turn*elapsed;
+    const rotation=t.turn*elapsed;
+    t.angle+=rotation;
     const oldX=t.x,oldY=t.y;
     t.x=Math.max(0,Math.min(width,t.x+Math.cos(t.angle)*elapsed*t.speed));
     t.y=Math.max(0,Math.min(height,t.y+Math.sin(t.angle)*elapsed*t.speed));
-    t.gait+=Math.hypot(t.x-oldX,t.y-oldY)/ANT_STRIDE;
+    t.gait+=(Math.hypot(t.x-oldX,t.y-oldY)+Math.abs(rotation)*7)/ANT_STRIDE;
     for(let i=0;i<ANT_LEGS.length;i++) {
       const leg=ANT_LEGS[i],foot=t.legs[i],phase=(t.gait+leg.offset)%1;
       const stance=phase<ANT_STANCE;
