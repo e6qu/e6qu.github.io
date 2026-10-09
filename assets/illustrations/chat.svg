@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+  <g stroke="currentColor" stroke-width="2"><rect x="38" y="45" width="564" height="270" rx="9"/><path d="M203 45V315M203 91H602" opacity=".6"/></g>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="14"><text x="60" y="79">channels</text><text x="225" y="75"># build-together</text></g>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="13" opacity=".7"><text x="60" y="130"># general</text><text x="60" y="169"># projects</text><text x="60" y="208"># shipping</text></g>
+  <path d="M40 104H187V145H40Z" fill="currentColor" opacity=".1"/>
+  <g fill="var(--art-accent)"><rect x="226" y="112" width="22" height="22" rx="5"/><rect x="226" y="172" width="22" height="22" rx="5"/><circle cx="566" cy="276" r="8"/></g>
+  <g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M264 117H329M264 133H498M264 149H415M264 177H316M264 194H475" opacity=".7"/><path d="M265 210V232H283" opacity=".4"/><path d="M296 229H431" stroke="var(--art-accent)"/><rect x="226" y="256" width="357" height="39" rx="5" opacity=".4"/></g>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="11" opacity=".75"><text x="241" y="280">write a message…</text><text x="466" y="229">thread ↗</text></g>
+</svg>

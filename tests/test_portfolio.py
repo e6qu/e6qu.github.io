@@ -5,8 +5,8 @@ import unittest
 import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from collect import eligible, ignored, is_test, split_rust
-from build import row, build
+from collect import eligible, ignored, is_test, split_rust, detect_frameworks
+from build import row, build, featured
 
 
 class PortfolioTests(unittest.TestCase):
@@ -16,12 +16,51 @@ class PortfolioTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             build(snapshot, Path(temp))
             page = (Path(temp) / 'index.html').read_text()
+            published = json.loads((Path(temp) / 'data.json').read_text())
         self.assertEqual(page.count('class="project"'), len(snapshot['projects']))
         self.assertEqual(page.count('class="showcase-tab"'), len(config['featured']))
         self.assertNotIn('{{', page)
         for name in config['featured']:
             self.assertIn(f'id="featured-{name}"', page)
             self.assertIn(f'id="tab-{name}"', page)
+        for name, url in config['demo_urls'].items():
+            self.assertIn(f'href="{url}" aria-label="Try {name} demo"', page)
+        for project in published['projects']:
+            if project['name'] in {'zzira', 'someoldchat', 'shauth'}:
+                self.assertIn('HTMX', project['frameworks'])
+                self.assertNotIn('HTMX', project['languages'])
+
+    def test_htmx_detection_uses_app_code_and_production_dependencies(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / 'page.gohtml').write_text('<form hx-post="/message">')
+            (root / 'README.md').write_text('Uses htmx.org')
+            (root / 'page_test.go').write_text('<button hx-get="/fixture">')
+            (root / 'package.json').write_text('{"dependencies":{"htmx.org":"2.0.0"}}')
+            self.assertEqual(detect_frameworks(root, ['README.md', 'page_test.go']), [])
+            self.assertEqual(detect_frameworks(root, ['page.gohtml']), ['HTMX'])
+            self.assertEqual(detect_frameworks(root, ['package.json']), ['HTMX'])
+            self.assertEqual(detect_frameworks(root, ['page.gohtml'], ['*.gohtml']), [])
+            (root / 'page.gohtml').write_text('<script src="/static/htmx.min.js"></script>')
+            self.assertEqual(detect_frameworks(root, ['page.gohtml']), ['HTMX'])
+            (root / 'package.json').write_text('invalid')
+            self.assertEqual(detect_frameworks(root, ['package.json']), [])
+
+    def test_demo_links_are_optional_escaped_and_available_in_both_views(self):
+        project = {
+            'name': 'zzira', 'description': 'Issue tracking',
+            'url': 'https://github.com/e6qu/zzira', 'languages': ['Go'],
+            'frameworks': ['HTMX'], 'last_contribution': None, 'default_branch': 'main',
+            'source_lines': 1, 'test_lines': 1,
+        }
+        self.assertNotIn('class="demo-link"', row(project))
+        self.assertNotIn('class="demo-link"', featured(project))
+        project['demo_url'] = 'https://example.test/?a=1&b="value"'
+        for html in [row(project), featured(project)]:
+            self.assertIn('Try demo', html)
+            self.assertIn('HTMX', html)
+            self.assertIn('&amp;b=&quot;value&quot;', html)
+        self.assertIn('htmx', row(project).split('data-search="')[1].split('"')[0])
 
     def test_repository_selection(self):
         config = json.loads((Path(__file__).resolve().parents[1] / 'portfolio.json').read_text())

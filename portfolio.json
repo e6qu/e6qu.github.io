@@ -1,6 +1,16 @@
 {
   "owner": "e6qu",
-  "featured": ["fun-with-pipes", "theseus", "pos3ql", "bleephub", "sockerless-cloud", "sockerless"],
+  "featured": ["fun-with-pipes", "theseus", "pos3ql", "bleephub", "sockerless-cloud", "sockerless", "zzira", "someoldchat", "sclaude"],
+  "frameworks": {"zzira": ["HTMX"], "someoldchat": ["HTMX"], "shauth": ["HTMX"]},
+  "demo_urls": {
+    "ecs-dev-desktop": "https://e6qu.github.io/ecs-dev-desktop/demo/",
+    "fun-refactor": "https://e6qu.github.io/fun-refactor/playground/",
+    "intraktible": "https://e6qu.github.io/intraktible/demo/",
+    "looker-bi-gym": "https://e6qu.github.io/looker-bi-gym/",
+    "mermollusc": "https://e6qu.github.io/mermollusc/demo/",
+    "regular-mario": "https://e6qu.github.io/regular-mario/",
+    "sharecrop": "https://e6qu.github.io/sharecrop/demo/"
+  },
   "author_emails": ["adi11235@gmail.com", "adi11235 at gmail.com", "adi11235 at gmail dot com"],
   "repo_author_emails": {"pingus": ["adi@adi-PC", "adi@adi-PC.lan"]},
   "license_labels": {

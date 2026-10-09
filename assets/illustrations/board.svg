@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+  <g stroke="currentColor" stroke-width="2" opacity=".4"><path d="M38 86H602M220 68V315M414 68V315"/></g>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="14"><text x="44" y="62">backlog</text><text x="242" y="62">in progress</text><text x="438" y="62">done</text></g>
+  <g fill="var(--art-paper)" stroke="currentColor" stroke-width="2"><rect x="42" y="108" width="156" height="74" rx="7"/><rect x="42" y="201" width="156" height="74" rx="7"/><rect x="242" y="139" width="150" height="74" rx="7"/><rect x="438" y="108" width="156" height="74" rx="7"/></g>
+  <path d="M62 129H154M62 146H128M62 222H145M62 239H119M262 160H350M262 177H326M458 129H550M458 146H521" stroke="currentColor" stroke-width="2" opacity=".7"/>
+  <path d="M199 170H227M218 163L227 170L218 177M393 170H423M414 163L423 170L414 177" stroke="var(--art-accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="var(--art-accent)"><circle cx="178" cy="165" r="5"/><circle cx="372" cy="196" r="5"/><circle cx="574" cy="165" r="5"/></g>
+  <g fill="currentColor" font-family="PlexMono,monospace" font-size="12" opacity=".75"><text x="43" y="323">work items</text><text x="241" y="323">workflow</text><text x="438" y="323">local sync</text></g>
+</svg>

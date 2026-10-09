@@ -29,6 +29,9 @@ their licenses are in `assets/fonts/`.
 
 The `featured` list in `portfolio.json` controls the showcase. Theme selection
 follows the system until changed with the sun/moon button, then persists locally.
+Verified Pages demo entry points are configured in `demo_urls`. HTMX is listed
+beside languages when found in app templates/imports or production dependencies;
+known uses in `frameworks` also keep metadata-only previews complete.
 Idle insects start after ten seconds and take slow random walks. Each second,
 coin flips can add termites up to ten, and butterflies up to six. Only termites
 eat the page. Their jointed legs keep planted feet fixed, time steps independently,

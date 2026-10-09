@@ -51,6 +51,29 @@ def ignored(path):
             or p.name in {'package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'})
 
 
+def detect_frameworks(root, files, excluded_paths=()):
+    htmx = re.compile(rb'''(?:\bhx-(?:get|post|put|patch|delete|boost|trigger|swap|target)\s*=\s*\\?["']|\bhtmx(?:\.org|(?:\.min)?\.js)\b)''', re.IGNORECASE)
+    source_types = {'.html', '.gohtml', '.tmpl', '.go', '.js', '.jsx', '.ts', '.tsx', '.py', '.rs'}
+    for name in files:
+        path = root / name
+        if (not name or ignored(name) or is_test(name) or 'fixtures' in path.parts
+                or any(fnmatch.fnmatch(name, pattern) for pattern in excluded_paths)
+                or not path.is_file() or path.is_symlink()):
+            continue
+        if path.name == 'package.json':
+            try:
+                package = json.loads(path.read_text())
+            except (ValueError, UnicodeDecodeError):
+                continue
+            if 'htmx.org' in package.get('dependencies', {}):
+                return ['HTMX']
+        elif path.suffix in source_types:
+            with path.open('rb') as source:
+                if htmx.search(source.read(1024 * 1024)):
+                    return ['HTMX']
+    return []
+
+
 def rust_test_ranges(data):
     """Find cfg(test) items and test functions using syntax, including async tests."""
     from tree_sitter import Language, Parser
@@ -140,7 +163,8 @@ def count_repo(repo, cloc, excluded_paths=()):
             relative = Path(name).relative_to(stage)
             bucket = 'test_lines' if relative.parts[0] == 'tests' else 'source_lines'
             totals[bucket] += counts['code']
-        return {**totals, 'counted_commit': sha}
+        return {**totals, 'counted_commit': sha,
+                'frameworks': detect_frameworks(checkout, files, excluded_paths)}
 
 
 def api(path, token):
