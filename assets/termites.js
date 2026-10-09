@@ -21,9 +21,9 @@
       layer.getContext('2d').setTransform(ratio,0,0,ratio,0,0);
     }
   }
-  function insect(x, y, angle) {
+  function insect(x, y, angle, margin=10) {
     return {x,y,angle,phase:Math.random()*Math.PI*2,speed:1.4+Math.random(),
-      turn:0,untilTurn:0,nibble:0};
+      turn:0,untilTurn:0,nibble:0,margin};
   }
   function addTermite() {
     const edge = Math.floor(Math.random()*4);
@@ -37,7 +37,13 @@
       horizontal ? y : (edge===2 ? 0 : height),23,t.phase);
   }
   function addAnt() {
-    ants.push(insect(15+Math.random()*(width-30),15+Math.random()*(height-30),Math.random()*Math.PI*2));
+    const edge=Math.floor(Math.random()*4);
+    const position=Math.random();
+    const x=edge<2 ? (edge===0 ? 0 : width) : 20+position*(width-40);
+    const y=edge<2 ? 20+position*(height-40) : (edge===2 ? 0 : height);
+    const ant=insect(x,y,[0,Math.PI,Math.PI/2,-Math.PI/2][edge],0);
+    ant.untilTurn=3;
+    ants.push(ant);
   }
   function wander(t, elapsed) {
     t.untilTurn -= elapsed;
@@ -48,13 +54,13 @@
     t.angle += t.turn*elapsed;
     t.x += Math.cos(t.angle)*elapsed*t.speed;
     t.y += Math.sin(t.angle)*elapsed*t.speed;
-    if(t.x<10 || t.x>width-10) {
-      t.x=Math.max(10,Math.min(width-10,t.x));
+    if(t.x<t.margin || t.x>width-t.margin) {
+      t.x=Math.max(t.margin,Math.min(width-t.margin,t.x));
       t.angle=Math.PI-t.angle;
       t.turn=-t.turn;
     }
-    if(t.y<10 || t.y>height-10) {
-      t.y=Math.max(10,Math.min(height-10,t.y));
+    if(t.y<t.margin || t.y>height-t.margin) {
+      t.y=Math.max(t.margin,Math.min(height-t.margin,t.y));
       t.angle=-t.angle;
       t.turn=-t.turn;
     }
@@ -106,21 +112,49 @@
   }
   function drawAnt(t,now) {
     ctx.save();ctx.translate(t.x,t.y);ctx.rotate(t.angle);
-    ctx.strokeStyle='#bd795b';ctx.lineWidth=1;
-    const walk=Math.sin(now*.005+t.phase)*1.8;
-    for(let i=0;i<3;i++) {
-      const x=-2+i*2;
-      ctx.beginPath();
-      ctx.moveTo(x,-1);ctx.lineTo(x-3+walk,-5);ctx.lineTo(x+walk,-8);
-      ctx.moveTo(x,1);ctx.lineTo(x-3-walk,5);ctx.lineTo(x-walk,8);ctx.stroke();
+    ctx.lineCap='round';ctx.lineJoin='round';
+    // Alternating tripods: front/rear on one side, middle on the other.
+    for(const side of [-1,1]) {
+      for(let i=0;i<3;i++) {
+        const stride=Math.sin(now*.005+t.phase+(i===1 ? Math.PI : 0)+(side===1 ? Math.PI : 0));
+        const root=.4+i*1.9, knee=[-3,1,7][i], foot=[-7,-1,10][i];
+        ctx.strokeStyle='#9c6140';ctx.lineWidth=.9;
+        ctx.beginPath();ctx.moveTo(root,side*1.1);
+        ctx.lineTo(knee+stride*.6,side*4);
+        ctx.lineTo(foot+stride*1.3,side*(7.5-stride*.6));ctx.stroke();
+        ctx.strokeStyle='#6e422f';ctx.lineWidth=.65;
+        ctx.beginPath();ctx.moveTo(foot+stride*1.3,side*(7.5-stride*.6));
+        ctx.lineTo(foot-1.5+stride*1.6,side*9.5);ctx.stroke();
+      }
     }
-    ctx.fillStyle='#512b25';
-    ctx.beginPath();ctx.ellipse(-6,0,4.8,3.2,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.ellipse(0,0,2.3,1.6,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.arc(5,0,2.5,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(6,-1);ctx.lineTo(10,-3);ctx.lineTo(11,-6);
-    ctx.moveTo(6,1);ctx.lineTo(10,3);ctx.lineTo(11,6);ctx.stroke();
+    ctx.strokeStyle='#a26c49';ctx.lineWidth=.6;
+    ctx.fillStyle='#39251e';
+    ctx.beginPath();ctx.ellipse(-7.2,0,5,3.5,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    // A raised petiole separates the abdomen from the leg-bearing thorax.
+    ctx.fillStyle='#895034';
+    ctx.beginPath();ctx.ellipse(-1.5,0,1.1,.85,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#683c28';
+    ctx.beginPath();ctx.moveTo(-.3,-1.2);
+    ctx.bezierCurveTo(1,-2.8,4.2,-2.4,5.5,-1.3);
+    ctx.bezierCurveTo(6,.4,4.7,2.1,3,1.9);
+    ctx.bezierCurveTo(1.6,1.6,.1,1.7,-.3,1.2);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#76432b';
+    ctx.beginPath();ctx.ellipse(8,0,3,2.6,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    // Fine reflections make the shell rounded without obscuring its silhouette.
+    ctx.strokeStyle='#bc8b61';ctx.lineWidth=.45;
+    ctx.beginPath();ctx.ellipse(-7.4,-.6,3.5,2,0,Math.PI*1.1,Math.PI*1.8);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(1,-1.4);ctx.quadraticCurveTo(3,-1.9,4.2,-1.3);ctx.stroke();
+    ctx.fillStyle='#160e0b';
+    for(const side of [-1,1]) {
+      ctx.beginPath();ctx.ellipse(8.8,side*2,.55,.8,side*.3,0,Math.PI*2);ctx.fill();
+      const feel=Math.sin(now*.0018+t.phase+side)*.55;
+      ctx.strokeStyle='#aa7350';ctx.lineWidth=.7;
+      ctx.beginPath();ctx.moveTo(9,side*1.5);
+      ctx.lineTo(12,side*5+feel);ctx.lineTo(17,side*6.5+feel);ctx.stroke();
+      ctx.strokeStyle='#855132';
+      ctx.beginPath();ctx.moveTo(10.5,side*.9);
+      ctx.lineTo(12.5,side*.8);ctx.lineTo(11.8,side*.2);ctx.stroke();
+    }
     ctx.restore();
   }
   function tick(now) {

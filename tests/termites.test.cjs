@@ -85,19 +85,35 @@ test('ants walk without adding damage; random walks are slow and stay in bounds'
   for(let now = 1200; now <= 10100; now += 100) {
     const before = {x: ant.x, y: ant.y}; s.tick(now);
     assert.ok(Math.hypot(ant.x-before.x, ant.y-before.y) <= .240001);
-    assert.ok(ant.x>=10 && ant.x<=790 && ant.y>=10 && ant.y<=590);
+    assert.ok(ant.x>=0 && ant.x<=800 && ant.y>=0 && ant.y<=600);
   }
   assert.notEqual(ant.angle, start.angle);
   assert.ok(Math.hypot(ant.x-start.x, ant.y-start.y) > 0);
   assert.equal(s.fills(), fills);
-  ant.x = 10; ant.y = 10; ant.angle = Math.PI*1.25; ant.turn = 0; ant.untilTurn = 10;
+  ant.x = 0; ant.y = 0; ant.angle = Math.PI*1.25; ant.turn = 0; ant.untilTurn = 10;
   s.tick(10200);
-  assert.ok(ant.x>=10 && ant.y>=10);
+  assert.ok(ant.x>=0 && ant.y>=0);
   s.random(() => 0); s.tick(11100);
   const termite = s.state().termites[0];
   assert.ok(termite.speed<=2.4);
   for(let now = 11200; now <= 12200; now += 100)s.tick(now);
   assert.ok(s.fills()>fills);
+});
+
+test('ants enter from each screen edge facing inward without biting', () => {
+  for(let edge=0; edge<4; edge++) {
+    const s=simulation(); s.start();
+    const fills=s.fills();
+    const values=[1,0,(edge+.1)/4,.5];
+    s.random(() => values.length ? values.shift() : .5);
+    s.tick(1100);
+    const ant=s.state().ants[0];
+    assert.ok(ant);
+    const distance=[ant.x,800-ant.x,ant.y,600-ant.y][edge];
+    assert.ok(distance>=0 && distance<=.48);
+    assert.equal(ant.angle,[0,Math.PI,Math.PI/2,-Math.PI/2][edge]);
+    assert.equal(s.fills(),fills);
+  }
 });
 
 test('hidden tabs and reduced motion clear insects and prevent idle activation', () => {
