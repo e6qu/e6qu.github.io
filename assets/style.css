@@ -7,6 +7,8 @@
   --coral:#dd654e; --teal:#17786d; --muted:#54647a; --line:#cbd5e4;
   --art-paper:#315ddd; --art-accent:#ffbf8a;
   --display:Archivo,'Arial Narrow',sans-serif; --body:Plex,Arial,sans-serif; --mono:PlexMono,monospace;
+  --page-width:1400px; --page-gutter:clamp(24px,6.7vw,96px);
+  --masthead-height:96px; --theme-size:48px; --theme-gap:24px;
 }
 :root[data-theme='dark'] {
   color-scheme:dark;
@@ -26,15 +28,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible {o
 button,input,select {font:inherit;color:inherit}
 button {cursor:pointer}
 ::selection {background:var(--blue);color:var(--paper)}
-.page-shell {max-width:1400px;padding:0 clamp(24px,6.7vw,96px);margin:auto}
-.masthead {display:flex;align-items:center;justify-content:space-between;min-height:96px;padding-right:50px}
+.page-shell {max-width:var(--page-width);padding:0 var(--page-gutter);margin:auto}
+.masthead {display:flex;align-items:center;justify-content:space-between;min-height:var(--masthead-height);padding-right:calc(var(--theme-size) + var(--theme-gap))}
 .github-handle {display:inline-flex;gap:10px;align-items:center;font:14px var(--mono)}
 .handle-mark {color:var(--coral);font-size:25px}
 .masthead nav {display:flex;gap:32px;font:12px var(--mono)}
 .masthead nav a {padding:12px 0}
-.theme-toggle {position:fixed;z-index:40;top:23px;right:24px;display:grid;place-items:center;width:48px;height:48px;border:1px solid var(--line);border-radius:50%;background:var(--surface);font:28px/1 Georgia,'Times New Roman',serif;transition:transform .2s,border-color .2s}
-.theme-toggle:hover {transform:rotate(-12deg);border-color:var(--blue)}
-.theme-toggle span {transform:translateY(-1px)}
+.theme-toggle {position:fixed;z-index:40;top:calc((var(--masthead-height) - var(--theme-size)) / 2);right:max(var(--page-gutter),calc((100% - var(--page-width)) / 2 + var(--page-gutter)));display:grid;place-items:center;width:var(--theme-size);height:var(--theme-size);padding:0;appearance:none;border:1px solid var(--line);border-radius:50%;background:var(--surface);font:28px/1 Georgia,'Times New Roman',serif;transition:border-color .2s}
+.theme-toggle:hover {border-color:var(--blue)}
+.theme-toggle span {display:grid;place-items:center;width:1em;height:1em;line-height:1}
 .identity {display:flex;align-items:flex-end;justify-content:space-between;gap:30px;padding:40px 0 65px}
 h1 {font:800 clamp(60px,9vw,122px)/1.05 var(--display);letter-spacing:-.065em;margin:0}
 .name-dot {color:var(--coral)}
@@ -132,9 +134,9 @@ footer>span {white-space:nowrap}
   .project-numbers {font-size:11px}
 }
 @media(max-width:750px) {
-  .masthead {min-height:80px;padding-right:48px}
+  :root {--masthead-height:80px;--theme-size:44px;--theme-gap:16px}
   .masthead nav {gap:18px;font-size:11px}
-  .theme-toggle {width:42px;height:42px;top:18px;right:18px;font-size:25px}
+  .theme-toggle {font-size:25px}
   .identity {padding:34px 0 48px}
   h1 {font-size:clamp(57px,10.7vw,80px)}
   .contact a {font-size:11px}
