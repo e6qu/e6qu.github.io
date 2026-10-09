@@ -38,6 +38,13 @@ button {cursor:pointer}
 .identity {display:flex;align-items:flex-end;justify-content:space-between;gap:30px;padding:40px 0 65px}
 h1 {font:800 clamp(60px,9vw,122px)/1.05 var(--display);letter-spacing:-.065em;margin:0}
 .name-dot {color:var(--coral)}
+.identity-title {min-width:0}
+.game-invite {position:relative;display:flex;align-items:flex-end;width:max-content;max-width:100%;height:72px;padding-left:104px}
+.game-invite a {display:block;color:var(--blue);font:13px/1.2 var(--mono);padding-bottom:4px;border-bottom:1px solid var(--blue);white-space:nowrap}
+.game-invite a:hover {color:var(--coral);border-color:var(--coral)}
+.mario-runner {position:absolute;left:0;bottom:0;width:32px;height:32px;image-rendering:pixelated;pointer-events:none;transform-origin:50% 100%;will-change:transform}
+.game-invite[data-state='land'] a {animation:game-landing .18s ease-out}
+@keyframes game-landing {50%{transform:translateY(2px)}}
 .contact {padding-bottom:10px;flex-shrink:0}
 .contact a {font:12px var(--mono);padding-bottom:6px;border-bottom:1px solid var(--line)}
 .section-heading {display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:23px}
@@ -131,6 +138,7 @@ footer>span {white-space:nowrap}
   .identity {padding:34px 0 48px}
   h1 {font-size:clamp(57px,10.7vw,80px)}
   .contact a {font-size:11px}
+  .game-invite {height:64px;padding-left:80px}
   h2 {font-size:25px}
   .showcase {margin-bottom:54px}
   .featured-panel {grid-template-columns:1fr}
@@ -159,6 +167,8 @@ footer>span {white-space:nowrap}
   .github-handle>span:last-child {display:none}
   h1 {font-size:clamp(60px,15vw,70px);max-width:320px}
   .identity {padding-top:20px}
+  .game-invite {padding-left:72px}
+  .game-invite a {font-size:11px}
   .featured-copy h3 {font-size:30px}
   .featured-copy {padding:23px}
   .feature-art {max-height:195px}
