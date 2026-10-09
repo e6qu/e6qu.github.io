@@ -8,6 +8,11 @@
   const fine = matchMedia('(any-pointer: fine)');
   const IDLE_DELAY = 10000;
   const MAX_PER_SPECIES = 10;
+  const ANT_STRIDE = 4, ANT_STANCE = .6;
+  const ANT_LEGS = [-1,1].flatMap(side => [0,1,2].map(index => ({
+    side,index,root:.4+index*1.9,foot:[-8,-1,10][index],
+    offset:((index===1 ? 1 : 0)+(side===1 ? 1 : 0))%2*.5,
+  })));
   let timer, frame, lastTime = null, lastPaint = 0, nextSpawn = 0, active = false;
   let width = 0, height = 0, termites = [], ants = [];
   function allowed() { return !reduced.matches && fine.matches && !document.hidden; }
@@ -42,8 +47,51 @@
     const x=edge<2 ? (edge===0 ? 0 : width) : 20+position*(width-40);
     const y=edge<2 ? 20+position*(height-40) : (edge===2 ? 0 : height);
     const ant=insect(x,y,[0,Math.PI,Math.PI/2,-Math.PI/2][edge],0);
-    ant.untilTurn=3;
+    ant.untilTurn=3;ant.turnTarget=0;ant.gait=0;
+    ant.legs=ANT_LEGS.map(leg => ({...worldPoint(ant,
+      leg.foot+ANT_STRIDE*(ANT_STANCE/2-leg.offset),leg.side*9.5),stance:true,lift:0}));
     ants.push(ant);
+  }
+  function worldPoint(t,x,y) {
+    const cos=Math.cos(t.angle),sin=Math.sin(t.angle);
+    return {x:t.x+x*cos-y*sin,y:t.y+x*sin+y*cos};
+  }
+  function walkAnt(t,elapsed) {
+    t.untilTurn-=elapsed;
+    if(t.untilTurn<=0) {
+      t.turnTarget=(Math.random()-.5)*1.5;
+      t.untilTurn=.8+Math.random()*1.2;
+    }
+    // Turn toward the interior gradually rather than bouncing off the border.
+    const fx=Math.max(0,1-t.x/20)-Math.max(0,1-(width-t.x)/20);
+    const fy=Math.max(0,1-t.y/20)-Math.max(0,1-(height-t.y)/20);
+    const weight=Math.min(.85,Math.hypot(fx,fy));
+    const heading=Math.atan2(Math.sin(t.angle)+fy,Math.cos(t.angle)+fx);
+    const error=Math.atan2(Math.sin(heading-t.angle),Math.cos(heading-t.angle));
+    const target=t.turnTarget*(1-weight)+error*2*weight;
+    t.turn+=(target-t.turn)*(1-Math.exp(-elapsed*4));
+    t.angle+=t.turn*elapsed;
+    const oldX=t.x,oldY=t.y;
+    t.x=Math.max(0,Math.min(width,t.x+Math.cos(t.angle)*elapsed*t.speed));
+    t.y=Math.max(0,Math.min(height,t.y+Math.sin(t.angle)*elapsed*t.speed));
+    t.gait+=Math.hypot(t.x-oldX,t.y-oldY)/ANT_STRIDE;
+    for(let i=0;i<ANT_LEGS.length;i++) {
+      const leg=ANT_LEGS[i],foot=t.legs[i],phase=(t.gait+leg.offset)%1;
+      const stance=phase<ANT_STANCE;
+      if(stance) {
+        if(!foot.stance)Object.assign(foot,worldPoint(t,leg.foot+ANT_STRIDE*ANT_STANCE/2,leg.side*9.5));
+        foot.lift=0;
+      }else {
+        if(foot.stance)foot.start={x:foot.x,y:foot.y};
+        const progress=(phase-ANT_STANCE)/(1-ANT_STANCE);
+        const smooth=progress*progress*(3-2*progress);
+        foot.lift=Math.sin(progress*Math.PI);
+        const landing=worldPoint(t,leg.foot+ANT_STRIDE*ANT_STANCE/2,leg.side*(9.5+foot.lift));
+        foot.x=foot.start.x+(landing.x-foot.start.x)*smooth;
+        foot.y=foot.start.y+(landing.y-foot.start.y)*smooth;
+      }
+      foot.stance=stance;
+    }
   }
   function wander(t, elapsed) {
     t.untilTurn -= elapsed;
@@ -113,19 +161,24 @@
   function drawAnt(t,now) {
     ctx.save();ctx.translate(t.x,t.y);ctx.rotate(t.angle);
     ctx.lineCap='round';ctx.lineJoin='round';
-    // Alternating tripods: front/rear on one side, middle on the other.
-    for(const side of [-1,1]) {
-      for(let i=0;i<3;i++) {
-        const stride=Math.sin(now*.005+t.phase+(i===1 ? Math.PI : 0)+(side===1 ? Math.PI : 0));
-        const root=.4+i*1.9, knee=[-3,1,7][i], foot=[-7,-1,10][i];
-        ctx.strokeStyle='#9c6140';ctx.lineWidth=.9;
-        ctx.beginPath();ctx.moveTo(root,side*1.1);
-        ctx.lineTo(knee+stride*.6,side*4);
-        ctx.lineTo(foot+stride*1.3,side*(7.5-stride*.6));ctx.stroke();
-        ctx.strokeStyle='#6e422f';ctx.lineWidth=.65;
-        ctx.beginPath();ctx.moveTo(foot+stride*1.3,side*(7.5-stride*.6));
-        ctx.lineTo(foot-1.5+stride*1.6,side*9.5);ctx.stroke();
-      }
+    const cos=Math.cos(t.angle),sin=Math.sin(t.angle);
+    for(let i=0;i<ANT_LEGS.length;i++) {
+      const leg=ANT_LEGS[i],foot=t.legs[i],rootY=leg.side*1.1;
+      const wx=foot.x-t.x,wy=foot.y-t.y;
+      const x=wx*cos+wy*sin,y=-wx*sin+wy*cos;
+      const dx=x-leg.root,dy=y-rootY,d=Math.max(.001,Math.hypot(dx,dy));
+      // Two linked segments solve the knee position around the planted foot.
+      const femur=[4.5,3.5,4.3][leg.index],tibia=[8,6,7.5][leg.index];
+      const along=(femur*femur-tibia*tibia+d*d)/(2*d);
+      const bend=Math.sqrt(Math.max(0,femur*femur-along*along))*-leg.side*(leg.index===2 ? -1 : 1);
+      const kneeX=leg.root+dx/d*along-dy/d*bend;
+      const kneeY=rootY+dy/d*along+dx/d*bend;
+      ctx.strokeStyle='#9c6140';ctx.lineWidth=.9;
+      ctx.beginPath();ctx.moveTo(leg.root,rootY);ctx.lineTo(kneeX,kneeY);ctx.stroke();
+      ctx.strokeStyle='#6e422f';ctx.lineWidth=.7;
+      ctx.beginPath();ctx.moveTo(kneeX,kneeY);ctx.lineTo(x,y);ctx.stroke();
+      ctx.fillStyle=foot.stance ? '#5b3726' : '#ad7853';
+      ctx.beginPath();ctx.ellipse(x,y,.55,.45,0,0,Math.PI*2);ctx.fill();
     }
     ctx.strokeStyle='#a26c49';ctx.lineWidth=.6;
     ctx.fillStyle='#39251e';
@@ -179,7 +232,7 @@
         bite(t.x+Math.cos(t.angle)*8,t.y+Math.sin(t.angle)*8,13+Math.random()*7,now*.004+t.phase);
       }
     }
-    for(const ant of ants)wander(ant,elapsed);
+    for(const ant of ants)walkAnt(ant,elapsed);
     ctx.clearRect(0,0,width,height);
     ctx.drawImage(damage,0,0,width,height);
     for(const t of termites)drawTermite(t,now);

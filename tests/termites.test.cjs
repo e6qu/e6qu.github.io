@@ -125,3 +125,54 @@ test('hidden tabs and reduced motion clear insects and prevent idle activation',
   s.reduced.matches = true; s.listeners.reduced();
   assert.equal(s.timers.size, 0);
 });
+
+test('ant tripods alternate, support feet stay planted, and steps stop with the body', () => {
+  const s=simulation(); s.start();
+  const values=[1,0,0,.5];
+  s.random(() => values.length ? values.shift() : .5); s.tick(1100);
+  const ant=s.state().ants[0],shift=400-ant.x;
+  ant.x+=shift;
+  for(const foot of ant.legs)foot.x+=shift;
+  const tripodA=[0,2,4],tripodB=[1,3,5];
+  let swingsA=0,swingsB=0,plantedChecks=0;
+  for(let now=1200;now<=7100;now+=100) {
+    const before=ant.legs.map(foot => ({...foot})); s.tick(now);
+    const a=tripodA.every(i => ant.legs[i].stance);
+    const b=tripodB.every(i => ant.legs[i].stance);
+    assert.ok(a || b, 'one full tripod supports the body');
+    assert.ok(tripodA.every(i => ant.legs[i].stance===a));
+    assert.ok(tripodB.every(i => ant.legs[i].stance===b));
+    if(!a)swingsA++; if(!b)swingsB++;
+    ant.legs.forEach((foot,i) => {
+      if(foot.stance && before[i].stance) {
+        assert.equal(foot.x,before[i].x); assert.equal(foot.y,before[i].y);
+        plantedChecks++;
+      }
+    });
+  }
+  assert.ok(swingsA>0 && swingsB>0 && plantedChecks>0);
+  ant.speed=0;
+  const gait=ant.gait,feet=ant.legs.map(foot => ({x:foot.x,y:foot.y}));
+  for(let now=7200;now<=8100;now+=100)s.tick(now);
+  assert.equal(ant.gait,gait);
+  ant.legs.forEach((foot,i) => assert.deepEqual({x:foot.x,y:foot.y},feet[i]));
+});
+
+test('ant turns preserve planted feet and avoid instant heading reversals', () => {
+  const s=simulation(); s.start();
+  const values=[1,0,0,.5];
+  s.random(() => values.length ? values.shift() : .5); s.tick(1100);
+  const ant=s.state().ants[0],shift=400-ant.x;
+  ant.x+=shift; for(const foot of ant.legs)foot.x+=shift;
+  ant.turnTarget=.75; ant.untilTurn=10;
+  for(let now=1200;now<=3100;now+=100) {
+    const angle=ant.angle,feet=ant.legs.map(foot => ({...foot})); s.tick(now);
+    assert.ok(Math.abs(ant.angle-angle)<.08);
+    ant.legs.forEach((foot,i) => {
+      if(foot.stance && feet[i].stance) {
+        assert.equal(foot.x,feet[i].x); assert.equal(foot.y,feet[i].y);
+      }
+    });
+  }
+  assert.ok(ant.angle>.5);
+});
