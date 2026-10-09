@@ -28,7 +28,7 @@ function simulation() {
   const ending = '  reset();\n})();';
   assert.ok(source.endsWith(ending + '\n'));
   vm.runInContext(source.replace(ending, `
-    globalThis.inspect = () => ({active, termites, ants, grass, butterflies});
+    globalThis.inspect = () => ({active, termites, grass, butterflies});
     globalThis.paint = tick;
     reset();
   })();`), context);
@@ -40,80 +40,63 @@ function simulation() {
   };
 }
 
-test('waits ten seconds, clears both species and damage, restarts idle timer', () => {
-  const s = simulation();
-  assert.equal([...s.timers.values()][0].delay, 10000);
-  assert.equal(s.state().active, false);
-  s.start(); s.random(() => 0); s.tick(1100);
-  assert.equal(s.state().ants.length, 1);
+test('waits ten seconds, clears the idle scene and damage, restarts idle timer', () => {
+  const s=simulation();
+  assert.equal([...s.timers.values()][0].delay,10000);
+  assert.equal(s.state().active,false);
+  s.start();s.random(() => 0);s.tick(1100);
+  assert.equal(s.state().termites.length,4);
   s.listeners.pointermove();
-  assert.equal(s.state().active, false);
-  assert.equal(s.state().termites.length + s.state().ants.length, 0);
-  assert.equal(s.state().grass.length + s.state().butterflies.length, 0);
-  assert.equal(s.clears(), 1);
-  assert.equal([...s.timers.values()][0].delay, 10000);
+  assert.equal(s.state().active,false);
+  assert.equal(s.state().termites.length+s.state().grass.length+s.state().butterflies.length,0);
+  assert.equal(s.clears(),1);
+  assert.equal([...s.timers.values()][0].delay,10000);
 });
 
-test('independent coins run once per second and cap each species at ten', () => {
-  const s = simulation(); s.start(); s.random(() => 1);
-  s.tick(1100);
-  assert.equal(s.state().termites.length, 3);
-  assert.equal(s.state().ants.length, 0);
-  // Termite coin fails, ant coin succeeds. Other random draws use .5.
-  let values = [1, 0]; s.random(() => values.length ? values.shift() : .5);
-  s.tick(2100);
-  assert.equal(s.state().termites.length, 3);
-  assert.equal(s.state().ants.length, 1);
-  values = [0, 1]; s.tick(3100);
-  assert.equal(s.state().termites.length, 4);
-  assert.equal(s.state().ants.length, 1);
-  s.random(() => 0); s.tick(3500);
-  assert.equal(s.state().termites.length, 4);
-  assert.equal(s.state().ants.length, 1);
-  for(let now = 4100; now <= 24100; now += 1000)s.tick(now);
-  assert.equal(s.state().termites.length, 10);
-  assert.equal(s.state().ants.length, 10);
+test('independent coins run once per second and preserve the population limits', () => {
+  const s=simulation();s.start();s.random(() => .9);s.tick(1100);
+  assert.equal(s.state().termites.length,3);
+  assert.equal(s.state().butterflies.length,2);
+  let values=[1,0];s.random(() => values.length ? values.shift() : .5);s.tick(2100);
+  assert.equal(s.state().termites.length,3);
+  assert.equal(s.state().butterflies.length,3);
+  values=[0,1];s.tick(3100);
+  assert.equal(s.state().termites.length,4);
+  assert.equal(s.state().butterflies.length,3);
+  s.random(() => 0);s.tick(3500);
+  assert.equal(s.state().termites.length,4);
+  assert.equal(s.state().butterflies.length,3);
+  for(let now=4100;now<=24100;now+=1000)s.tick(now);
+  assert.equal(s.state().termites.length,10);
+  assert.equal(s.state().butterflies.length,6);
 });
 
-test('ants walk without adding damage; random walks are slow and stay in bounds', () => {
-  const s = simulation(); s.start();
-  let values = [1, 0]; s.random(() => values.length ? values.shift() : .5);
-  s.tick(1100);
-  s.state().termites.length = 0;
-  const ant = s.state().ants[0]; ant.untilTurn = 0;
-  s.random(() => 1);
-  const start = {x: ant.x, y: ant.y, angle: ant.angle}, fills = s.fills();
-  for(let now = 1200; now <= 10100; now += 100) {
-    const before = {x: ant.x, y: ant.y}; s.tick(now);
-    assert.ok(Math.hypot(ant.x-before.x, ant.y-before.y) <= .240001);
-    assert.ok(ant.x>=0 && ant.x<=800 && ant.y>=0 && ant.y<=600);
+test('termites keep slow random walks, dark bites and viewport boundaries', () => {
+  const s=simulation();s.start();s.random(() => .9);
+  const t=s.state().termites[0];t.x=400;t.y=300;t.angle=0;t.untilTurn=0;
+  const fills=s.fills();
+  for(let now=200;now<=5100;now+=100) {
+    const before={x:t.x,y:t.y};s.tick(now);
+    assert.ok(Math.hypot(t.x-before.x,t.y-before.y)<=.240001);
+    assert.ok(t.x>=10 && t.x<=790 && t.y>=10 && t.y<=590);
   }
-  assert.notEqual(ant.angle, start.angle);
-  assert.ok(Math.hypot(ant.x-start.x, ant.y-start.y) > 0);
-  assert.equal(s.fills(), fills);
-  ant.x = 0; ant.y = 0; ant.angle = Math.PI*1.25; ant.turn = 0; ant.untilTurn = 10;
-  s.tick(10200);
-  assert.ok(ant.x>=0 && ant.y>=0);
-  s.random(() => 0); s.tick(11100);
-  const termite = s.state().termites[0];
-  assert.ok(termite.speed<=2.4);
-  for(let now = 11200; now <= 12200; now += 100)s.tick(now);
+  assert.notEqual(t.angle,0);
   assert.ok(s.fills()>fills);
+  t.x=10;t.y=10;t.angle=Math.PI*1.25;t.turn=0;t.untilTurn=10;
+  s.tick(5200);
+  assert.ok(t.x>=10 && t.y>=10);
+  assert.ok(Math.cos(t.angle)>0 && Math.sin(t.angle)>0);
 });
 
-test('ants enter from each screen edge facing inward without biting', () => {
-  for(let edge=0; edge<4; edge++) {
-    const s=simulation(); s.start();
-    const fills=s.fills();
-    const values=[1,0,(edge+.1)/4,.5];
-    s.random(() => values.length ? values.shift() : .5);
-    s.tick(1100);
-    const ant=s.state().ants[0];
-    assert.ok(ant);
-    const distance=[ant.x,800-ant.x,ant.y,600-ant.y][edge];
+test('termites still enter from each screen edge facing inward', () => {
+  for(let edge=0;edge<4;edge++) {
+    const s=simulation();s.start();
+    const values=[0,1,(edge+.1)/4,.5];
+    s.random(() => values.length ? values.shift() : .5);s.tick(1100);
+    const t=s.state().termites.at(-1);
+    const distance=[t.x-10,790-t.x,t.y-10,590-t.y][edge];
     assert.ok(distance>=0 && distance<=.48);
-    assert.equal(ant.angle,[0,Math.PI,Math.PI/2,-Math.PI/2][edge]);
-    assert.equal(s.fills(),fills);
+    assert.equal(t.angle,[0,Math.PI,Math.PI/2,-Math.PI/2][edge]);
   }
 });
 
@@ -125,73 +108,6 @@ test('hidden tabs and reduced motion clear insects and prevent idle activation',
   assert.equal(s.timers.size, 1);
   s.reduced.matches = true; s.listeners.reduced();
   assert.equal(s.timers.size, 0);
-});
-
-test('ant tripods alternate, support feet stay planted, and steps stop with the body', () => {
-  const s=simulation(); s.start();
-  const values=[1,0,0,.5];
-  s.random(() => values.length ? values.shift() : .5); s.tick(1100);
-  const ant=s.state().ants[0],shift=400-ant.x;
-  ant.x+=shift;
-  for(const foot of ant.legs)foot.x+=shift;
-  const tripodA=[0,2,4],tripodB=[1,3,5];
-  let swingsA=0,swingsB=0,plantedChecks=0;
-  for(let now=1200;now<=7100;now+=100) {
-    const before=ant.legs.map(foot => ({...foot})); s.tick(now);
-    const a=tripodA.every(i => ant.legs[i].stance);
-    const b=tripodB.every(i => ant.legs[i].stance);
-    assert.ok(a || b, 'one full tripod supports the body');
-    assert.ok(tripodA.every(i => ant.legs[i].stance===a));
-    assert.ok(tripodB.every(i => ant.legs[i].stance===b));
-    if(!a)swingsA++; if(!b)swingsB++;
-    ant.legs.forEach((foot,i) => {
-      if(foot.stance && before[i].stance) {
-        assert.equal(foot.x,before[i].x); assert.equal(foot.y,before[i].y);
-        plantedChecks++;
-      }
-    });
-  }
-  assert.ok(swingsA>0 && swingsB>0 && plantedChecks>0);
-  ant.speed=0;
-  const gait=ant.gait,feet=ant.legs.map(foot => ({x:foot.x,y:foot.y}));
-  for(let now=7200;now<=8100;now+=100)s.tick(now);
-  assert.equal(ant.gait,gait);
-  ant.legs.forEach((foot,i) => assert.deepEqual({x:foot.x,y:foot.y},feet[i]));
-});
-
-test('ant turns preserve planted feet and avoid instant heading reversals', () => {
-  const s=simulation(); s.start();
-  const values=[1,0,0,.5];
-  s.random(() => values.length ? values.shift() : .5); s.tick(1100);
-  const ant=s.state().ants[0],shift=400-ant.x;
-  ant.x+=shift; for(const foot of ant.legs)foot.x+=shift;
-  ant.turnTarget=.75; ant.untilTurn=10;
-  for(let now=1200;now<=3100;now+=100) {
-    const angle=ant.angle,feet=ant.legs.map(foot => ({...foot})); s.tick(now);
-    assert.ok(Math.abs(ant.angle-angle)<.08);
-    ant.legs.forEach((foot,i) => {
-      if(foot.stance && feet[i].stance) {
-        assert.equal(foot.x,feet[i].x); assert.equal(foot.y,feet[i].y);
-      }
-    });
-  }
-  assert.ok(ant.angle>.5);
-});
-
-test('turning in place still takes steps to reposition the supporting tripods', () => {
-  const s=simulation(); s.start();
-  const values=[1,0,0,.5];
-  s.random(() => values.length ? values.shift() : .5); s.tick(1100);
-  const ant=s.state().ants[0],shift=400-ant.x;
-  ant.x+=shift; for(const foot of ant.legs)foot.x+=shift;
-  ant.speed=0;ant.turnTarget=.75;ant.untilTurn=10;
-  const start={x:ant.x,y:ant.y,gait:ant.gait};
-  let swing=false;
-  for(let now=1200;now<=3100;now+=100) {
-    s.tick(now); swing ||= ant.legs.some(foot => !foot.stance);
-  }
-  assert.equal(ant.x,start.x); assert.equal(ant.y,start.y);
-  assert.ok(ant.gait>start.gait && swing);
 });
 
 test('grass sprouts slowly across the viewport and stops at a bounded population', () => {
