@@ -15,8 +15,7 @@
     {hip:1,foot:.4,spread:7,bend:1},
     {hip:-1.2,foot:-4.8,spread:6.2,bend:-1},
   ];
-  const STEP_ORDER = [2,1,0,5,4,3]; // Hind → middle → front; opposite sides half a cycle apart.
-  const SWING_TIME = .32, FEMUR = 3.7, TIBIA = 4.6;
+  const FEMUR = 3.7, TIBIA = 4.6;
   let timer, frame, lastTime = null, lastPaint = 0, nextSpawn = 0, active = false;
   let width = 0, height = 0, termites = [], grass = [], butterflies = [];
   function allowed() { return !reduced.matches && fine.matches && !document.hidden; }
@@ -33,12 +32,13 @@
   function insect(x, y, angle) {
     const t={x,y,angle,phase:Math.random()*Math.PI*2,speed:1.4+Math.random(),
       turn:0,targetTurn:0,untilTurn:0,nibble:0,feeding:0,feedIn:2+Math.random()*3,
-      stepBudget:0,nextLeg:0,strides:0,vx:0,vy:0,yaw:0};
+      strides:0,vx:0,vy:0,yaw:0};
     t.legs=[-1,1].flatMap(side => LEG_PAIRS.map((pair,index) => {
-      const id=index+(side===1 ? 3 : 0),order=STEP_ORDER.indexOf(id);
-      // Seed different stance ages rather than lifting all six feet at activation.
-      const point=worldPoint(t,pair.foot-2.1+order*.7,side*pair.spread);
-      return {pair,side,...point,lift:0,swing:null};
+      // Each foot begins at its own stance position, without a shared gait clock.
+      const point=worldPoint(t,pair.foot-.6+Math.random()*2.6,side*pair.spread);
+      return {pair,side,index,...point,lift:0,swing:null,rest:Math.random()*.18,
+        threshold:.75+Math.random()*.5,recovery:.26+Math.random()*.12,
+        anticipation:.9+Math.random()*.2};
     }));
     return t;
   }
@@ -132,40 +132,58 @@
     t.vx=elapsed ? (t.x-before.x)/elapsed : 0;
     t.vy=elapsed ? (t.y-before.y)/elapsed : 0;
     t.yaw=elapsed ? (t.angle-before.angle)/elapsed : 0;
-    // Turning also consumes stance reach: timing cannot depend on translation alone.
-    t.stepBudget=Math.min(.9,t.stepBudget+Math.hypot(t.x-before.x,t.y-before.y)+
-      Math.abs(t.angle-before.angle)*4);
   }
   function stepLegs(t,elapsed) {
-    const moving=t.legs.find(leg => leg.swing);
-    if(moving) {
-      const step=moving.swing;
-      step.age=Math.min(SWING_TIME,step.age+elapsed);
-      const p=step.age/SWING_TIME,ease=p*p*p*(10+p*(-15+6*p));
+    for(const leg of t.legs) {
+      leg.rest=Math.max(0,leg.rest-elapsed);
+      if(!leg.swing)continue;
+      const step=leg.swing;
+      step.age=Math.min(step.duration,step.age+elapsed);
+      const p=step.age/step.duration,ease=p*p*p*(10+p*(-15+6*p));
       // Minimum-jerk advance, slight inward recovery, and a lifted tarsus.
       const arc=Math.sin(Math.PI*p)**2; // Zero lift velocity at contact and touchdown.
-      moving.x=step.from.x+(step.to.x-step.from.x)*ease+
-        Math.sin(t.angle)*moving.side*.35*arc;
-      moving.y=step.from.y+(step.to.y-step.from.y)*ease-
-        Math.cos(t.angle)*moving.side*.35*arc;
-      moving.lift=.85*arc;
-      if(p===1) {moving.lift=0;moving.swing=null;}
-      return; // Transfer support before another foot lifts.
+      leg.x=step.from.x+(step.to.x-step.from.x)*ease+step.lateral.x*arc;
+      leg.y=step.from.y+(step.to.y-step.from.y)*ease+step.lateral.y*arc;
+      leg.lift=.85*arc;
+      if(p===1) {leg.lift=0;leg.swing=null;leg.rest=.09;}
     }
-    const urgent=t.legs.reduce((a,b) => stanceReach(t,a)>stanceReach(t,b) ? a : b);
-    const recovery=stanceReach(t,urgent)>7.7;
-    if(!recovery && (t.feeding>0 || t.stepBudget<.65))return;
-    const leg=recovery ? urgent : t.legs[STEP_ORDER[t.nextLeg]],pair=leg.pair;
-    // Predict this foot's displacement during its next stance, including yaw.
-    // Outside feet reach farther; inside feet take shorter, redirected steps.
+    if(t.feeding>0)return;
     const velocity=localPoint({x:0,y:0,angle:t.angle},t.vx,t.vy);
-    const leadX=Math.max(-2.8,Math.min(2.8,(velocity.x-t.yaw*leg.side*pair.spread)*1.05));
-    const leadY=Math.max(-1.1,Math.min(1.1,(velocity.y+t.yaw*pair.foot)*1.05));
-    leg.swing={age:0,from:{x:leg.x,y:leg.y},
-      to:worldPoint(t,pair.foot+leadX,leg.side*pair.spread+leadY)};
-    t.stepBudget=Math.max(0,t.stepBudget-.65);
-    if(!recovery)t.nextLeg=(t.nextLeg+1)%6;
-    t.strides++;
+    const candidates=[];
+    for(const leg of t.legs) {
+      if(leg.swing || leg.rest>0)continue;
+      const foot=localPoint(t,leg.x,leg.y),pair=leg.pair;
+      const vx=velocity.x-t.yaw*leg.side*pair.spread,vy=velocity.y+t.yaw*pair.foot;
+      const speed=Math.hypot(vx,vy),reach=stanceReach(t,leg);
+      const lag=speed>.01 ? ((pair.foot-foot.x)*vx+(leg.side*pair.spread-foot.y)*vy)/speed : 0;
+      const urgency=Math.max(lag/leg.threshold,(reach-6.9)/.8);
+      if(urgency>=1)candidates.push({leg,urgency,vx,vy});
+    }
+    candidates.sort((a,b) => b.urgency-a.urgency);
+    for(const {leg,vx,vy} of candidates) {
+      const offset=leg.side===-1 ? 0 : 3;
+      const opposite=t.legs[(offset+3)%6+leg.index];
+      const neighbors=t.legs.filter(other => other.side===leg.side && Math.abs(other.index-leg.index)===1);
+      // Local support feedback: adjacent and opposing legs inhibit each other.
+      // Other feet may recover independently, with four or more contacts retained.
+      if(opposite.swing || neighbors.some(other => other.swing) ||
+        t.legs.filter(other => other.swing).length>=2 || !supportsBody(t,leg))continue;
+      const leadX=Math.max(-2.8,Math.min(2.8,vx*leg.anticipation));
+      const leadY=Math.max(-1.1,Math.min(1.1,vy*leg.anticipation));
+      leg.swing={age:0,duration:leg.recovery*(.94+Math.random()*.12),
+        from:{x:leg.x,y:leg.y},to:worldPoint(t,leg.pair.foot+leadX,leg.side*leg.pair.spread+leadY),
+        lateral:{x:Math.sin(t.angle)*leg.side*.35,y:-Math.cos(t.angle)*leg.side*.35}};
+      t.strides++;
+    }
+  }
+  function supportsBody(t,lifting) {
+    // Contacts must surround the projected body center, rather than all lie on one side.
+    const angles=t.legs.filter(leg => leg!==lifting && !leg.swing).map(leg => {
+      const foot=localPoint(t,leg.x,leg.y);
+      return Math.atan2(foot.y,foot.x+1.5);
+    }).sort((a,b) => a-b);
+    return angles.every((angle,i) =>
+      (i+1<angles.length ? angles[i+1] : angles[0]+Math.PI*2)-angle<Math.PI-.08);
   }
   function stanceReach(t,leg) {
     const foot=localPoint(t,leg.x,leg.y);

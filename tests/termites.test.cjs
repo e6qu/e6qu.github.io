@@ -96,24 +96,34 @@ test('termites keep slow random walks, dark bites and viewport boundaries', () =
   assert.ok(Math.cos(t.angle)>0 && Math.sin(t.angle)>0);
 });
 
-test('slow gait advances hind-middle-front on each side with five planted supports', () => {
-  const s=simulation();s.start();const t=s.state().termites[0];s.place(t);
+test('feet step independently with local inhibition and four or more planted supports', () => {
+  const s=simulation();s.start();const t=s.state().termites[0];let seed=901;
+  s.random(() => ((seed=(seed*1664525+1013904223)>>>0)/2**32));s.place(t);
   t.feedIn=100;t.untilTurn=100;
-  const order=[];
-  for(let i=0;i<650;i++) {
+  const starts=Array.from({length:6},() => []);let overlap=0;
+  for(let i=0;i<900;i++) {
     const before=t.legs.map(leg => ({x:leg.x,y:leg.y,swing:leg.swing}));
     s.walk(t,1/30);
-    assert.ok(t.legs.filter(leg => leg.swing).length<=1);
+    const swinging=t.legs.filter(leg => leg.swing);
+    assert.ok(swinging.length<=2);if(swinging.length===2)overlap++;
+    if(swinging.length===2) {
+      const [a,b]=swinging;
+      assert.ok(a.index!==b.index,'opposing feet must not lift together');
+      assert.ok(a.side!==b.side || Math.abs(a.index-b.index)>1,'adjacent feet must retain support');
+    }
     t.legs.forEach((leg,index) => {
-      if(!before[index].swing && leg.swing)order.push(index);
+      if(!before[index].swing && leg.swing)starts[index].push(i);
       if(!before[index].swing && !leg.swing) {
         assert.equal(leg.x,before[index].x,'stance foot must stay fixed on the page');
         assert.equal(leg.y,before[index].y,'stance foot must stay fixed on the page');
       }
     });
   }
-  assert.ok(order.length>=18,'exercise at least three complete walking cycles');
-  for(let i=0;i<order.length;i++)assert.equal(order[i],[2,1,0,5,4,3][i%6]);
+  assert.ok(starts.every(times => times.length>=5),'each leg must contribute steps');
+  assert.ok(overlap>0,'independent non-neighboring recoveries must be able to overlap');
+  const intervals=starts.flatMap(times => times.slice(1).map((frame,i) => frame-times[i]));
+  assert.ok(new Set(intervals).size>5,'foot contacts must not follow one metronomic cycle');
+  assert.ok(new Set(starts.map(times => times[0])).size>3,'initial footfalls must be staggered');
 });
 
 test('joint lengths stay fixed in 3D while feet lift, flex and settle during turns', () => {
@@ -146,6 +156,21 @@ test('joint lengths stay fixed in 3D while feet lift, flex and settle during tur
   assert.ok(outside>inside,'outer legs must cover more distance in a turn');
 });
 
+test('termites at the same speed start from different contacts and do not march together', () => {
+  const s=simulation();s.start();let seed=2007;
+  s.random(() => ((seed=(seed*1664525+1013904223)>>>0)/2**32));
+  const profiles=[];
+  for(let n=0;n<3;n++) {
+    const t={};s.place(t);t.speed=1.9;t.feedIn=t.untilTurn=100;
+    const profile=[];
+    for(let i=0;i<180;i++) {
+      s.walk(t,1/30);profile.push(t.legs.map(leg => Number(!!leg.swing)).join(''));
+    }
+    profiles.push(profile.join('|'));
+  }
+  assert.equal(new Set(profiles).size,3);
+});
+
 test('feeding pauses the body and settles the last swing without walking in place', () => {
   const s=simulation();s.start();const t=s.state().termites[0];s.place(t);
   t.feedIn=100;t.untilTurn=100;
@@ -168,7 +193,7 @@ test('edge recovery and irregular frame intervals preserve joint reach and suppo
     const t=s.state().termites[0];s.place(t,x,y,angle);t.speed=2.4;
     for(let i=0;i<2000;i++) {
       s.walk(t,[1/30,.08,.2][i%3]);
-      assert.ok(t.legs.filter(leg => leg.swing).length<=1);
+      assert.ok(t.legs.filter(leg => leg.swing).length<=2);
       for(const leg of t.legs) {
         const j=s.joints(t,leg);
         assert.ok(j.reach<8.3 && j.reach>.9,`unreachable foot: ${j.reach}, frame ${i}`);
