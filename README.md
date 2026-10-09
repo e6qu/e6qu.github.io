@@ -31,7 +31,10 @@ The `featured` list in `portfolio.json` controls the showcase. Theme selection
 follows the system until changed with the sun/moon button, then persists locally.
 Idle insects start after ten seconds and take slow random walks. Each second,
 coin flips can add termites up to ten, and butterflies up to six. Only termites
-eat the page. Grass gradually sprouts
+eat the page. Their jointed legs keep planted feet fixed, take sequenced steps,
+and adapt to turns; brief feeding stops animate the mandibles. The research and
+animation model are in [docs/termite-motion.md](docs/termite-motion.md).
+Grass gradually sprouts
 across the page, and butterflies follow wandering flight paths. The idle scene
 clears on pointer, keyboard or scroll activity, pauses in background tabs, and
 respects reduced motion.

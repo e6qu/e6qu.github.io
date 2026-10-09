@@ -9,6 +9,14 @@
   const IDLE_DELAY = 10000;
   const MAX_TERMITES = 10;
   const MAX_GRASS = 96, MAX_BUTTERFLIES = 6;
+  // Three thoracic attachment sites; dimensions are display pixels, not measurements.
+  const LEG_PAIRS = [
+    {hip:3.2,foot:6.1,spread:6.2,bend:1},
+    {hip:1,foot:.4,spread:7,bend:1},
+    {hip:-1.2,foot:-4.8,spread:6.2,bend:-1},
+  ];
+  const STEP_ORDER = [2,1,0,5,4,3]; // Hind → middle → front; opposite sides half a cycle apart.
+  const SWING_TIME = .32, FEMUR = 3.7, TIBIA = 4.6;
   let timer, frame, lastTime = null, lastPaint = 0, nextSpawn = 0, active = false;
   let width = 0, height = 0, termites = [], grass = [], butterflies = [];
   function allowed() { return !reduced.matches && fine.matches && !document.hidden; }
@@ -23,8 +31,24 @@
     }
   }
   function insect(x, y, angle) {
-    return {x,y,angle,phase:Math.random()*Math.PI*2,speed:1.4+Math.random(),
-      turn:0,untilTurn:0,nibble:0};
+    const t={x,y,angle,phase:Math.random()*Math.PI*2,speed:1.4+Math.random(),
+      turn:0,targetTurn:0,untilTurn:0,nibble:0,feeding:0,feedIn:2+Math.random()*3,
+      stepBudget:0,nextLeg:0,strides:0,vx:0,vy:0,yaw:0};
+    t.legs=[-1,1].flatMap(side => LEG_PAIRS.map((pair,index) => {
+      const id=index+(side===1 ? 3 : 0),order=STEP_ORDER.indexOf(id);
+      // Seed different stance ages rather than lifting all six feet at activation.
+      const point=worldPoint(t,pair.foot-2.1+order*.7,side*pair.spread);
+      return {pair,side,...point,lift:0,swing:null};
+    }));
+    return t;
+  }
+  function worldPoint(t,x,y) {
+    const c=Math.cos(t.angle),s=Math.sin(t.angle);
+    return {x:t.x+c*x-s*y,y:t.y+s*x+c*y};
+  }
+  function localPoint(t,x,y) {
+    const c=Math.cos(t.angle),s=Math.sin(t.angle),dx=x-t.x,dy=y-t.y;
+    return {x:c*dx+s*dy,y:-s*dx+c*dy};
   }
   function addTermite() {
     const edge = Math.floor(Math.random()*4);
@@ -70,24 +94,104 @@
     if(b.y < -24)b.y=height+24;else if(b.y>height+24)b.y=-24;
   }
   function wander(t, elapsed) {
+    const before={x:t.x,y:t.y,angle:t.angle};
+    if(t.feeding>0) {
+      t.feeding=Math.max(0,t.feeding-elapsed);
+      if(!t.feeding)t.feedIn=3+Math.random()*4;
+      t.vx=t.vy=t.yaw=0;
+      return;
+    }
+    t.feedIn-=elapsed;
+    if(t.feedIn<=0) {
+      t.feeding=1.1+Math.random()*.6;t.nibble=0;
+      t.vx=t.vy=t.yaw=0;
+      return;
+    }
     t.untilTurn -= elapsed;
     if(t.untilTurn<=0) {
-      t.turn = (Math.random()-.5)*1.8;
-      t.untilTurn = .8+Math.random()*1.2;
+      // Persistent forward exploration, with small, gradually changing turns.
+      t.targetTurn = (Math.random()+Math.random()-1)*.22;
+      t.untilTurn = 2+Math.random()*3;
+    }
+    t.turn+=(t.targetTurn-t.turn)*(1-Math.exp(-elapsed*2));
+    const c=Math.cos(t.angle),s=Math.sin(t.angle);
+    const atEdge=(t.x<26&&c<0)||(t.x>width-26&&c>0)||
+      (t.y<26&&s<0)||(t.y>height-26&&s>0);
+    if(atEdge) {
+      const inward=Math.atan2(height/2-t.y,width/2-t.x);
+      const delta=Math.atan2(Math.sin(inward-t.angle),Math.cos(inward-t.angle));
+      t.turn=Math.sign(delta||1)*.3;
     }
     t.angle += t.turn*elapsed;
-    t.x += Math.cos(t.angle)*elapsed*t.speed;
-    t.y += Math.sin(t.angle)*elapsed*t.speed;
-    if(t.x<10 || t.x>width-10) {
-      t.x=Math.max(10,Math.min(width-10,t.x));
-      t.angle=Math.PI-t.angle;
-      t.turn=-t.turn;
+    t.x=Math.max(10,Math.min(width-10,t.x+Math.cos(t.angle)*elapsed*t.speed));
+    t.y=Math.max(10,Math.min(height-10,t.y+Math.sin(t.angle)*elapsed*t.speed));
+    // Don't drag a support foot or extend a joint beyond its physical reach.
+    for(let i=0;i<12 && t.legs.some(leg => stanceReach(t,leg)>8.1);i++) {
+      t.x=(t.x+before.x)/2;t.y=(t.y+before.y)/2;t.angle=(t.angle+before.angle)/2;
     }
-    if(t.y<10 || t.y>height-10) {
-      t.y=Math.max(10,Math.min(height-10,t.y));
-      t.angle=-t.angle;
-      t.turn=-t.turn;
+    t.vx=elapsed ? (t.x-before.x)/elapsed : 0;
+    t.vy=elapsed ? (t.y-before.y)/elapsed : 0;
+    t.yaw=elapsed ? (t.angle-before.angle)/elapsed : 0;
+    // Turning also consumes stance reach: timing cannot depend on translation alone.
+    t.stepBudget=Math.min(.9,t.stepBudget+Math.hypot(t.x-before.x,t.y-before.y)+
+      Math.abs(t.angle-before.angle)*4);
+  }
+  function stepLegs(t,elapsed) {
+    const moving=t.legs.find(leg => leg.swing);
+    if(moving) {
+      const step=moving.swing;
+      step.age=Math.min(SWING_TIME,step.age+elapsed);
+      const p=step.age/SWING_TIME,ease=p*p*p*(10+p*(-15+6*p));
+      // Minimum-jerk advance, slight inward recovery, and a lifted tarsus.
+      const arc=Math.sin(Math.PI*p)**2; // Zero lift velocity at contact and touchdown.
+      moving.x=step.from.x+(step.to.x-step.from.x)*ease+
+        Math.sin(t.angle)*moving.side*.35*arc;
+      moving.y=step.from.y+(step.to.y-step.from.y)*ease-
+        Math.cos(t.angle)*moving.side*.35*arc;
+      moving.lift=.85*arc;
+      if(p===1) {moving.lift=0;moving.swing=null;}
+      return; // Transfer support before another foot lifts.
     }
+    const urgent=t.legs.reduce((a,b) => stanceReach(t,a)>stanceReach(t,b) ? a : b);
+    const recovery=stanceReach(t,urgent)>7.7;
+    if(!recovery && (t.feeding>0 || t.stepBudget<.65))return;
+    const leg=recovery ? urgent : t.legs[STEP_ORDER[t.nextLeg]],pair=leg.pair;
+    // Predict this foot's displacement during its next stance, including yaw.
+    // Outside feet reach farther; inside feet take shorter, redirected steps.
+    const velocity=localPoint({x:0,y:0,angle:t.angle},t.vx,t.vy);
+    const leadX=Math.max(-2.8,Math.min(2.8,(velocity.x-t.yaw*leg.side*pair.spread)*1.05));
+    const leadY=Math.max(-1.1,Math.min(1.1,(velocity.y+t.yaw*pair.foot)*1.05));
+    leg.swing={age:0,from:{x:leg.x,y:leg.y},
+      to:worldPoint(t,pair.foot+leadX,leg.side*pair.spread+leadY)};
+    t.stepBudget=Math.max(0,t.stepBudget-.65);
+    if(!recovery)t.nextLeg=(t.nextLeg+1)%6;
+    t.strides++;
+  }
+  function stanceReach(t,leg) {
+    const foot=localPoint(t,leg.x,leg.y);
+    return Math.hypot(foot.x-.55-leg.pair.hip-leg.pair.bend*.3,
+      foot.y-leg.side*(1.6+.65+.8),leg.lift+.06-1.55);
+  }
+  function legJoints(t,leg) {
+    const foot={...localPoint(t,leg.x,leg.y),z:leg.lift};
+    const root={x:leg.pair.hip,y:leg.side*1.6,z:1.7};
+    const hip={x:root.x+leg.pair.bend*.3,y:root.y+leg.side*.65,z:1.55};
+    const ankle={x:foot.x-.55,y:foot.y-leg.side*.8,z:foot.z+.06};
+    const delta={x:ankle.x-hip.x,y:ankle.y-hip.y,z:ankle.z-hip.z};
+    const reach=Math.hypot(delta.x,delta.y,delta.z);
+    const unit={x:delta.x/reach,y:delta.y/reach,z:delta.z/reach};
+    // Two-link inverse kinematics in 3D; knees flex instead of stretching bones.
+    const distance=Math.max(Math.abs(FEMUR-TIBIA)+.001,Math.min(FEMUR+TIBIA-.001,reach));
+    const along=(FEMUR*FEMUR-TIBIA*TIBIA+distance*distance)/(2*distance);
+    const height=Math.sqrt(Math.max(0,FEMUR*FEMUR-along*along));
+    const pole={x:leg.pair.bend,y:leg.side*.35,z:1.2};
+    const dot=pole.x*unit.x+pole.y*unit.y+pole.z*unit.z;
+    const normal={x:pole.x-dot*unit.x,y:pole.y-dot*unit.y,z:pole.z-dot*unit.z};
+    const norm=Math.hypot(normal.x,normal.y,normal.z);
+    const knee={x:hip.x+unit.x*along+normal.x/norm*height,
+      y:hip.y+unit.y*along+normal.y/norm*height,
+      z:hip.z+unit.z*along+normal.z/norm*height};
+    return {root,hip,knee,ankle,foot,reach};
   }
   function bite(x,y,r,phase) {
     // Persistent raster damage keeps memory bounded while the leaf is eaten.
@@ -120,20 +224,59 @@
   }
   function drawTermite(t,now) {
     ctx.save();ctx.translate(t.x,t.y);ctx.rotate(t.angle);
-    ctx.strokeStyle='#8e7048';ctx.lineWidth=1;
-    const walk=Math.sin(now*.005+t.phase)*2;
-    for(let i=0;i<3;i++) {
-      const x=-3+i*3;
+    ctx.lineCap='round';ctx.lineJoin='round';
+    for(const leg of t.legs) {
+      const {root,hip,knee,ankle,foot}=legJoints(t,leg);
+      ctx.strokeStyle='#896c46';ctx.lineWidth=.7;
       ctx.beginPath();
-      ctx.moveTo(x,-2);ctx.lineTo(x-3+walk,-6);ctx.lineTo(x-1+walk,-9);
-      ctx.moveTo(x,2);ctx.lineTo(x-3-walk,6);ctx.lineTo(x-1-walk,9);ctx.stroke();
+      ctx.moveTo(root.x,root.y);ctx.lineTo(hip.x,hip.y);ctx.lineTo(knee.x,knee.y);ctx.stroke();
+      ctx.strokeStyle='#b69a6f';ctx.lineWidth=.55;
+      ctx.beginPath();ctx.moveTo(knee.x,knee.y);ctx.lineTo(ankle.x,ankle.y);ctx.stroke();
+      ctx.strokeStyle='#806441';ctx.lineWidth=.4;
+      ctx.beginPath();ctx.moveTo(ankle.x,ankle.y);ctx.lineTo(foot.x,foot.y);
+      ctx.lineTo(foot.x+.35,foot.y+leg.side*.2);ctx.stroke();
+      ctx.fillStyle=leg.lift>0 ? '#d9c29b' : '#806441';
+      ctx.beginPath();ctx.arc(knee.x,knee.y,.4,0,Math.PI*2);ctx.fill();
     }
+    ctx.strokeStyle='#8e7048';ctx.lineWidth=.65;
     ctx.fillStyle='#e9d4a7';
     ctx.beginPath();ctx.ellipse(-5,0,5.5,3.8,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.ellipse(1,0,3.2,2.7,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.fillStyle='#b97841';
+    // Soft segmented worker abdomen, broad waist, and three thoracic plates.
+    ctx.strokeStyle='rgba(142,112,72,.48)';ctx.lineWidth=.45;
+    for(const x of [-8,-6.5,-5,-3.5]) {
+      const span=3.65*Math.sqrt(1-((x+5)/5.5)**2);
+      ctx.beginPath();ctx.moveTo(x,-span);ctx.quadraticCurveTo(x+.8,0,x,span);ctx.stroke();
+    }
+    ctx.strokeStyle='#8e7048';ctx.lineWidth=.6;ctx.fillStyle='#dfc697';
+    for(const [x,rx,ry] of [[-1.1,1.6,2.5],[1,1.4,2.3],[3,1.5,2.5]]) {
+      ctx.beginPath();ctx.ellipse(x,0,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    }
+    ctx.fillStyle='#c4935d';
     ctx.beginPath();ctx.arc(6,0,3,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.beginPath();ctx.moveTo(8,-1);ctx.lineTo(12,-4);ctx.moveTo(8,1);ctx.lineTo(12,4);ctx.stroke();
+    ctx.fillStyle='rgba(255,241,206,.45)';
+    ctx.beginPath();ctx.ellipse(6,-.7,1.9,1.1,-.2,0,Math.PI*2);ctx.fill();
+    // Independent, bead-like antennae probe ahead rather than wagging with feet.
+    for(const side of [-1,1]) {
+      const scan=.19*Math.sin(now*.0017+t.phase+side*1.4)+.09*Math.sin(now*.0031+side);
+      const direction=side*(.55+scan);
+      ctx.strokeStyle='#997646';ctx.lineWidth=.4;
+      ctx.beginPath();ctx.moveTo(7.8,side*1.5);
+      for(let i=1;i<=12;i++) {
+        const a=direction+side*i*.012;
+        const x=7.8+Math.cos(a)*i*.57,y=side*1.5+Math.sin(a)*i*.57;
+        ctx.lineTo(x,y);
+      }
+      ctx.stroke();ctx.fillStyle='#ba955f';
+      for(let i=2;i<=12;i++) {
+        const a=direction+side*i*.012;
+        ctx.beginPath();ctx.arc(7.8+Math.cos(a)*i*.57,side*1.5+Math.sin(a)*i*.57,.23,0,Math.PI*2);ctx.fill();
+      }
+    }
+    const chew=t.feeding>0 ? .25+.45*(1+Math.sin(now*.018+t.phase))/2 : .25;
+    ctx.strokeStyle='#725136';ctx.lineWidth=.55;
+    for(const side of [-1,1]) {
+      ctx.beginPath();ctx.moveTo(8.4,side*.8);ctx.lineTo(9.5,side*chew);ctx.stroke();
+    }
     ctx.restore();
   }
   function drawGrass(g,now) {
@@ -183,7 +326,7 @@
   function tick(now) {
     if(!active)return;
     frame=requestAnimationFrame(tick);
-    if(now-lastPaint<80)return;
+    if(now-lastPaint<33)return;
     const elapsed=lastTime===null ? 0 : Math.min((now-lastTime)/1000,.2);
     lastTime=lastPaint=now;
     if(!nextSpawn)nextSpawn=now+1000;
@@ -197,7 +340,8 @@
     }
     for(const t of termites) {
       wander(t,elapsed);
-      t.nibble+=elapsed;
+      stepLegs(t,elapsed);
+      if(t.feeding>0)t.nibble+=elapsed;
       if(t.nibble>.55) {
         t.nibble=0;
         bite(t.x+Math.cos(t.angle)*8,t.y+Math.sin(t.angle)*8,13+Math.random()*7,now*.004+t.phase);
