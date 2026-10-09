@@ -5,7 +5,7 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const poses = ['walk-1','walk-1-bob','walk-1-sway','walk-2','walk-2-bob','walk-2-sway'];
   const source = pose => `assets/mario/castaway-${pose}.png`;
-  let frame, timer, finished = false, ready = false;
+  let frame, timer, ready = false;
 
   function pose(name) {
     if (sprite.dataset.pose === name) return;
@@ -25,7 +25,10 @@
     pose('idle');
   }
   function play() {
-    if (!ready || reduced.matches || document.hidden || finished) return;
+    if (!ready || reduced.matches || document.hidden) return;
+    sprite.hidden = false;
+    sprite.style.transform = '';
+    sprite.style.opacity = '';
     const bounds = stage.getBoundingClientRect(), target = link.getBoundingClientRect();
     const takeoff = Math.max(0, target.left - bounds.left - sprite.width - 8);
     const landing = target.left - bounds.left + target.width / 2 - sprite.width / 2;
@@ -55,9 +58,9 @@
         scale = 1 - .2 * Math.min(1, t);
         y -= 6 * Math.min(1, t);
         if (t >= 1) {
-          finished = true;
           sprite.hidden = true;
-          stage.dataset.state = 'done';
+          stage.dataset.state = 'waiting';
+          schedule();
           return;
         }
       }
@@ -71,7 +74,7 @@
   function schedule() {
     stop();
     if (reduced.matches) still();
-    else if (!finished && !document.hidden) timer = setTimeout(play, 650);
+    else if (!document.hidden) timer = setTimeout(play, 650);
   }
   reduced.addEventListener('change', schedule);
   document.addEventListener('visibilitychange', () => {
@@ -79,7 +82,6 @@
     else schedule();
   });
   addEventListener('resize', () => {
-    if (finished) return;
     still();
     schedule();
   }, {passive:true});
