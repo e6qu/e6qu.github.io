@@ -172,7 +172,9 @@ if (existsSync(storybook)) {
   for (const theme of ['light', 'dark']) {
     const page = await open('/storybook/iframe.html', theme);
     for (const story of stories) {
-      await page.goto(`${base}/storybook/iframe.html?id=${story.id}&viewMode=story&globals=theme:${theme}`);
+      // Manual mode keeps Storybook's a11y addon from starting its own axe run on each story,
+      // which would race this one ("Axe is already running"); the audit injects its own axe.
+      await page.goto(`${base}/storybook/iframe.html?id=${story.id}&viewMode=story&globals=theme:${theme};a11y.manual:!true`);
       await page.waitForSelector('.ds-theme');
       await audit(page, `${theme} storybook ${story.id}`, '#storybook-root');
     }
