@@ -86,3 +86,11 @@ test('share links round-trip the deck', async () => {
   assert.ok(packed.length < deck.length);
   assert.equal(await unpack(packed), deck);
 });
+
+test('dense fits more on a slide, on any sheet', () => {
+  const {slides} = render('---\n\n:: content dense\n\n## Many points\n\n- one\n- two\n\n---\n\n:: table dense footer="[src](https://example.com)"\n\n| a | b |\n| --- | --- |\n| 1 | 2 |\n\n---\n\n## Plain\n\n- one');
+  assert.match(slides[0].html, /class="slide slide-content slide-dense"/);
+  assert.match(slides[1].html, /class="slide slide-table slide-dense"/);
+  assert.match(slides[1].html, /<footer class="slide-footer"><span><a href="https:\/\/example.com"/);
+  assert.doesNotMatch(slides[2].html, /slide-dense/);
+});

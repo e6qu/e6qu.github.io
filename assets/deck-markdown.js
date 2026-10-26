@@ -386,7 +386,7 @@
       const footerText = args.footer ?? meta.footer ?? meta.title;
       const footer = NO_FOOTER.includes(template) || !footerText ? '' : `<footer class="slide-footer"><span>${inline(footerText)}</span></footer>`;
       body = body.includes('\u0000footer\u0000') ? body.replace('\u0000footer\u0000', footer) : body + footer;
-      return {template, line: slide.start, html: `<div class="slide-frame"><section class="slide slide-${template}" data-template="${template}">${body}</section></div>`};
+      return {template, line: slide.start, html: `<div class="slide-frame"><section class="slide slide-${template}${args.dense ? ' slide-dense' : ''}" data-template="${template}">${body}</section></div>`};
     });
     return {title: meta.title || firstTitle, slides: rendered, html: rendered.map(slide => slide.html).join('\n')};
   }

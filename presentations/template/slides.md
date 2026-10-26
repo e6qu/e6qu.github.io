@@ -8,7 +8,8 @@ Slides are separated by a line with three dashes. The first line of a slide can
 pick a sheet with ":: <name> key=value"; without it the sheet is guessed from the
 content. ### is a small kicker above the heading, ## the slide heading.
 Comments like this one are speaker notes: they are never shown.
-Any slide can override the footer with ":: <name> footer="Other text"".
+Any slide can override the footer with ":: <name> footer="Other text"", and
+"dense" (":: content dense") fits more text on a crowded slide.
 -->
 
 :: title
