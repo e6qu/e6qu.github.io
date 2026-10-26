@@ -28,6 +28,19 @@
       }
       svgs.get(name).then(svg => { art.innerHTML = svg; });
     }
+    // A closing runner shows the castaway standing until its slide is presented.
+    if (globalThis.Runner) for (const stage of container.querySelectorAll('[data-runner]')) runnerFor(stage).still();
+  }
+  const runners = new WeakMap();
+  function runnerFor(stage) {
+    if (!runners.has(stage)) {
+      const runner = globalThis.Runner.attach(stage, {stay: true});
+      const link = stage.querySelector('a');
+      // runs once when its slide is shown; hovering or focusing the link replays it
+      for (const type of ['mouseenter', 'focus']) link.addEventListener(type, () => runner.play());
+      runners.set(stage, runner);
+    }
+    return runners.get(stage);
   }
   function label(container) {
     const slides = [...container.querySelectorAll('.slide')];
@@ -64,9 +77,15 @@
     if (deck.dataset.mode === 'overview') frames[current]?.scrollIntoView({block: 'nearest'});
     const heading = title(frames[current]);
     if (!quiet) announce(`Slide ${current + 1} of ${frames.length}${heading ? `: ${heading}` : ''}`);
+    playRunner();
+  }
+  function playRunner() {
+    const stage = deck.dataset.mode === 'present' && frames[current]?.querySelector('[data-runner]');
+    if (stage && globalThis.Runner) runnerFor(stage).play();
   }
   function mode(next) {
     deck.dataset.mode = next;
+    playRunner();
     frames[current]?.scrollIntoView({block: 'nearest'});
     announce(next === 'overview' ? 'Overview. Arrow keys choose a slide, Enter presents it.' : `Presenting slide ${current + 1} of ${frames.length}`);
   }

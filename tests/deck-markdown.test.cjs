@@ -72,6 +72,13 @@ test('front matter sets the title and footers, directives override them', () => 
   assert.doesNotMatch(noted.html, /::/);
 });
 
+test('a closing sheet can send the castaway running onto its first link', () => {
+  const html = render(':: closing mario\n\n## Thanks.\n\n[e6qu.github.io](https://e6qu.github.io/)\n\n[mail](mailto:a@b.c)').html;
+  assert.match(html, /<p class="slide-links slide-runner" data-runner><img class="runner-sprite" alt="" aria-hidden="true"><a href="https:\/\/e6qu.github.io\/">/);
+  assert.equal((html.match(/data-runner/g) || []).length, 1);
+  assert.doesNotMatch(render(':: closing\n\n## Thanks.\n\n[x](https://x.y)').html, /data-runner/);
+});
+
 test('share links round-trip the deck', async () => {
   const deck = read('presentations/a-portfolio-that-measures-itself/slides.md');
   const packed = await pack(deck);

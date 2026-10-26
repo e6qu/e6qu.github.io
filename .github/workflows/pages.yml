@@ -36,6 +36,7 @@ jobs:
           node --check assets/site.js
           node --check assets/termites.js
           node --check assets/mario.js
+          node --check assets/runner.js
           node --check assets/slides.js
           node --check assets/showcase.js
           node --check assets/theme-toggle.js

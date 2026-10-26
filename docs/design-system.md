@@ -124,6 +124,9 @@ A one-line subtitle.
 - Options: `section number=03`, `comparison pick=1`, `feature art=replay`,
   `diagram key=2`, `terminal title=~/app`, and `footer="…"` on any slide.
 - `<!-- comments -->` are speaker notes and are never shown.
+- `:: closing mario` sends Regular Mario's castaway (`assets/runner.js`, shared with
+  the homepage's game invite) running onto the closing sheet's first link: once when
+  the slide is shown, again on hover or focus, standing still under reduced motion.
 - Sources are untrusted: HTML is escaped, and only http(s), mailto and
   relative URLs (plus data: images) are used.
 
