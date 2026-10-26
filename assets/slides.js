@@ -5,6 +5,7 @@
 // labelled "3 of 18") and changes are announced politely. The deck takes focus, and the
 // single-key shortcuts only work while it has it (WCAG 2.1.4); keys never act on text
 // fields or buttons. A slide whose content overflows scrolls with ↑/↓ before moving on.
+// The overview (O or Esc) shows Save as PDF and, for Markdown decks, Edit Markdown.
 // Elements with data-illustration get the matching SVG inlined so its colors follow the
 // theme. Decks rendered later (Markdown, the editor) call Slides.start(deck),
 // Slides.label(container) or Slides.illustrate(element) themselves.
@@ -28,6 +29,19 @@
       }
       svgs.get(name).then(svg => { art.innerHTML = svg; });
     }
+    // A closing runner shows the castaway standing until its slide is presented.
+    if (globalThis.Runner) for (const stage of container.querySelectorAll('[data-runner]')) runnerFor(stage).still();
+  }
+  const runners = new WeakMap();
+  function runnerFor(stage) {
+    if (!runners.has(stage)) {
+      const runner = globalThis.Runner.attach(stage, {stay: true});
+      const link = stage.querySelector('a');
+      // runs once when its slide is shown; hovering or focusing the link replays it
+      for (const type of ['mouseenter', 'focus']) link.addEventListener(type, () => runner.play());
+      runners.set(stage, runner);
+    }
+    return runners.get(stage);
   }
   function label(container) {
     const slides = [...container.querySelectorAll('.slide')];
@@ -64,9 +78,15 @@
     if (deck.dataset.mode === 'overview') frames[current]?.scrollIntoView({block: 'nearest'});
     const heading = title(frames[current]);
     if (!quiet) announce(`Slide ${current + 1} of ${frames.length}${heading ? `: ${heading}` : ''}`);
+    playRunner();
+  }
+  function playRunner() {
+    const stage = deck.dataset.mode === 'present' && frames[current]?.querySelector('[data-runner]');
+    if (stage && globalThis.Runner) runnerFor(stage).play();
   }
   function mode(next) {
     deck.dataset.mode = next;
+    playRunner();
     frames[current]?.scrollIntoView({block: 'nearest'});
     announce(next === 'overview' ? 'Overview. Arrow keys choose a slide, Enter presents it.' : `Presenting slide ${current + 1} of ${frames.length}`);
   }
@@ -116,6 +136,8 @@
       event.preventDefault();
     });
     addEventListener('hashchange', () => deck && show(hashSlide()));
+    // Save as PDF in the overview prints every slide, one per page (the print styles in slides.css)
+    document.querySelector('#print-deck')?.addEventListener('click', () => print());
     status = document.createElement('p');
     status.className = 'sr-only';
     status.setAttribute('role', 'status');

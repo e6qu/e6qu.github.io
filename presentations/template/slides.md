@@ -224,4 +224,6 @@ Back at 15:30
 
 ## Questions?
 
+<!-- ":: closing mario" sends Regular Mario's castaway running onto the first link. -->
+
 [github.com/e6qu](https://github.com/e6qu) [e6qu.github.io](https://e6qu.github.io)

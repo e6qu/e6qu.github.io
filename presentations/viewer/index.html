@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../../assets/slides.css">
   <link rel="stylesheet" href="../../assets/deck-tools.css">
   <script src="../../assets/theme-toggle.js" defer></script>
+  <script src="../../assets/runner.js" defer></script>
   <script src="../../assets/slides.js" defer></script>
   <script src="../../assets/deck-markdown.js" defer></script>
   <script src="../../assets/deck-viewer.js" defer></script>
@@ -45,6 +46,6 @@
     <p class="tool-status" id="status" role="status">Keys while presenting: ← → move · O overview · B black out · T theme · P print or save as PDF</p>
   </div>
   <main class="deck" id="deck" aria-labelledby="deck-title" data-manual hidden></main>
-  <div class="page-controls compact"><button class="icon-button" id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" hidden><span aria-hidden="true">☾</span></button></div>
+  <div class="page-controls compact"><a class="button when-overview" id="edit-deck" hidden>Edit Markdown</a><button class="button when-overview" type="button" id="print-deck">Save as PDF</button><button class="icon-button" id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" hidden><span aria-hidden="true">☾</span></button></div>
 </body>
 </html>

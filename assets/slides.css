@@ -164,6 +164,10 @@ body:has(> .deck) {margin:0}
 .slide-closing {justify-content:center}
 .slide-closing h2 {font-size:6em}
 .slide-closing .slide-links {display:flex;flex-wrap:wrap;gap:1em 3em;font:1.1em var(--mono)}
+.slide-closing .slide-links + .slide-links {margin-top:1em}
+/* the castaway's runway: runner.js moves the sprite from the left edge onto the link */
+.slide-closing .slide-runner {position:relative;align-items:flex-end;min-height:3.2em;padding-left:5em;font-size:1.8em}
+.slide-runner .runner-sprite {position:absolute;left:0;bottom:0;width:1.8em;height:1.8em;image-rendering:pixelated;pointer-events:none;transform-origin:50% 100%}
 
 /* presenting: one slide fills the viewport; the deck script marks the current one */
 .deck[data-mode='present'] {display:grid;place-items:center;height:100vh;overflow:hidden;background:#000}
@@ -175,6 +179,9 @@ body:has(> .deck) {margin:0}
 .deck[data-blackout]::after {content:'';position:fixed;inset:0;z-index:10;background:#000}
 .deck:focus {outline:none}
 .deck:focus-visible {outline:var(--border-strong) solid var(--coral);outline-offset:-4px}
+/* a deck's overview (Esc) adds Edit Markdown and Save as PDF beside the theme toggle */
+.page-controls .when-overview {display:none}
+:root:has(.deck[data-mode='overview']:not([hidden])) .page-controls .when-overview:not([hidden]) {display:inline-flex}
 /* the page controls stay out of the way while presenting; hover or focus shows them */
 :root:has(.deck[data-mode='present']:not([hidden])) .page-controls:not(:hover,:focus-within) {opacity:0}
 @media(prefers-reduced-motion:reduce) {

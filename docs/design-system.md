@@ -80,7 +80,7 @@ applied with `.featured-<name>` on the site or `.art-<name>` on slides.
 | blank | An empty sheet to rest on while switching screens (B also blacks out any slide) |
 | closing | Thanks and links |
 
-Decks print one sheet per page at 1280×720 (P, then save as PDF).
+Decks print one sheet per page at 1280×720 (P or the overview's Save as PDF, then save as PDF).
 
 ## Markdown decks
 
@@ -124,6 +124,9 @@ A one-line subtitle.
 - Options: `section number=03`, `comparison pick=1`, `feature art=replay`,
   `diagram key=2`, `terminal title=~/app`, and `footer="…"` on any slide.
 - `<!-- comments -->` are speaker notes and are never shown.
+- `:: closing mario` sends Regular Mario's castaway (`assets/runner.js`, shared with
+  the homepage's game invite) running onto the closing sheet's first link: once when
+  the slide is shown, again on hover or focus, standing still under reduced motion.
 - Sources are untrusted: HTML is escaped, and only http(s), mailto and
   relative URLs (plus data: images) are used.
 
@@ -131,7 +134,9 @@ A talk on the site is a directory under `presentations/` with a `slides.md`
 and an `index.html` like the sample's (`<div class="deck" data-markdown="slides.md">`).
 
 The **editor** (`/presentations/editor/`) shows the slide under the cursor,
-and clicking a slide jumps to its Markdown. Drafts are saved in the browser.
+and clicking a slide jumps to its Markdown. Nothing is stored on a server or in the browser: the deck lives in the address (`#md=`, compressed),
+so reloading, bookmarking or sharing the link keeps it. Save as PDF prints the preview.
+In a deck, the overview (Esc or O) shows Edit Markdown, which reopens that deck in the editor, and Save as PDF.
 It opens `?src=<path>` or a share link. **Copy link** and **Present** put the
 whole deck, compressed, in the link (`viewer/#md=…`), so sharing needs no
 server. The **viewer** (`/presentations/viewer/`) presents a pasted or dropped

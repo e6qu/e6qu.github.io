@@ -2,7 +2,7 @@
    Buttons and page controls come from components.css. */
 .tool {height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:var(--paper);color:var(--ink);font:var(--text-body)/1.5 var(--body);-webkit-font-smoothing:antialiased}
 .tool :focus-visible {outline:var(--border-strong) solid var(--coral);outline-offset:3px}
-.tool-bar {display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:14px 84px 14px 24px;border-bottom:var(--border) solid var(--line)}
+.tool-bar {display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:14px 80px 14px 24px;border-bottom:var(--border) solid var(--line)}
 .tool-bar h1 {margin:0;font:800 var(--text-lg)/1 var(--display);letter-spacing:var(--tracking-h2)}
 .tool-handle {font:var(--text-base) var(--mono);color:inherit;text-decoration:none}
 .tool-handle span {color:var(--coral)}
@@ -30,4 +30,14 @@
   .tool-panes {grid-template-columns:1fr}
   .tool-panes .tool-source {height:55vh;border-right:0;border-bottom:var(--border) solid var(--line)}
   .tool-actions {margin-left:0}
+}
+/* Save as PDF from the editor prints the live preview, one 1280×720 slide per page */
+@media print {
+  .tool {display:block;height:auto}
+  .tool-bar,.tool-status,.tool-panes .tool-source,.tool-panes > label {display:none}
+  .tool-panes {display:block}
+  .tool-preview {display:block;padding:0;overflow:visible}
+  .tool-preview .slide-frame {width:1280px;height:720px;overflow:hidden;outline:0;break-after:page}
+  .tool-preview .slide-frame:last-child {break-after:auto}
+  .tool-preview .slide {height:720px;overflow:hidden;print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }

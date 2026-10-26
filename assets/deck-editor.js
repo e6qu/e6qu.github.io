@@ -1,9 +1,9 @@
 // Dual-pane Markdown deck editor: Markdown on the left, live slides on the right.
-// Opens ?src=<path>, a shared #md=… link, the draft saved in this browser, or the
-// template, in that order. Nothing is uploaded: share links carry the deck itself.
+// The URL is the only storage: every edit rewrites #md=… (the deck, compressed), so
+// reloading, bookmarking or sharing the address brings back exactly this deck. Opens
+// #md=…, then ?src=<path>, then the template. Nothing is uploaded or kept elsewhere.
 (() => {
   const {render, slideAt, pack, unpack} = globalThis.DeckMarkdown;
-  const DRAFT = 'deck-editor-draft';
   const TEMPLATE = '../template/slides.md';
   const SAMPLE = '../a-portfolio-that-measures-itself/slides.md';
   const source = document.querySelector('#source');
@@ -13,9 +13,15 @@
   let slides = [];
   let currentSlide = -1;
   let timer;
+  let writes = 0;
 
   const say = message => { status.textContent = message; };
-  const save = () => { try { localStorage.setItem(DRAFT, source.value); } catch {} };
+  // Write the deck into the address; a newer write wins over a slower older one.
+  async function save() {
+    const write = ++writes;
+    const packed = await pack(source.value);
+    if (write === writes) history.replaceState(null, '', `${location.pathname}#md=${packed}`);
+  }
   const fetchText = url => fetch(url).then(response => response.ok ? response.text() : Promise.reject(new Error(`${url}: HTTP ${response.status}`)));
 
   function update() {
@@ -52,6 +58,9 @@
   }
   async function shareUrl() {
     return new URL(`../viewer/#md=${await pack(source.value)}`, location.href).href;
+  }
+  async function present() {
+    window.open(await shareUrl(), '_blank', 'noopener');
   }
   function filename() {
     const title = render(source.value).title || 'slides';
@@ -103,22 +112,16 @@
       prompt('Copy this link:', url);
     }
   });
-  document.querySelector('#present').addEventListener('click', async () => {
-    window.open(await shareUrl(), '_blank', 'noopener');
-  });
+  document.querySelector('#present').addEventListener('click', present);
+  // Prints the live preview, one slide per page (deck-tools.css has the print layout).
+  document.querySelector('#print').addEventListener('click', () => print());
 
   async function initial() {
     const params = new URLSearchParams(location.search);
     const shared = new URLSearchParams(location.hash.slice(1)).get('md');
-    if (shared) {
-      history.replaceState(null, '', location.pathname + location.search);
-      return [await unpack(shared), 'Opened the shared deck. Edits are saved in this browser.'];
-    }
-    if (params.get('src')) return [await fetchText(params.get('src')), `Opened ${params.get('src')}.`];
-    let draft = null;
-    try { draft = localStorage.getItem(DRAFT); } catch {}
-    if (draft) return [draft, 'Restored your draft from this browser.'];
-    return [await fetchText(TEMPLATE), 'Started from the template. Comments in it explain each sheet.'];
+    if (shared) return [await unpack(shared), 'Editing the deck in this address. Edits stay in the URL; nothing is stored anywhere else.'];
+    if (params.get('src')) return [await fetchText(params.get('src')), `Opened ${params.get('src')}. From now on the deck lives in this address.`];
+    return [await fetchText(TEMPLATE), 'Started from the template. The deck lives in this address: bookmark or share it to keep it.'];
   }
   initial()
     .then(([markdown, message]) => load(markdown, message))

@@ -7,6 +7,14 @@
   const source = document.querySelector('#source');
   const status = document.querySelector('#status');
   const file = document.querySelector('#file');
+  const editLink = document.querySelector('#edit-deck');
+  // Edit Markdown reopens this deck in the editor: the same #md=… if the address has one,
+  // otherwise the ?src= file. The editor keeps editing it in its own address.
+  editLink.addEventListener('click', () => {
+    const md = new URLSearchParams(location.hash.slice(1)).get('md');
+    const src = new URLSearchParams(location.search).get('src');
+    editLink.href = md ? `../editor/#md=${md}` : `../editor/?src=${encodeURIComponent(src || '')}`;
+  });
 
   function present(markdown) {
     const result = render(markdown);
@@ -18,6 +26,7 @@
     if (result.title) document.title = result.title;
     paste.hidden = true;
     deck.hidden = false;
+    editLink.hidden = false;
     globalThis.Slides.start(deck);
   }
   function ask(message) {

@@ -140,7 +140,8 @@
     const match = first < lines.length && lines[first].match(/^::\s*([\w-]+)(.*)$/);
     if (!match) return {template: null, args: {}, lines};
     const args = {};
-    for (const arg of match[2].matchAll(/(\w+)=(?:"([^"]*)"|(\S+))/g)) args[arg[1].toLowerCase()] = arg[2] ?? arg[3];
+    // key=value, key="quoted value", or a bare flag such as `mario`
+    for (const arg of match[2].matchAll(/(\w+)(?:=(?:"([^"]*)"|(\S+)))?/g)) args[arg[1].toLowerCase()] = arg[2] ?? arg[3] ?? true;
     return {template: match[1].toLowerCase(), args, lines: [...lines.slice(0, first), ...lines.slice(first + 1)]};
   }
 
@@ -360,7 +361,13 @@
         case 'closing': {
           const top = kicker();
           const title = heading(2) ?? 'Questions?';
-          body = `${top}<h2>${dotted(title)}</h2>${paragraphs().map(text => `<p class="slide-links">${inline(text)}</p>`).join('')}`;
+          // `:: closing mario` sends Regular Mario's castaway running onto the first link (slides.js plays it)
+          let runner = Boolean(args.mario);
+          body = `${top}<h2>${dotted(title)}</h2>${paragraphs().map(text => {
+            if (!runner || !/\[[^\]]+\]\(/.test(text)) return `<p class="slide-links">${inline(text)}</p>`;
+            runner = false;
+            return `<p class="slide-links slide-runner" data-runner><img class="runner-sprite" alt="" aria-hidden="true">${inline(text)}</p>`;
+          }).join('')}`;
           break;
         }
         default: {
@@ -423,6 +430,11 @@
       const result = render(markdown);
       deck.innerHTML = heading(result.title || document.title) + result.html;
       deck.setAttribute('aria-labelledby', 'deck-title');
+      const editor = document.querySelector('#edit-deck');
+      if (editor) {
+        editor.href = new URL(`../editor/?src=${encodeURIComponent(new URL(deck.dataset.markdown, location.href).pathname)}`, location.href).href;
+        editor.hidden = false;
+      }
       if (result.title) document.title = result.title;
       globalThis.Slides.start(deck);
     })
