@@ -2,14 +2,18 @@
   "name": "e6qu-design-system",
   "private": true,
   "type": "module",
-  "description": "Design tokens, components and presentation templates for e6qu.github.io",
+  "description": "Design system, Storybook and accessibility checks for e6qu.github.io",
   "scripts": {
     "fixtures": "python3 scripts/stories.py",
     "storybook": "npm run fixtures && storybook dev -p 6006",
-    "build-storybook": "npm run fixtures && storybook build --output-dir _site/storybook"
+    "build-storybook": "npm run fixtures && storybook build --output-dir _site/storybook",
+    "test:a11y": "node scripts/a11y.mjs"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "10.6.4",
     "@storybook/html-vite": "10.6.4",
+    "axe-core": "4.14.0",
+    "playwright": "1.63.0",
     "storybook": "10.6.4",
     "vite": "8.3.5"
   }

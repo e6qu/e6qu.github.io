@@ -1,0 +1,30 @@
+/* Design system base: reset, type, links, focus and motion. Load after tokens.css on
+   every page; components.css and page styles build on it. */
+* {box-sizing:border-box}
+[hidden] {display:none!important}
+body {margin:0;background:var(--paper);color:var(--ink);font:var(--text-body)/1.5 var(--body);-webkit-font-smoothing:antialiased}
+a {color:inherit;text-decoration:none}
+a:hover {color:var(--blue)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible {outline:var(--border-strong) solid var(--coral);outline-offset:5px}
+button,input,select {font:inherit;color:inherit}
+button {cursor:pointer}
+::selection {background:var(--blue);color:var(--paper)}
+h1 {font:800 var(--text-h1)/1.05 var(--display);letter-spacing:var(--tracking-h1);margin:0}
+h2 {font:800 var(--text-h2)/1.15 var(--display);letter-spacing:var(--tracking-h2);margin:0}
+.sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.skip-link {position:fixed;top:10px;left:10px;padding:12px;background:var(--surface);z-index:50;transform:translateY(-200%)}
+.skip-link:focus {transform:none}
+@media(max-width:750px) {
+  h1 {font-size:clamp(57px,10.7vw,80px)}
+  h2 {font-size:25px}
+}
+@media(max-width:420px) {
+  h1 {font-size:clamp(60px,15vw,70px);max-width:320px}
+}
+@media(prefers-reduced-motion:reduce) {
+  html {scroll-behavior:auto}
+  *,*::before,*::after {transition:none!important;animation:none!important}
+}
+/* the pause button in the page controls (motion.js) stops animation the same way */
+:root[data-motion='paused'] {scroll-behavior:auto}
+:root[data-motion='paused'] *,:root[data-motion='paused'] *::before,:root[data-motion='paused'] *::after {animation:none!important}

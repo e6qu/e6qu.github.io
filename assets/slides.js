@@ -1,16 +1,23 @@
-// Presents a .deck of .slide-frame elements: arrows/space/click to move, O for the
-// overview, B to black out the screen, T to switch theme, P to print (save as PDF).
-// The slide number is kept in the URL hash (#3, or slide=3 beside other hash fields).
-// Elements with data-illustration get the matching SVG inlined, so its colors follow
-// the theme tokens. Decks that are rendered later (Markdown, the editor) call
-// Slides.start(deck) or Slides.illustrate(element) themselves.
+// Presents a .deck of .slide-frame elements: ←/→ or click to move, O for the overview,
+// B to black out the screen, T to switch theme, P to print (save as PDF). The slide
+// number is kept in the URL hash (#3, or slide=3 beside other hash fields).
+// Accessibility: slides follow the WAI-ARIA carousel pattern (role description "slide",
+// labelled "3 of 18") and changes are announced politely. The deck takes focus, and the
+// single-key shortcuts only work while it has it (WCAG 2.1.4); keys never act on text
+// fields or buttons. A slide whose content overflows scrolls with ↑/↓ before moving on.
+// Elements with data-illustration get the matching SVG inlined so its colors follow the
+// theme. Decks rendered later (Markdown, the editor) call Slides.start(deck),
+// Slides.label(container) or Slides.illustrate(element) themselves.
 (() => {
   const root = document.documentElement;
   const assets = new URL('.', document.currentScript.src);
   const svgs = new Map();
+  const typing = 'input, textarea, select, [contenteditable]';
+  const interactive = `a, button, summary, ${typing}`;
   let deck = null;
   let frames = [];
   let current = 0;
+  let status = null;
 
   function illustrate(container) {
     for (const art of container.querySelectorAll('[data-illustration]')) {
@@ -22,14 +29,30 @@
       svgs.get(name).then(svg => { art.innerHTML = svg; });
     }
   }
+  function label(container) {
+    const slides = [...container.querySelectorAll('.slide')];
+    slides.forEach((slide, i) => {
+      slide.style.counterSet = `slide ${i + 1}`;
+      slide.setAttribute('aria-roledescription', 'slide');
+      slide.setAttribute('aria-label', `${i + 1} of ${slides.length}`);
+    });
+  }
+  function announce(message) {
+    if (status) status.textContent = message;
+  }
+  function title(frame) {
+    return frame?.querySelector('h2, blockquote')?.textContent.replace(/\s+/g, ' ').trim() || '';
+  }
 
   function hashSlide() {
     const hash = location.hash.slice(1);
     return (/^\d+$/.test(hash) ? Number(hash) : Number(new URLSearchParams(hash).get('slide'))) - 1 || 0;
   }
-  function show(index) {
+  function show(index, quiet = false) {
     current = Math.max(0, Math.min(frames.length - 1, index));
     frames.forEach((frame, i) => frame.toggleAttribute('data-current', i === current));
+    const slide = frames[current]?.querySelector('.slide');
+    if (slide) slide.scrollTop = 0;
     const hash = location.hash.slice(1);
     let next = String(current + 1);
     if (hash.includes('=')) {
@@ -39,36 +62,64 @@
     }
     history.replaceState(null, '', `#${next}`);
     if (deck.dataset.mode === 'overview') frames[current]?.scrollIntoView({block: 'nearest'});
+    const heading = title(frames[current]);
+    if (!quiet) announce(`Slide ${current + 1} of ${frames.length}${heading ? `: ${heading}` : ''}`);
   }
   function mode(next) {
     deck.dataset.mode = next;
     frames[current]?.scrollIntoView({block: 'nearest'});
+    announce(next === 'overview' ? 'Overview. Arrow keys choose a slide, Enter presents it.' : `Presenting slide ${current + 1} of ${frames.length}`);
   }
   function toggleTheme() {
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
     root.dataset.theme = next;
     try { localStorage.setItem('theme', next); } catch {}
     document.dispatchEvent(new Event('themechange'));
+    announce(`${next[0].toUpperCase()}${next.slice(1)} theme`);
+  }
+  // ↑/↓, PageUp/PageDown and Space scroll a slide that overflows before changing slides.
+  function scroll(direction) {
+    const slide = frames[current]?.querySelector('.slide');
+    if (!slide || deck.dataset.mode !== 'present') return false;
+    const room = direction > 0 ? slide.scrollHeight - slide.clientHeight - slide.scrollTop : slide.scrollTop;
+    if (room <= 1) return false;
+    slide.scrollBy({top: direction * slide.clientHeight * .8});
+    return true;
   }
 
   function bind() {
     document.addEventListener('keydown', event => {
-      if (!deck || event.metaKey || event.ctrlKey || event.altKey) return;
-      if (event.target.closest?.('input, textarea, select, [contenteditable]')) return;
+      if (!deck || deck.hidden || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target;
+      if (target.closest?.(typing)) return;
+      const onControl = Boolean(target.closest?.(interactive));
+      const inDeck = deck.contains(target) && !onControl;
       const key = event.key;
-      if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(key)) show(current + 1);
-      else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(key)) show(current - 1);
-      else if (key === 'Home') show(0);
+      if (['ArrowRight', 'PageDown', 'ArrowDown', ' '].includes(key)) {
+        if (key === ' ' && onControl) return;
+        if (key !== 'ArrowRight' && scroll(1)) { event.preventDefault(); return; }
+        show(current + 1);
+      } else if (['ArrowLeft', 'PageUp', 'ArrowUp'].includes(key)) {
+        if (key !== 'ArrowLeft' && scroll(-1)) { event.preventDefault(); return; }
+        show(current - 1);
+      } else if (key === 'Home') show(0);
       else if (key === 'End') show(frames.length - 1);
-      else if (key === 'o' || key === 'Escape') mode(deck.dataset.mode === 'overview' ? 'present' : 'overview');
-      else if (key === 'Enter' && deck.dataset.mode === 'overview') mode('present');
-      else if (key === 'b' || key === '.') deck.toggleAttribute('data-blackout');
-      else if (key === 't') toggleTheme();
+      else if (key === 'Escape') mode(deck.dataset.mode === 'overview' ? 'present' : 'overview');
+      else if (key === 'Enter' && !onControl && deck.dataset.mode === 'overview') mode('present');
+      else if (!inDeck) return;
+      else if (key === 'o') mode(deck.dataset.mode === 'overview' ? 'present' : 'overview');
+      else if (key === 'b' || key === '.') {
+        announce(deck.toggleAttribute('data-blackout') ? 'Screen blacked out. Press B to return.' : 'Screen restored');
+      } else if (key === 't') toggleTheme();
       else if (key === 'p') print();
       else return;
       event.preventDefault();
     });
     addEventListener('hashchange', () => deck && show(hashSlide()));
+    status = document.createElement('p');
+    status.className = 'sr-only';
+    status.setAttribute('role', 'status');
+    document.body.append(status);
   }
 
   function start(element) {
@@ -86,15 +137,15 @@
     }
     deck = element;
     frames = [...deck.querySelectorAll('.slide-frame')];
-    frames.forEach((frame, i) => {
-      frame.querySelector('.slide').style.counterSet = `slide ${i + 1}`;
-    });
+    label(deck);
     illustrate(deck);
+    deck.tabIndex = -1;
     deck.dataset.mode = 'present';
-    show(hashSlide());
+    show(hashSlide(), true);
+    if (!document.activeElement || document.activeElement === document.body) deck.focus({preventScroll: true});
   }
 
-  globalThis.Slides = {start, illustrate};
+  globalThis.Slides = {start, label, illustrate};
   const page = document.querySelector('.deck');
   if (page && !page.hasAttribute('data-markdown') && !page.hasAttribute('data-manual')) start(page);
 })();

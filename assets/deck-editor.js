@@ -22,8 +22,8 @@
     const result = render(source.value);
     slides = result.slides;
     preview.innerHTML = result.html;
-    // Each frame is a size container, which scopes CSS counters, so number them here.
-    preview.querySelectorAll('.slide').forEach((slide, i) => { slide.style.counterSet = `slide ${i + 1}`; });
+    // Frames are size containers, which scope CSS counters, so Slides numbers and labels them.
+    globalThis.Slides.label(preview);
     globalThis.Slides.illustrate(preview);
     currentSlide = -1;
     follow();
@@ -63,12 +63,6 @@
     timer = setTimeout(() => { update(); save(); }, 150);
   });
   for (const type of ['keyup', 'click', 'select']) source.addEventListener(type, follow);
-  source.addEventListener('keydown', event => {
-    if (event.key !== 'Tab' || event.shiftKey) return;
-    event.preventDefault();
-    source.setRangeText('  ', source.selectionStart, source.selectionEnd, 'end');
-    source.dispatchEvent(new Event('input'));
-  });
   // Clicking a slide puts the cursor at its first line.
   preview.addEventListener('click', event => {
     const frame = event.target.closest('.slide-frame');

@@ -31,7 +31,7 @@ class DesignSystemTests(unittest.TestCase):
         self.assertEqual(dark, system_dark)
 
     def test_components_take_colors_from_tokens(self):
-        for name in ['style.css', 'slides.css', 'deck-tools.css', 'theme-toggle.css']:
+        for name in ['base.css', 'components.css', 'site.css', 'slides.css', 'deck-tools.css']:
             css = (ROOT / 'assets' / name).read_text()
             # Black is only the projector letterbox and the blackout screen.
             self.assertEqual(set(re.findall(r'#[0-9a-fA-F]{3,6}\b', css)) - {'#000'}, set(), name)

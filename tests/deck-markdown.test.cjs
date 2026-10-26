@@ -49,6 +49,7 @@ test('code sheets highlight, mark lines and pin callouts', () => {
   assert.match(html, /<span class="kw">def<\/span> <span class="fn">f<\/span>/);
   assert.match(html, /<b class="pin">1<\/b>/);
   assert.match(html, /<span class="mark">.*return/);
+  assert.match(render('| a | b |\n| - | - |\n| 1 | 2 |').html, /<th scope="col">a<\/th>/);
   assert.match(html, /<ol class="slide-callouts"><li><b class="pin">1<\/b><span>note<\/span><\/li><\/ol>/);
   assert.doesNotMatch(render('```python\nchild.type = 1\n```').html, /class="kw">type/);
 });

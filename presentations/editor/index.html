@@ -15,7 +15,8 @@
     })();
   </script>
   <link rel="stylesheet" href="../../assets/tokens.css">
-  <link rel="stylesheet" href="../../assets/theme-toggle.css">
+  <link rel="stylesheet" href="../../assets/base.css">
+  <link rel="stylesheet" href="../../assets/components.css">
   <link rel="stylesheet" href="../../assets/slides.css">
   <link rel="stylesheet" href="../../assets/deck-tools.css">
   <script src="../../assets/theme-toggle.js" defer></script>
@@ -24,18 +25,18 @@
   <script src="../../assets/deck-editor.js" defer></script>
 </head>
 <body class="tool">
-  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" hidden><span aria-hidden="true">☾</span></button>
+  <div class="page-controls compact"><button class="icon-button" id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" hidden><span aria-hidden="true">☾</span></button></div>
   <header class="tool-bar">
     <a class="tool-handle" href="../"><span aria-hidden="true">/</span> presentations</a>
     <h1>Deck editor</h1>
     <div class="tool-actions">
-      <button class="tool-button" type="button" id="load-template" title="Every sheet, with the syntax explained">Template</button>
-      <button class="tool-button" type="button" id="load-sample">Sample talk</button>
-      <button class="tool-button" type="button" id="open-file">Open .md</button>
+      <button class="button" type="button" id="load-template" title="Every sheet, with the syntax explained">Template</button>
+      <button class="button" type="button" id="load-sample">Sample talk</button>
+      <button class="button" type="button" id="open-file">Open .md</button>
       <input type="file" id="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
-      <button class="tool-button" type="button" id="download">Download .md</button>
-      <button class="tool-button" type="button" id="copy-link" title="The deck is stored in the link itself">Copy link</button>
-      <button class="tool-button is-primary" type="button" id="present">Present ↗</button>
+      <button class="button" type="button" id="download">Download .md</button>
+      <button class="button" type="button" id="copy-link" title="The deck is stored in the link itself">Copy link</button>
+      <button class="button primary" type="button" id="present">Present <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></button>
     </div>
   </header>
   <main class="tool-panes">

@@ -15,7 +15,11 @@ const templateMarkdownFrames = markdown(templateMarkdown);
 // Decks live two levels down; Storybook serves the same assets at assets/.
 function prepare(frame, index) {
   const copy = frame.cloneNode(true);
-  copy.querySelector('.slide').style.counterSet = `slide ${index + 1}`;
+  const slide = copy.querySelector('.slide');
+  // the same numbering and labels assets/slides.js gives slides in a deck
+  slide.style.counterSet = `slide ${index + 1}`;
+  slide.setAttribute('aria-roledescription', 'slide');
+  slide.setAttribute('aria-label', `${index + 1}`);
   for (const art of copy.querySelectorAll('[data-illustration]')) {
     art.innerHTML = illustrations[`../assets/illustrations/${art.dataset.illustration}.svg`];
   }

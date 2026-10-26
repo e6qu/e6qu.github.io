@@ -16,7 +16,9 @@ const dark = block("[data-theme='dark']");
 const COLORS = [
   ['paper', 'Page background'], ['surface', 'Raised panels and controls'], ['ink', 'Primary text, strong rules'],
   ['muted', 'Secondary text and labels'], ['line', 'Borders and dividers'], ['blue', 'Links, languages, hover'],
-  ['coral', 'Accent marks, focus rings, selection'], ['teal', 'Strings in code slides, secondary accent'],
+  ['coral', 'Large accent marks, decoration, focus rings (3:1)'],
+  ['coral-strong', 'Accent for small text and fills behind text (4.5:1)'],
+  ['coral-on-ink', 'Accent on an ink background (section sheet)'], ['teal', 'Strings in code slides, secondary accent'],
 ];
 const ART = ['pipes', 'replay', 'database', 'branches', 'cloud', 'containers', 'board', 'chat', 'terminal'];
 const TEXT = [

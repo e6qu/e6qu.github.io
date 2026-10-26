@@ -16,14 +16,15 @@
     })();
   </script>
   <link rel="stylesheet" href="../assets/tokens.css">
-  <link rel="stylesheet" href="../assets/theme-toggle.css">
-  <link rel="stylesheet" href="../assets/style.css">
+  <link rel="stylesheet" href="../assets/base.css">
+  <link rel="stylesheet" href="../assets/components.css">
+  <link rel="stylesheet" href="../assets/site.css">
   <script src="../assets/theme-toggle.js" defer></script>
 </head>
 <!-- Add a talk: make a directory with an index.html like a-portfolio-that-measures-itself/
      and a slides.md, then add a row below. -->
 <body>
-  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" hidden><span aria-hidden="true">☾</span></button>
+  <div class="page-controls"><button class="icon-button" id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" hidden><span aria-hidden="true">☾</span></button></div>
   <div class="page-shell">
     <header class="masthead">
       <a class="github-handle" href="../"><span class="handle-mark" aria-hidden="true">/</span> e6qu</a>
@@ -34,7 +35,8 @@
         <h1 id="name">Talks<span class="name-dot">.</span></h1>
       </section>
       <section class="project-index" aria-labelledby="talks-heading">
-        <div class="section-heading"><h2 id="talks-heading">Presentations</h2><span class="project-count">← → to move · O overview · B black out · T theme · P print</span></div>
+        <div class="section-heading"><h2 id="talks-heading">Presentations</h2></div>
+        <p class="description">While presenting: ← → move, O overview, B black out, T theme, P print or save as PDF.</p>
         <ul class="project-list">
           <li class="project">
             <div class="project-info"><h3><a class="project-link" href="a-portfolio-that-measures-itself/">A portfolio that measures itself<span class="outbound" aria-hidden="true">↗</span></a></h3><p class="description">Sample technical talk on how this site counts source and test lines. Uses every slide template once.</p><p class="project-meta"><span class="languages">Sample talk</span><span class="license">18 slides</span><a class="demo-link" href="editor/?src=../a-portfolio-that-measures-itself/slides.md">Edit in Markdown <span aria-hidden="true">↗</span></a></p></div>
@@ -51,7 +53,7 @@
         </ul>
       </section>
     </main>
-    <footer><span>Built with the e6qu.github.io design system</span><a href="https://github.com/e6qu/e6qu.github.io/tree/main/presentations">Source ↗</a></footer>
+    <footer class="site-footer"><span>Built with the e6qu.github.io design system</span><a href="https://github.com/e6qu/e6qu.github.io/tree/main/presentations">Source <span aria-hidden="true">↗</span></a></footer>
   </div>
 </body>
 </html>

@@ -11,8 +11,10 @@
     if (meta) meta.content = getComputedStyle(root).getPropertyValue('--paper').trim();
     if (!button) return;
     button.firstElementChild.textContent = dark ? '☀︎' : '☾';
-    button.setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} mode`);
+    // A toggle keeps one name; its state is aria-pressed. The tooltip says what a click does.
+    button.setAttribute('aria-label', 'Dark mode');
     button.setAttribute('aria-pressed', String(dark));
+    button.title = `Switch to ${dark ? 'light' : 'dark'} mode`;
   }
   function apply(theme) {
     root.dataset.theme = theme;

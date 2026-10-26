@@ -1,5 +1,6 @@
 // Markup comes from scripts/stories.py, which cuts it out of the page build.py renders.
 import fixtures from './fixtures.json';
+import '../assets/showcase.js';
 
 const unhide = html => html.replace(/ hidden(?=[\s>])/g, '');
 const featuredNames = Object.keys(fixtures.featured);
@@ -9,12 +10,9 @@ export default {title: 'Components'};
 
 export const Masthead = {render: () => fixtures.masthead};
 
-export const ThemeToggle = {
-  name: 'Theme toggle',
-  render: () => `<div class="ds-static-toggle" style="display:flex;gap:24px">
-    ${unhide(fixtures.themeToggle).replace('class="theme-toggle"', 'class="theme-toggle" style="position:static"')}
-    ${unhide(fixtures.themeToggle).replace('class="theme-toggle"', 'class="theme-toggle" style="position:static"').replace('☾', '☀︎')}
-  </div>`,
+export const PageControls = {
+  name: 'Page controls',
+  render: () => unhide(fixtures.pageControls).replace('class="page-controls"', 'class="page-controls" style="position:static"'),
 };
 
 export const Identity = {render: () => fixtures.identity};
@@ -26,21 +24,15 @@ export const FeaturedPanel = {
   render: ({project}) => `<div class="showcase-panels">${fixtures.featured[project]}</div>`,
 };
 
+// Runs the same tabs script as the site (assets/showcase.js).
 export const Showcase = {
   render: () => {
-    const section = document.createElement('section');
-    section.className = 'showcase js';
-    section.innerHTML = `<div class="showcase-panels">${Object.values(fixtures.featured).join('')}</div>
-      <div class="showcase-tabs" role="tablist">${fixtures.tabs.join('')}</div>`;
-    const panels = [...section.querySelectorAll('.featured-panel')];
-    const tabs = [...section.querySelectorAll('.showcase-tab')];
-    const select = index => tabs.forEach((tab, i) => {
-      tab.setAttribute('aria-selected', String(i === index));
-      panels[i].toggleAttribute('data-active', i === index);
-    });
-    tabs.forEach((tab, i) => tab.addEventListener('click', () => select(i)));
-    select(0);
-    return section;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'js';
+    wrapper.innerHTML = `<section class="showcase"><div class="showcase-panels">${Object.values(fixtures.featured).join('')}</div>
+      <div class="showcase-tabs" hidden>${fixtures.tabs.join('')}</div></section>`;
+    globalThis.Showcase.init(wrapper.firstElementChild);
+    return wrapper;
   },
 };
 

@@ -37,7 +37,9 @@ jobs:
           node --check assets/termites.js
           node --check assets/mario.js
           node --check assets/slides.js
+          node --check assets/showcase.js
           node --check assets/theme-toggle.js
+          node --check assets/motion.js
           node --check assets/deck-markdown.js
           node --check assets/deck-editor.js
           node --check assets/deck-viewer.js
@@ -52,11 +54,17 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Install Storybook
+      - name: Install Storybook and audit tools
         run: npm ci
       # Every deploy replaces the whole site, so Storybook is rebuilt on each run.
       - name: Build design system Storybook into /storybook
         run: npm run build-storybook
+      - name: Install Chromium for the accessibility audit
+        run: npx playwright install --with-deps chromium
+      # WCAG 2.2 AA (axe) on every page, slide and story in both themes, plus reflow, text
+      # spacing, focus and keyboard checks. A failure stops the deploy.
+      - name: Audit accessibility
+        run: npm run test:a11y
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

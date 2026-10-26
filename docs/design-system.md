@@ -4,17 +4,32 @@ The site, the presentation decks and Storybook share one set of tokens and
 components. Storybook is published at https://e6qu.github.io/storybook/ and
 the decks at https://e6qu.github.io/presentations/.
 
-## Files
+## Layers
 
-| File | Holds |
+Every page loads the same design system layers, in this order, and adds only
+its own layout on top:
+
+| Layer | File | Holds |
+| --- | --- | --- |
+| Foundations | `assets/tokens.css` | Fonts, colors, type scale, borders, radii, motion and layout tokens. The only place colors are defined. |
+| Base | `assets/base.css` | Reset, headings, links, the focus ring, `.sr-only`, the skip link, reduced and paused motion. |
+| Components | `assets/components.css` | Page controls (round icon buttons), buttons, masthead, section heading, showcase and tabs, search and sort, project list, site footer. |
+| Presentation | `assets/slides.css` | The 18 slide sheets, 16:9, sized in em so they scale to any container. |
+| Page layout | `assets/site.css`, `assets/deck-tools.css` | Where the homepage and presentations index, and the editor and viewer, place components. |
+
+Behaviour that goes with components:
+
+| Script | For |
 | --- | --- |
-| `assets/tokens.css` | Fonts, colors, type scale, borders, radii, motion and layout tokens. The only place colors are defined. |
-| `assets/style.css` | Site components (masthead, identity, featured showcase, project index, footer). |
-| `assets/slides.css` | Presentation sheets, 16:9, sized in em so they scale to any container. |
-| `assets/theme-toggle.css`, `assets/theme-toggle.js` | The sun/moon button in the top right corner of every page. |
-| `assets/slides.js` | Deck controls: ←/→ or click to move, O overview, B black out, T theme, P print to PDF. |
+| `assets/theme-toggle.js` | The sun/moon button (`#theme-toggle`) in the page controls, on every page. |
+| `assets/motion.js` | The pause button (`#motion-toggle`): stops the homepage's moving decoration and remembers it. |
+| `assets/showcase.js` | Showcase tabs (WAI-ARIA tabs pattern). Storybook runs the same script. |
+| `assets/slides.js` | Decks: ←/→ or click to move, O overview, B black out, T theme, P print to PDF. |
 | `assets/deck-markdown.js` | Renders Markdown decks into sheets, in the browser. |
-| `assets/deck-editor.js`, `assets/deck-viewer.js`, `assets/deck-tools.css` | The editor and viewer pages. |
+| `assets/deck-editor.js`, `assets/deck-viewer.js` | The editor and viewer pages. |
+
+| Content | Holds |
+| --- | --- |
 | `presentations/template/` | Every sheet once: `index.html` in HTML, `slides.md` in Markdown with the syntax explained. |
 | `presentations/a-portfolio-that-measures-itself/` | Sample technical talk using every sheet, written in `slides.md`. |
 | `presentations/editor/` | Dual-pane editor: Markdown on the left, live slides on the right. |
@@ -29,13 +44,14 @@ Theme tokens are declared for `:root`, `[data-theme='light']` and
 theme is set. Because a theme applies to any element with `data-theme`,
 Storybook can show the same component in both themes side by side (toolbar:
 Theme → Side by side). Components use `var(--*)` only; the tests fail if a hex
-color appears in `style.css` or `slides.css`, or if the dark and system-dark
+color appears in any layer after the tokens, or if the dark and system-dark
 blocks drift apart.
 
 Every page has the same sun/moon toggle in a circle in the top right corner
 (☾ in light mode, ☀ in dark). It follows the system until clicked, then the
-choice is remembered. While a deck is presenting the button fades out; hover
-or tab to it to bring it back, or press T.
+choice is remembered. The homepage adds a pause button beside it. While a deck
+is presenting the controls fade out; hover or tab to them to bring them back,
+or press T.
 
 Illustration colors follow the same rule: each illustration has a themed
 paper token (`--art-replay`) and a fixed accent (`--art-replay-accent`),
@@ -121,6 +137,47 @@ whole deck, compressed, in the link (`viewer/#md=…`), so sharing needs no
 server. The **viewer** (`/presentations/viewer/`) presents a pasted or dropped
 `.md` file, `?src=<path>`, or a share link, with the same keys as any deck.
 
+## Accessibility
+
+The site, the decks, the editor and viewer, and every Storybook story meet
+WCAG 2.2 level AA, in light and dark. `npm run test:a11y` (run in CI before
+every deploy) checks the built `_site`:
+
+- axe-core against WCAG 2.0, 2.1 and 2.2 A/AA and best practices, on every
+  page at 1280 and 320 px, every slide of every deck, each deck's overview
+  and every story;
+- reflow: no sideways scrolling at 320 px (1.4.10);
+- text spacing: with the WCAG overrides applied, no text is clipped and nothing
+  scrolls sideways (1.4.12); slides scroll rather than cut content off;
+- focus: tabbing through each page, every stop has a visible indicator and is
+  not hidden behind other content (2.4.7, 2.4.11);
+- keyboard: the deck takes focus, slide changes are announced, single-key
+  shortcuts act only while the deck has focus (2.1.4), controls keep their own
+  keys, and the editor does not trap Tab (2.1.2).
+
+Storybook's Accessibility panel shows the same axe results for each story.
+
+Rules the components follow:
+
+- `--coral` is for large display marks and decoration (3:1). Small accent text
+  and fills behind text use `--coral-strong` (4.5:1); accents on the inverted
+  section sheet use `--coral-on-ink`.
+- State is never shown by color alone: the selected tab has a thicker bar, the
+  current agenda item a bar, the chosen comparison column a ✓, the best table
+  row a ▸, highlighted code lines a left rule.
+- Toggles keep one name and expose their state with `aria-pressed`
+  ("Dark mode", "Pause animations"); the tooltip says what a click does.
+- Moving decoration that starts on its own (the game invite runner, the idle
+  insects) stops with the pause button, which is remembered, and with
+  `prefers-reduced-motion` (2.2.2). Blinking stops within five seconds.
+- Decks: the deck is the page's `main`, titled by a visually hidden `h1`; each
+  sheet's heading is an `h2` (the title sheet uses `.slide-display`); slides are
+  labelled "3 of 18" with the role description "slide" (WAI-ARIA carousel
+  pattern); decorative arrows and markers are silent for screen readers.
+- Links say where they go in their accessible name, starting with the visible
+  text ("Try demo of zzira"); arrows are `aria-hidden`; links in running text
+  are underlined.
+
 ## Working locally
 
 ```sh
@@ -128,6 +185,7 @@ npm ci
 npm run storybook          # http://localhost:6006, regenerates fixtures first
 npm run build-storybook    # writes _site/storybook
 python3 scripts/build.py   # writes _site, including _site/presentations
+npm run test:a11y          # audits _site (build Storybook first to include the stories)
 ```
 
 Stories never copy markup by hand: site components come from the rendered

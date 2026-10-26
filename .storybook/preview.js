@@ -1,6 +1,7 @@
 import '../assets/tokens.css';
-import '../assets/theme-toggle.css';
-import '../assets/style.css';
+import '../assets/base.css';
+import '../assets/components.css';
+import '../assets/site.css';
 import '../assets/slides.css';
 import './preview.css';
 
@@ -20,6 +21,8 @@ function scope(theme, content) {
 export default {
   parameters: {
     layout: 'fullscreen',
+    // The Accessibility panel runs axe on every story; scripts/a11y.mjs fails CI on any violation.
+    a11y: {test: 'error', options: {runOnly: {type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']}}},
     options: {storySort: {order: ['Foundations', 'Components', 'Presentation']}},
   },
   globalTypes: {

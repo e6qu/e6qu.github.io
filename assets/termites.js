@@ -18,7 +18,7 @@
   const FEMUR = 3.7, TIBIA = 4.6;
   let timer, frame, lastTime = null, lastPaint = 0, nextSpawn = 0, active = false;
   let width = 0, height = 0, termites = [], grass = [], butterflies = [];
-  function allowed() { return !reduced.matches && fine.matches && !document.hidden; }
+  function allowed() { return !reduced.matches && fine.matches && !document.hidden && document.documentElement.dataset.motion !== 'paused'; }
   function resize() {
     const ratio = Math.min(devicePixelRatio || 1, 1.5, 2400 / innerWidth);
     width = innerWidth;
@@ -389,6 +389,7 @@
   document.addEventListener('visibilitychange',reset);
   document.addEventListener('themechange',reset);
   reduced.addEventListener('change',reset);
+  document.addEventListener('motionchange',reset);
   fine.addEventListener('change',reset);
   reset();
 })();

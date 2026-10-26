@@ -12,7 +12,7 @@ function simulation() {
   const canvas = {getContext: () => drawing, setAttribute() {}, removeAttribute() {}};
   const reduced = {matches: false, addEventListener: (name, fn) => listeners.reduced = fn};
   const fine = {matches: true, addEventListener: (name, fn) => listeners.fine = fn};
-  const document = {hidden: false, querySelector: () => canvas,
+  const document = {hidden: false, documentElement: {dataset: {}}, querySelector: () => canvas,
     createElement: () => ({getContext: () => damage}),
     addEventListener: (name, fn) => listeners[name] = fn};
   const math = Object.create(Math);
@@ -55,6 +55,19 @@ test('waits ten seconds, clears the idle scene and damage, restarts idle timer',
   assert.equal(s.state().active,false);
   assert.equal(s.state().termites.length+s.state().grass.length+s.state().butterflies.length,0);
   assert.equal(s.clears(),1);
+  assert.equal([...s.timers.values()][0].delay,10000);
+});
+
+test('the pause button stops the idle scene and keeps it from coming back', () => {
+  const s=simulation();
+  s.start();s.random(() => 0);s.tick(1100);
+  assert.equal(s.state().active,true);
+  s.document.documentElement.dataset.motion='paused';
+  s.listeners.motionchange();
+  assert.equal(s.state().active,false);
+  assert.equal(s.timers.size,0);
+  delete s.document.documentElement.dataset.motion;
+  s.listeners.motionchange();
   assert.equal([...s.timers.values()][0].delay,10000);
 });
 

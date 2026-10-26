@@ -32,39 +32,3 @@
     search.focus();
   });
 })();
-
-(() => {
-  const tabs = [...document.querySelectorAll('.showcase-tab')];
-  const panels = [...document.querySelectorAll('.featured-panel')];
-  const nav = document.querySelector('#showcase-tabs');
-  if (!tabs.length) return;
-  nav.hidden = false;
-  nav.setAttribute('role', 'tablist');
-  nav.setAttribute('aria-label', 'Featured projects');
-  function select(index, focus = false) {
-    tabs.forEach((tab, i) => {
-      const active = i === index;
-      tab.setAttribute('aria-selected', String(active));
-      tab.tabIndex = active ? 0 : -1;
-      panels[i].toggleAttribute('data-active', active);
-      panels[i].hidden = !active;
-    });
-    if (focus) tabs[index].focus();
-  }
-  tabs.forEach((tab, index) => {
-    tab.setAttribute('role', 'tab');
-    panels[index].setAttribute('role', 'tabpanel');
-    panels[index].setAttribute('aria-labelledby', tab.id);
-    panels[index].tabIndex = 0;
-    tab.addEventListener('click', () => select(index));
-    tab.addEventListener('keydown', event => {
-      let next;
-      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-      if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
-      if (event.key === 'Home') next = 0;
-      if (event.key === 'End') next = tabs.length - 1;
-      if (next !== undefined) { event.preventDefault(); select(next, true); }
-    });
-  });
-  select(0);
-})();

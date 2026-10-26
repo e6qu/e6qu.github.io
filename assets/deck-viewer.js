@@ -14,7 +14,7 @@
       status.textContent = 'There are no slides yet. Write some Markdown first.';
       return;
     }
-    deck.innerHTML = result.html;
+    deck.innerHTML = globalThis.DeckMarkdown.heading(result.title || 'Presentation') + result.html;
     if (result.title) document.title = result.title;
     paste.hidden = true;
     deck.hidden = false;

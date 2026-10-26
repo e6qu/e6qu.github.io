@@ -15,7 +15,8 @@
     })();
   </script>
   <link rel="stylesheet" href="../../assets/tokens.css">
-  <link rel="stylesheet" href="../../assets/theme-toggle.css">
+  <link rel="stylesheet" href="../../assets/base.css">
+  <link rel="stylesheet" href="../../assets/components.css">
   <link rel="stylesheet" href="../../assets/slides.css">
   <link rel="stylesheet" href="../../assets/deck-tools.css">
   <script src="../../assets/theme-toggle.js" defer></script>
@@ -35,15 +36,15 @@
       <label class="sr-only" for="source">Markdown</label>
       <textarea class="tool-source" id="source" spellcheck="false" autocomplete="off" placeholder="# My talk.&#10;&#10;---&#10;&#10;## First point&#10;&#10;- One idea per line"></textarea>
       <div class="tool-actions">
-        <button class="tool-button is-primary" type="button" id="present">Present</button>
-        <button class="tool-button" type="button" id="open-file">Open .md</button>
+        <button class="button primary" type="button" id="present">Present</button>
+        <button class="button" type="button" id="open-file">Open .md</button>
         <input type="file" id="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
-        <button class="tool-button" type="button" id="edit">Open in editor</button>
+        <button class="button" type="button" id="edit">Open in editor</button>
       </div>
     </main>
     <p class="tool-status" id="status" role="status">Keys while presenting: ← → move · O overview · B black out · T theme · P print or save as PDF</p>
   </div>
-  <div class="deck" id="deck" data-manual hidden></div>
-  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" hidden><span aria-hidden="true">☾</span></button>
+  <main class="deck" id="deck" aria-labelledby="deck-title" data-manual hidden></main>
+  <div class="page-controls compact"><button class="icon-button" id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" hidden><span aria-hidden="true">☾</span></button></div>
 </body>
 </html>

@@ -241,7 +241,7 @@
           firstTitle ||= title.replace(/[*_`]/g, '').replace(/[.?!]$/, '');
           const lead = take('paragraph');
           const metaList = list();
-          body = `${top}<h1>${dotted(title)}</h1>${lead ? `<p class="slide-lead">${inline(lead.text)}</p>` : ''}` +
+          body = `${top}<h2 class="slide-display">${dotted(title)}</h2>${lead ? `<p class="slide-lead">${inline(lead.text)}</p>` : ''}` +
             (metaList ? `<p class="slide-meta">${items(metaList, item => `<span>${inline(item)}</span>`)}</p>` : '');
           break;
         }
@@ -312,7 +312,7 @@
           const table = take('table') || {head: [], rows: []};
           const numeric = table.head.map((_, column) => table.rows.length > 0 && table.rows.every(row =>
             /^(\*\*)?[\d.,\s]+\s*(%|ms|s|µs|ns|kb|mb|gb|k|m|x|×)?(\*\*)?$/i.test(row[column] || '')));
-          const cell = (tag, text, column) => `<${tag}${numeric[column] ? ' class="num"' : ''}>${inline(text || '')}</${tag}>`;
+          const cell = (tag, text, column) => `<${tag}${tag === 'th' ? ' scope="col"' : ''}${numeric[column] ? ' class="num"' : ''}>${inline(text || '')}</${tag}>`;
           body = `${top}<table><thead><tr>${table.head.map((text, i) => cell('th', text, i)).join('')}</tr></thead><tbody>${table.rows.map(row => {
             const best = /^\*\*.+\*\*$/.test(row[0] || '');
             return `<tr${best ? ' class="is-best"' : ''}>${row.map((text, i) => cell('td', best ? text.replace(/^\*\*(.+)\*\*$/, '$1') : text, i)).join('')}</tr>`;
@@ -379,8 +379,7 @@
       const footerText = args.footer ?? meta.footer ?? meta.title;
       const footer = NO_FOOTER.includes(template) || !footerText ? '' : `<footer class="slide-footer"><span>${inline(footerText)}</span></footer>`;
       body = body.includes('\u0000footer\u0000') ? body.replace('\u0000footer\u0000', footer) : body + footer;
-      const label = template === 'code-split' ? 'Code with notes' : template[0].toUpperCase() + template.slice(1);
-      return {template, line: slide.start, html: `<div class="slide-frame"><section class="slide slide-${template}" data-template="${template}" aria-label="${label}">${body}</section></div>`};
+      return {template, line: slide.start, html: `<div class="slide-frame"><section class="slide slide-${template}" data-template="${template}">${body}</section></div>`};
     });
     return {title: meta.title || firstTitle, slides: rendered, html: rendered.map(slide => slide.html).join('\n')};
   }
@@ -409,7 +408,10 @@
     return new Response(stream).text();
   }
 
-  globalThis.DeckMarkdown = {TEMPLATES, render, slideAt, pack, unpack};
+  // The page heading a presented deck needs: its title, for screen readers only.
+  const heading = title => `<h1 class="sr-only" id="deck-title">${esc(title)}</h1>`;
+
+  globalThis.DeckMarkdown = {TEMPLATES, render, heading, slideAt, pack, unpack};
 
   // <body class="deck" data-markdown="slides.md"> loads and presents a Markdown deck.
   if (typeof document === 'undefined') return;
@@ -419,7 +421,8 @@
     .then(response => response.ok ? response.text() : Promise.reject(new Error(`HTTP ${response.status}`)))
     .then(markdown => {
       const result = render(markdown);
-      deck.innerHTML = result.html;
+      deck.innerHTML = heading(result.title || document.title) + result.html;
+      deck.setAttribute('aria-labelledby', 'deck-title');
       if (result.title) document.title = result.title;
       globalThis.Slides.start(deck);
     })

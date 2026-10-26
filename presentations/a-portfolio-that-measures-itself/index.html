@@ -15,7 +15,8 @@
     })();
   </script>
   <link rel="stylesheet" href="../../assets/tokens.css">
-  <link rel="stylesheet" href="../../assets/theme-toggle.css">
+  <link rel="stylesheet" href="../../assets/base.css">
+  <link rel="stylesheet" href="../../assets/components.css">
   <link rel="stylesheet" href="../../assets/slides.css">
   <script src="../../assets/theme-toggle.js" defer></script>
   <script src="../../assets/slides.js" defer></script>
@@ -23,7 +24,7 @@
 </head>
 <!-- The talk is written in slides.md; edit it there or open it in ../editor/. -->
 <body>
-  <div class="deck" data-markdown="slides.md"></div>
-  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" hidden><span aria-hidden="true">☾</span></button>
+  <main class="deck" data-markdown="slides.md"></main>
+  <div class="page-controls"><button class="icon-button" id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" hidden><span aria-hidden="true">☾</span></button></div>
 </body>
 </html>

@@ -20,17 +20,17 @@ def fixtures(data):
     with tempfile.TemporaryDirectory() as temp:
         build(data, Path(temp))
         page = (Path(temp) / 'index.html').read_text()
-    panels = re.findall(r'<article class="featured-panel featured-[\w-]+" id="featured-([\w.-]+)".*?</article>', page, re.S)
+    panels = re.findall(r'<section class="featured-panel featured-[\w-]+" id="featured-([\w.-]+)".*?</section>', page, re.S)
     return {
         'masthead': first(r'<header class="masthead">.*?</header>', page),
-        'themeToggle': first(r'<button class="theme-toggle".*?</button>', page),
+        'pageControls': first(r'<div class="page-controls">.*?</div>', page),
         'identity': first(r'<section class="identity".*?</section>', page),
         'sectionHeading': first(r'<div class="section-heading"><h2 id="projects-heading">.*?</div>', page),
         'tools': first(r'<div class="tools".*?</div>', page),
         'columnLabels': first(r'<div class="column-labels".*?</div></div>', page),
         'empty': first(r'<p class="empty".*?</p>', page),
-        'footer': first(r'<footer>.*?</footer>', page),
-        'featured': {name: first(rf'<article class="featured-panel [^"]*" id="featured-{re.escape(name)}".*?</article>', page)
+        'footer': first(r'<footer class="site-footer">.*?</footer>', page),
+        'featured': {name: first(rf'<section class="featured-panel [^"]*" id="featured-{re.escape(name)}".*?</section>', page)
                      for name in panels},
         'tabs': re.findall(r'<button class="showcase-tab".*?</button>', page, re.S),
         'projects': {name: html for html, name in
