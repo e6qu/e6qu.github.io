@@ -123,6 +123,9 @@ A one-line subtitle.
   becomes pin 1 beside a numbered list.
 - Options: `section number=03`, `comparison pick=1`, `feature art=replay`,
   `diagram key=2`, `terminal title=~/app`, and `footer="…"` on any slide.
+- `dense` on any sheet (`:: content dense`, `:: table dense`) fits more on one slide:
+  a smaller heading, lists, tables and code, at full width. A footer can carry a
+  slide's sources as links.
 - `<!-- comments -->` are speaker notes and are never shown.
 - `:: closing mario` sends Regular Mario's castaway (`assets/runner.js`, shared with
   the homepage's game invite) running onto the closing sheet's first link: once when

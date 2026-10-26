@@ -28,6 +28,15 @@ body:has(> .deck) {margin:0}
 .slide-note {margin-top:auto;font:.85em var(--mono);color:var(--muted)}
 .slide-list {list-style:none;padding:0;display:grid;gap:.9em;font-size:1.45em;max-width:30em}
 .slide-list li {display:grid;grid-template-columns:1.6em 1fr;border-top:var(--border) solid var(--line);padding-top:.7em}
+/* `dense` (any sheet, e.g. `:: content dense`) fits more on one slide: smaller heading, lists and tables, full width */
+.slide-dense h2 {font-size:2.6em}
+.slide-dense .slide-kicker {margin-bottom:1em}
+.slide-dense .slide-lead {font-size:1.3em;max-width:none}
+.slide-dense .slide-list {font-size:1.3em;gap:.6em;max-width:none}
+.slide-dense .slide-list li {padding-top:.45em}
+.slide-dense .slide-column .slide-list {font-size:1.1em}
+.slide-dense .slide-columns {padding-bottom:1.5em}
+.slide.slide-dense .slide-pre {font-size:.85em;padding:1.2em 1.6em}
 .slide-list li::before {content:'↗';content:'↗' / '';font-family:var(--mono);color:var(--coral)}
 
 /* title */
@@ -116,6 +125,10 @@ body:has(> .deck) {margin:0}
 .slide-table table {width:100%;border-collapse:collapse;font-size:1.2em;margin-top:auto;margin-bottom:2.5em}
 .slide-table th {padding:0 0 .8em;border-bottom:var(--border-strong) solid var(--ink);font:.65em var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--muted);text-align:left}
 .slide-table td {padding:.7em 0;border-bottom:var(--border) solid var(--line)}
+.slide-table :is(th,td):not(:last-child) {padding-right:1.2em}
+.slide-table.slide-dense table {font-size:1em}
+.slide-table.slide-dense td {padding:.5em 1.2em .5em 0}
+.slide-table.slide-dense td:last-child {padding-right:0}
 .slide-table .num {text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
 .slide-table .is-best td {color:var(--coral-strong)}
 .slide-table .is-best td:first-child::before {content:'▸ ';content:'▸ ' / ''}

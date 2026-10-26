@@ -132,6 +132,7 @@ for (const theme of ['light', 'dark']) {
   }
   await deck('/presentations/a-portfolio-that-measures-itself/', theme, () => document.querySelector('.slide-frame'));
   await deck('/presentations/template/', theme, () => document.querySelector('.slide-frame'));
+  await deck('/presentations/so-you-want-to-code-your-own-cloud/', theme, () => document.querySelector('.slide-frame'));
   await deck('/presentations/viewer/?src=../a-portfolio-that-measures-itself/slides.md', theme, () => document.querySelector('#deck .slide-frame'));
 }
 
