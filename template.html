@@ -18,19 +18,28 @@
     (() => {
       document.documentElement.classList.add('js');
       let saved;
-      try { saved = localStorage.getItem('theme'); } catch {}
+      try {
+        saved = localStorage.getItem('theme');
+        if (localStorage.getItem('motion') === 'paused') document.documentElement.dataset.motion = 'paused';
+      } catch {}
       document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
         ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     })();
   </script>
-  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/tokens.css">
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/components.css">
+  <link rel="stylesheet" href="assets/site.css">
   <script src="assets/site.js" defer></script>
+  <script src="assets/showcase.js" defer></script>
+  <script src="assets/theme-toggle.js" defer></script>
+  <script src="assets/motion.js" defer></script>
   <script src="assets/termites.js" defer></script>
   <script src="assets/mario.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#projects">Skip to projects</a>
-  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" hidden><span aria-hidden="true">☾</span></button>
+  <div class="page-controls"><button class="icon-button" id="motion-toggle" type="button" aria-label="Pause animations" aria-pressed="false" hidden><svg class="when-released" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg><svg class="when-pressed" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.2v11.6a.7.7 0 0 0 1.06.6l9.3-5.8a.7.7 0 0 0 0-1.2l-9.3-5.8a.7.7 0 0 0-1.06.6z"/></svg></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" hidden><span aria-hidden="true">☾</span></button></div>
   <div class="page-shell">
     <header class="masthead">
       <a class="github-handle" href="https://github.com/e6qu"><span class="handle-mark" aria-hidden="true">/</span> e6qu <span aria-hidden="true">↗</span></a>
@@ -64,7 +73,7 @@
         <span id="filter-status" class="sr-only" role="status" aria-live="polite"></span>
       </section>
     </main>
-    <footer><span>Updated {{UPDATED}}</span><a href="https://github.com/e6qu/e6qu.github.io">Source ↗</a></footer>
+    <footer class="site-footer"><span>Updated {{UPDATED}}</span><a href="https://github.com/e6qu/e6qu.github.io">Source <span aria-hidden="true">↗</span></a></footer>
   </div>
   <canvas id="termites" aria-hidden="true"></canvas>
 </body>

@@ -1,0 +1,33 @@
+/* Layout of the Markdown deck editor and viewer (presentations/editor/, presentations/viewer/).
+   Buttons and page controls come from components.css. */
+.tool {height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:var(--paper);color:var(--ink);font:var(--text-body)/1.5 var(--body);-webkit-font-smoothing:antialiased}
+.tool :focus-visible {outline:var(--border-strong) solid var(--coral);outline-offset:3px}
+.tool-bar {display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:14px 84px 14px 24px;border-bottom:var(--border) solid var(--line)}
+.tool-bar h1 {margin:0;font:800 var(--text-lg)/1 var(--display);letter-spacing:var(--tracking-h2)}
+.tool-handle {font:var(--text-base) var(--mono);color:inherit;text-decoration:none}
+.tool-handle span {color:var(--coral)}
+.tool-actions {display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.tool-panes {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:0}
+.tool-source {
+  display:block;width:100%;height:100%;margin:0;padding:24px;resize:none;border:0;border-right:var(--border) solid var(--line);
+  background:var(--surface);color:var(--ink);font:var(--text-base)/1.65 var(--mono);tab-size:2;outline-offset:-3px
+}
+.tool-source::placeholder {color:var(--muted)}
+.tool-preview {overflow:auto;padding:24px;display:grid;align-content:start;gap:20px;counter-reset:slide}
+.tool-preview .slide-frame {outline:var(--border) solid var(--line);cursor:pointer}
+.tool-preview .slide-frame[data-current] {outline:var(--border-strong) solid var(--coral)}
+.tool-status {margin:0;padding:8px 24px;border-top:var(--border) solid var(--line);font:var(--text-xs)/1.5 var(--mono);color:var(--muted)}
+.tool-status a {color:var(--blue)}
+/* viewer: paste a deck, then present it */
+.tool-paste {width:min(100%,960px);margin:0 auto;padding:32px 24px;display:flex;flex-direction:column;gap:16px;min-height:0}
+.tool-paste p {margin:0;color:var(--muted);max-width:42em}
+.tool-paste p a {color:var(--blue);text-decoration:underline;text-underline-offset:3px}
+.tool-paste .tool-source {flex:1;min-height:320px;border:var(--border) solid var(--line);border-radius:var(--radius-panel)}
+.tool-paste .tool-actions {margin-left:0}
+.tool-drop {outline:var(--border-strong) dashed var(--blue);outline-offset:-8px}
+@media(max-width:900px) {
+  .tool {height:auto;min-height:100vh}
+  .tool-panes {grid-template-columns:1fr}
+  .tool-panes .tool-source {height:55vh;border-right:0;border-bottom:var(--border) solid var(--line)}
+  .tool-actions {margin-left:0}
+}

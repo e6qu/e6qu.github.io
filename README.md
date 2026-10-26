@@ -23,12 +23,27 @@ python3 scripts/build.py
 python3 -m http.server 8000 --directory _site
 ```
 
-Edit exclusions and short descriptions in `portfolio.json`, layout in
-`template.html`, and styles in `assets/style.css`. Fonts are self-hosted;
-their licenses are in `assets/fonts/`.
+Edit exclusions and short descriptions in `portfolio.json` and layout in
+`template.html`. Styles come from the design system (`assets/tokens.css`,
+`base.css`, `components.css`); `assets/site.css` only places components on the
+page. Fonts are self-hosted; their licenses are in `assets/fonts/`.
+
+The design system (tokens, site components and presentation templates, in
+light and dark) is documented in [docs/design-system.md](docs/design-system.md)
+and published as a Storybook at https://e6qu.github.io/storybook/. Slide decks
+live in `presentations/` and are published at https://e6qu.github.io/presentations/.
+Talks are written in Markdown (`slides.md`); the dual-pane editor at
+`/presentations/editor/` previews them live, and `/presentations/viewer/`
+presents any pasted Markdown deck entirely in the browser. Run Storybook
+locally with `npm ci && npm run storybook`.
+
+Everything meets WCAG 2.2 AA in light and dark; `npm run test:a11y` audits the
+built site, every slide and every story, and runs before each deploy. A pause
+button next to the theme toggle stops the moving decoration.
 
 The `featured` list in `portfolio.json` controls the showcase. Theme selection
-follows the system until changed with the sun/moon button, then persists locally.
+follows the system until changed with the sun/moon button, then persists locally;
+so does the pause button.
 Verified Pages demo entry points are configured in `demo_urls`. HTMX is listed
 beside languages when found in app templates/imports or production dependencies;
 known uses in `frameworks` also keep metadata-only previews complete.
@@ -40,4 +55,4 @@ animation model are in [docs/termite-motion.md](docs/termite-motion.md).
 Grass gradually sprouts
 across the page, and butterflies follow wandering flight paths. The idle scene
 clears on pointer, keyboard or scroll activity, pauses in background tabs, and
-respects reduced motion.
+respects reduced motion and the pause button.

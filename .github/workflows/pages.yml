@@ -36,13 +36,35 @@ jobs:
           node --check assets/site.js
           node --check assets/termites.js
           node --check assets/mario.js
-          node --test tests/termites.test.cjs
+          node --check assets/slides.js
+          node --check assets/showcase.js
+          node --check assets/theme-toggle.js
+          node --check assets/motion.js
+          node --check assets/deck-markdown.js
+          node --check assets/deck-editor.js
+          node --check assets/deck-viewer.js
+          node --test tests/termites.test.cjs tests/deck-markdown.test.cjs
       - name: Refresh public projects and measure source and tests
         env:
           GH_TOKEN: ${{ github.token }}
         run: python scripts/collect.py --cloc /tmp/cloc.pl --output data.json
       - name: Build static pages
         run: python scripts/build.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install Storybook and audit tools
+        run: npm ci
+      # Every deploy replaces the whole site, so Storybook is rebuilt on each run.
+      - name: Build design system Storybook into /storybook
+        run: npm run build-storybook
+      - name: Install Chromium for the accessibility audit
+        run: npx playwright install --with-deps chromium
+      # WCAG 2.2 AA (axe) on every page, slide and story in both themes, plus reflow, text
+      # spacing, focus and keyboard checks. A failure stops the deploy.
+      - name: Audit accessibility
+        run: npm run test:a11y
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

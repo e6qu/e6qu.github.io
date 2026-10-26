@@ -6,6 +6,7 @@
   const poses = ['walk-1','walk-1-bob','walk-1-sway','walk-2','walk-2-bob','walk-2-sway'];
   const source = pose => `assets/mario/castaway-${pose}.png`;
   let frame, timer, ready = false;
+  const paused = () => reduced.matches || document.documentElement.dataset.motion === 'paused';
 
   function pose(name) {
     if (sprite.dataset.pose === name) return;
@@ -25,7 +26,7 @@
     pose('idle');
   }
   function play() {
-    if (!ready || reduced.matches || document.hidden) return;
+    if (!ready || paused() || document.hidden) return;
     sprite.hidden = false;
     sprite.style.transform = '';
     sprite.style.opacity = '';
@@ -73,10 +74,11 @@
   }
   function schedule() {
     stop();
-    if (reduced.matches) still();
+    if (paused()) still();
     else if (!document.hidden) timer = setTimeout(play, 650);
   }
   reduced.addEventListener('change', schedule);
+  document.addEventListener('motionchange', schedule);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop();
     else schedule();

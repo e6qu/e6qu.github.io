@@ -1,0 +1,56 @@
+/* Design tokens. Every theme-dependent value lives here; components only use var(--*).
+   Themes apply to :root or any element with data-theme, so light and dark can render
+   side by side. Keep the dark block and the prefers-color-scheme block identical.
+   --coral is for large display marks and decoration (3:1); --coral-strong is the accent
+   for small text and for fills behind text (4.5:1); --coral-on-ink is the accent on an
+   --ink background (the inverted section sheet). */
+@font-face{font-family:Archivo;src:url('fonts/archivo.ttf') format('truetype');font-weight:800;font-display:swap}
+@font-face{font-family:Plex;src:url('fonts/plex-sans.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:PlexMono;src:url('fonts/plex-mono.ttf') format('truetype');font-weight:400;font-display:swap}
+:root {
+  --display:Archivo,'Arial Narrow',sans-serif; --body:Plex,Arial,sans-serif; --mono:PlexMono,monospace;
+  --text-3xs:9px; --text-2xs:10px; --text-xs:11px; --text-sm:12px; --text-md:13px; --text-base:14px;
+  --text-body:16px; --text-lead:17px; --text-lg:22px; --text-h2:28px; --text-h1:clamp(60px,9vw,122px);
+  --tracking-h1:-.065em; --tracking-h3:-.045em; --tracking-h2:-.035em; --tracking-label:.1em;
+  --radius-panel:14px; --border:1px; --border-strong:2px;
+  --duration-fast:.15s; --duration-base:.2s; --duration-slow:.25s;
+  --page-width:1400px; --page-gutter:clamp(24px,6.7vw,96px);
+  --masthead-height:96px; --theme-size:48px; --theme-gap:24px;
+  --art-ink:#eef4ff;
+  --terminal-ink:#e0e9f7; --terminal-muted:#a7b7cd; --terminal-prompt:#ffbf8a; --terminal-ok:#7cd2bf;
+  --art-pipes-accent:#ffbf8a; --art-replay-accent:#ffdfa5; --art-database-accent:#f7c990;
+  --art-branches-accent:#f5bda0; --art-cloud-accent:#ffcca0; --art-containers-accent:#f9d18c;
+  --art-board-accent:#ffcba0; --art-chat-accent:#ffe2a0; --art-terminal-accent:#ffe0a3;
+}
+:root,[data-theme='light'] {
+  color-scheme:light;
+  --paper:#f5f7fc; --surface:#ffffff; --ink:#152e3b; --blue:#2f5dd5;
+  --coral:#dd654e; --teal:#17786d; --muted:#54647a; --line:#cbd5e4;
+  --coral-strong:#b8432d; --coral-on-ink:#f3917b;
+  --art-pipes:#315ddd; --art-replay:#c85845; --art-database:#19766e; --art-branches:#514dab;
+  --art-cloud:#355c7d; --art-containers:#956035; --art-board:#705064; --art-chat:#2d6a80; --art-terminal:#4c675d;
+  --terminal-bg:#152e3b;
+}
+[data-theme='dark'] {
+  color-scheme:dark;
+  --paper:#111e2e; --surface:#1b2b3e; --ink:#e0e9f7; --blue:#9ab6ff;
+  --coral:#f3917b; --teal:#7cd2bf; --muted:#a7b7cd; --line:#3b4d66;
+  --coral-strong:#f3917b; --coral-on-ink:#a53b27;
+  --art-pipes:#2947a4; --art-replay:#914634; --art-database:#175d59; --art-branches:#443c86;
+  --art-cloud:#274963; --art-containers:#69472d; --art-board:#513b4b; --art-chat:#234d60; --art-terminal:#334c43;
+  --terminal-bg:#0b1520;
+}
+@media(prefers-color-scheme:dark) {
+  :root:not([data-theme]) {
+    color-scheme:dark;
+    --paper:#111e2e; --surface:#1b2b3e; --ink:#e0e9f7; --blue:#9ab6ff;
+    --coral:#f3917b; --teal:#7cd2bf; --muted:#a7b7cd; --line:#3b4d66;
+    --coral-strong:#f3917b; --coral-on-ink:#a53b27;
+    --art-pipes:#2947a4; --art-replay:#914634; --art-database:#175d59; --art-branches:#443c86;
+    --art-cloud:#274963; --art-containers:#69472d; --art-board:#513b4b; --art-chat:#234d60; --art-terminal:#334c43;
+    --terminal-bg:#0b1520;
+  }
+}
+@media(max-width:750px) {
+  :root {--masthead-height:80px;--theme-size:44px;--theme-gap:16px}
+}

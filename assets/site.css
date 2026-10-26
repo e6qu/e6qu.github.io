@@ -1,0 +1,38 @@
+/* Homepage layout. Everything reusable lives in the design system (tokens.css, base.css,
+   components.css); this file only places components on the page. */
+html {scroll-padding-top:88px}
+@media(prefers-reduced-motion:no-preference) {
+  html {scroll-behavior:smooth}
+}
+.page-shell {max-width:var(--page-width);padding:0 var(--page-gutter);margin:auto}
+/* the masthead keeps room for both page controls */
+.masthead {padding-right:calc(2 * var(--theme-size) + 12px + var(--theme-gap))}
+.page-controls {top:calc((var(--masthead-height) - var(--theme-size)) / 2);right:max(var(--page-gutter),calc((100% - var(--page-width)) / 2 + var(--page-gutter)))}
+.identity {display:flex;align-items:flex-end;justify-content:space-between;gap:30px;padding:40px 0 65px}
+.identity-title {min-width:0}
+.game-invite {position:relative;display:flex;align-items:flex-end;width:max-content;max-width:100%;height:72px;padding-left:104px}
+.game-invite a {display:block;color:var(--blue);font:var(--text-md)/1.2 var(--mono);padding-bottom:4px;border-bottom:var(--border) solid var(--blue);white-space:nowrap}
+.game-invite a:hover {color:var(--coral-strong);border-color:var(--coral-strong)}
+.mario-runner {position:absolute;left:0;bottom:0;width:32px;height:32px;image-rendering:pixelated;pointer-events:none;transform-origin:50% 100%;will-change:transform}
+.game-invite[data-state='land'] a {animation:game-landing .18s ease-out}
+@keyframes game-landing {50%{transform:translateY(2px)}}
+.contact {padding-bottom:10px;flex-shrink:0}
+.contact a {font:var(--text-sm) var(--mono);padding-bottom:6px;border-bottom:var(--border) solid var(--line)}
+.showcase {margin-bottom:76px;scroll-margin-top:24px}
+#termites {position:fixed;inset:0;z-index:20;width:100%;height:100%;pointer-events:none;visibility:hidden}
+#termites[data-active] {visibility:visible}
+@media(max-width:1100px) {
+  .identity {display:block;padding-top:30px}
+  .contact {padding:20px 0 0}
+}
+@media(max-width:750px) {
+  .identity {padding:34px 0 48px}
+  .contact a {font-size:var(--text-xs)}
+  .game-invite {height:64px;padding-left:80px}
+  .showcase {margin-bottom:54px}
+}
+@media(max-width:420px) {
+  .identity {padding-top:20px}
+  .game-invite {padding-left:72px}
+  .game-invite a {font-size:var(--text-xs)}
+}

@@ -26,7 +26,8 @@ def demo_link(project):
         return ''
     url = escape(project['demo_url'], quote=True)
     name = escape(project['name'], quote=True)
-    return f'<a class="demo-link" href="{url}" aria-label="Try {name} demo">Try demo <span aria-hidden="true">↗</span></a>'
+    # The visible text starts the accessible name (WCAG 2.5.3); the project adds context.
+    return f'<a class="demo-link" href="{url}">Try demo<span class="sr-only"> of {name}</span> <span aria-hidden="true">↗</span></a>'
 
 
 def featured(project, first=False):
@@ -40,10 +41,10 @@ def featured(project, first=False):
     if project.get('license_url'):
         license_html = f'<a href="{e(project["license_url"])}">{license_html}</a>'
     active = ' data-active' if first else ''
-    return f'''<article class="featured-panel featured-{art}" id="featured-{e(project['name'])}"{active}>
+    return f'''<section class="featured-panel featured-{art}" id="featured-{e(project['name'])}"{active}>
   <div class="featured-copy"><p class="feature-category">{e(category)}</p><h3><a href="{e(project['url'])}">{e(project['name'])}<span aria-hidden="true"> ↗</span></a></h3><p class="feature-description">{e(project['description'])}</p><p class="feature-meta">{e(languages)}<span>{license_html}</span></p><div class="feature-stats"><div><span>SLOC</span><strong>{code}</strong></div><div><span>Test SLOC</span><strong>{tests}</strong></div></div><div class="feature-links"><a class="feature-link" href="{e(project['url'])}">View project <span aria-hidden="true">↗</span></a>{demo_link(project)}</div></div>
   <div class="feature-art" aria-hidden="true">{illustration}</div>
-</article>'''
+</section>'''
 
 
 def row(project):
@@ -77,15 +78,21 @@ def row(project):
 </li>'''
 
 
+def configured(data, config):
+    """Projects with demo links and known frameworks from portfolio.json merged in."""
+    return [{**p, 'demo_url': config.get('demo_urls', {}).get(p['name']),
+             'frameworks': sorted(set(p.get('frameworks', []) + config.get('frameworks', {}).get(p['name'], [])))}
+            for p in data['projects']]
+
+
 def build(data, destination):
     destination.mkdir(parents=True, exist_ok=True)
     shutil.copytree(ROOT / 'assets', destination / 'assets', dirs_exist_ok=True)
+    shutil.copytree(ROOT / 'presentations', destination / 'presentations', dirs_exist_ok=True)
     updated = datetime.fromisoformat(data['updated_at']).strftime('%d %b %Y')
     page = (ROOT / 'template.html').read_text()
     config = json.loads((ROOT / 'portfolio.json').read_text())
-    projects = [{**p, 'demo_url': config.get('demo_urls', {}).get(p['name']),
-                 'frameworks': sorted(set(p.get('frameworks', []) + config.get('frameworks', {}).get(p['name'], [])))}
-                for p in data['projects']]
+    projects = configured(data, config)
     page = page.replace('{{PROJECTS}}', '\n'.join(row(p) for p in projects))
     by_name = {p['name']: p for p in projects}
     selection = [by_name[name] for name in config['featured'] if name in by_name]

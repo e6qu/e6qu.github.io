@@ -24,7 +24,7 @@ class PortfolioTests(unittest.TestCase):
             self.assertIn(f'id="featured-{name}"', page)
             self.assertIn(f'id="tab-{name}"', page)
         for name, url in config['demo_urls'].items():
-            self.assertIn(f'href="{url}" aria-label="Try {name} demo"', page)
+            self.assertIn(f'href="{url}">Try demo<span class="sr-only"> of {name}</span>', page)
         for project in published['projects']:
             if project['name'] in {'zzira', 'someoldchat', 'shauth'}:
                 self.assertIn('HTMX', project['frameworks'])
