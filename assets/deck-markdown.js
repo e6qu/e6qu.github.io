@@ -430,6 +430,11 @@
       const result = render(markdown);
       deck.innerHTML = heading(result.title || document.title) + result.html;
       deck.setAttribute('aria-labelledby', 'deck-title');
+      const editor = document.querySelector('#edit-deck');
+      if (editor) {
+        editor.href = new URL(`../editor/?src=${encodeURIComponent(new URL(deck.dataset.markdown, location.href).pathname)}`, location.href).href;
+        editor.hidden = false;
+      }
       if (result.title) document.title = result.title;
       globalThis.Slides.start(deck);
     })

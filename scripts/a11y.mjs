@@ -149,7 +149,9 @@ for (const theme of ['light', 'dark']) {
   expect(label, said.startsWith('Slide 2 of 18: '), `slide change not announced (got "${said}")`);
   await page.keyboard.press('o');
   expect(label, await page.evaluate(() => document.querySelector('.deck').dataset.mode === 'overview'), 'O does not open the overview');
+  expect(label, await page.isVisible('#edit-deck') && await page.isVisible('#print-deck'), 'the overview does not offer Edit Markdown and Save as PDF');
   await page.keyboard.press('Enter');
+  expect(label, !await page.isVisible('#edit-deck') && !await page.isVisible('#print-deck'), 'Edit Markdown or Save as PDF shows while presenting');
   await page.focus('#theme-toggle');
   await page.keyboard.press('o');
   expect(label, await page.evaluate(() => document.querySelector('.deck').dataset.mode === 'present'), 'O acts while focus is outside the deck');

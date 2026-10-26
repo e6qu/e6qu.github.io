@@ -5,6 +5,7 @@
 // labelled "3 of 18") and changes are announced politely. The deck takes focus, and the
 // single-key shortcuts only work while it has it (WCAG 2.1.4); keys never act on text
 // fields or buttons. A slide whose content overflows scrolls with ↑/↓ before moving on.
+// The overview (O or Esc) shows Save as PDF and, for Markdown decks, Edit Markdown.
 // Elements with data-illustration get the matching SVG inlined so its colors follow the
 // theme. Decks rendered later (Markdown, the editor) call Slides.start(deck),
 // Slides.label(container) or Slides.illustrate(element) themselves.
@@ -135,6 +136,8 @@
       event.preventDefault();
     });
     addEventListener('hashchange', () => deck && show(hashSlide()));
+    // Save as PDF in the overview prints every slide, one per page (the print styles in slides.css)
+    document.querySelector('#print-deck')?.addEventListener('click', () => print());
     status = document.createElement('p');
     status.className = 'sr-only';
     status.setAttribute('role', 'status');

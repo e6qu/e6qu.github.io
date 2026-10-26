@@ -179,6 +179,9 @@ body:has(> .deck) {margin:0}
 .deck[data-blackout]::after {content:'';position:fixed;inset:0;z-index:10;background:#000}
 .deck:focus {outline:none}
 .deck:focus-visible {outline:var(--border-strong) solid var(--coral);outline-offset:-4px}
+/* a deck's overview (Esc) adds Edit Markdown and Save as PDF beside the theme toggle */
+.page-controls .when-overview {display:none}
+:root:has(.deck[data-mode='overview']:not([hidden])) .page-controls .when-overview:not([hidden]) {display:inline-flex}
 /* the page controls stay out of the way while presenting; hover or focus shows them */
 :root:has(.deck[data-mode='present']:not([hidden])) .page-controls:not(:hover,:focus-within) {opacity:0}
 @media(prefers-reduced-motion:reduce) {
