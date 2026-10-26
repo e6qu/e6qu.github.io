@@ -31,15 +31,15 @@ class DesignSystemTests(unittest.TestCase):
         self.assertEqual(dark, system_dark)
 
     def test_components_take_colors_from_tokens(self):
-        for name in ['style.css', 'slides.css']:
+        for name in ['style.css', 'slides.css', 'deck-tools.css', 'theme-toggle.css']:
             css = (ROOT / 'assets' / name).read_text()
             # Black is only the projector letterbox and the blackout screen.
             self.assertEqual(set(re.findall(r'#[0-9a-fA-F]{3,6}\b', css)) - {'#000'}, set(), name)
 
-    def test_sample_talk_and_storybook_cover_every_slide_template(self):
+    def test_storybook_covers_every_slide_template(self):
+        # The Markdown decks are checked against the same list in deck-markdown.test.cjs.
         template = templates('presentations/template/index.html')
         self.assertEqual(len(template), len(set(template)))
-        self.assertCountEqual(templates('presentations/a-portfolio-that-measures-itself/index.html'), template)
         stories = re.findall(r"= story\('[^']+', '([\w-]+)'\)", (ROOT / 'stories' / 'presentation.stories.js').read_text())
         self.assertCountEqual(stories, template)
         slides = (ROOT / 'assets' / 'slides.css').read_text()
@@ -57,7 +57,10 @@ class DesignSystemTests(unittest.TestCase):
                     self.assertTrue((Path(temp) / 'presentations' / deck / asset).resolve().is_file(), asset)
                 for art in re.findall(r'data-illustration="([\w-]+)"', page):
                     self.assertTrue((Path(temp) / 'assets' / 'illustrations' / f'{art}.svg').is_file(), art)
-            self.assertTrue((Path(temp) / 'presentations' / 'index.html').is_file())
+                for markdown in re.findall(r'data-markdown="([^"]+)"', page):
+                    self.assertTrue((Path(temp) / 'presentations' / deck / markdown).is_file(), markdown)
+            for tool in ['index.html', 'editor/index.html', 'viewer/index.html', 'template/slides.md']:
+                self.assertTrue((Path(temp) / 'presentations' / tool).is_file(), tool)
 
     def test_storybook_fixtures_come_from_the_built_page(self):
         snapshot = json.loads((ROOT / 'data.json').read_text())

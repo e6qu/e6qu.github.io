@@ -16,10 +16,14 @@
     })();
   </script>
   <link rel="stylesheet" href="../assets/tokens.css">
+  <link rel="stylesheet" href="../assets/theme-toggle.css">
   <link rel="stylesheet" href="../assets/style.css">
+  <script src="../assets/theme-toggle.js" defer></script>
 </head>
-<!-- Add a talk: copy template/ to a new directory and add a row below. -->
+<!-- Add a talk: make a directory with an index.html like a-portfolio-that-measures-itself/
+     and a slides.md, then add a row below. -->
 <body>
+  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" hidden><span aria-hidden="true">☾</span></button>
   <div class="page-shell">
     <header class="masthead">
       <a class="github-handle" href="../"><span class="handle-mark" aria-hidden="true">/</span> e6qu</a>
@@ -33,10 +37,16 @@
         <div class="section-heading"><h2 id="talks-heading">Presentations</h2><span class="project-count">← → to move · O overview · B black out · T theme · P print</span></div>
         <ul class="project-list">
           <li class="project">
-            <div class="project-info"><h3><a class="project-link" href="a-portfolio-that-measures-itself/">A portfolio that measures itself<span class="outbound" aria-hidden="true">↗</span></a></h3><p class="description">Sample technical talk on how this site counts source and test lines. Uses every slide template once.</p><p class="project-meta"><span class="languages">Sample talk</span><span class="license">18 slides</span></p></div>
+            <div class="project-info"><h3><a class="project-link" href="a-portfolio-that-measures-itself/">A portfolio that measures itself<span class="outbound" aria-hidden="true">↗</span></a></h3><p class="description">Sample technical talk on how this site counts source and test lines. Uses every slide template once.</p><p class="project-meta"><span class="languages">Sample talk</span><span class="license">18 slides</span><a class="demo-link" href="editor/?src=../a-portfolio-that-measures-itself/slides.md">Edit in Markdown <span aria-hidden="true">↗</span></a></p></div>
           </li>
           <li class="project">
-            <div class="project-info"><h3><a class="project-link" href="template/">Slide template<span class="outbound" aria-hidden="true">↗</span></a></h3><p class="description">Title, agenda, section, content, comparison, feature, code, code with notes, terminal, diagram, table, stats, image, quote, live demo, pause, blank and closing sheets.</p><p class="project-meta"><span class="languages">Template</span><span class="license">Copy the directory to start a talk</span></p></div>
+            <div class="project-info"><h3><a class="project-link" href="editor/">Deck editor<span class="outbound" aria-hidden="true">↗</span></a></h3><p class="description">Write a talk in Markdown on the left and watch the slides on the right. Your draft stays in your browser; share links carry the whole deck.</p><p class="project-meta"><span class="languages">Tool</span><span class="license">Markdown</span></p></div>
+          </li>
+          <li class="project">
+            <div class="project-info"><h3><a class="project-link" href="viewer/">Present your own Markdown<span class="outbound" aria-hidden="true">↗</span></a></h3><p class="description">Paste or open a Markdown deck and present it full screen. Nothing is uploaded.</p><p class="project-meta"><span class="languages">Tool</span><span class="license">Markdown</span></p></div>
+          </li>
+          <li class="project">
+            <div class="project-info"><h3><a class="project-link" href="template/">Slide template<span class="outbound" aria-hidden="true">↗</span></a></h3><p class="description">Title, agenda, section, content, comparison, feature, code, code with notes, terminal, diagram, table, stats, image, quote, live demo, pause, blank and closing sheets.</p><p class="project-meta"><span class="languages">Template</span><span class="license">Copy the directory to start a talk</span><a class="demo-link" href="editor/?src=../template/slides.md">Markdown version <span aria-hidden="true">↗</span></a></p></div>
           </li>
         </ul>
       </section>

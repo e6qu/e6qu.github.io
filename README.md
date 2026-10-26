@@ -30,9 +30,11 @@ Edit exclusions and short descriptions in `portfolio.json`, layout in
 The design system (tokens, site components and presentation templates, in
 light and dark) is documented in [docs/design-system.md](docs/design-system.md)
 and published as a Storybook at https://e6qu.github.io/storybook/. Slide decks
-live in `presentations/` and are published at https://e6qu.github.io/presentations/;
-copy `presentations/template/` to start a new talk. Run Storybook locally with
-`npm ci && npm run storybook`.
+live in `presentations/` and are published at https://e6qu.github.io/presentations/.
+Talks are written in Markdown (`slides.md`); the dual-pane editor at
+`/presentations/editor/` previews them live, and `/presentations/viewer/`
+presents any pasted Markdown deck entirely in the browser. Run Storybook
+locally with `npm ci && npm run storybook`.
 
 The `featured` list in `portfolio.json` controls the showcase. Theme selection
 follows the system until changed with the sun/moon button, then persists locally.

@@ -1,4 +1,5 @@
 import '../assets/tokens.css';
+import '../assets/theme-toggle.css';
 import '../assets/style.css';
 import '../assets/slides.css';
 import './preview.css';

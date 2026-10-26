@@ -1,11 +1,16 @@
-// Slides come straight from the decks in presentations/, so stories can't drift from them.
+// Slides come straight from the decks in presentations/, so stories can't drift from them:
+// the HTML template, and the Markdown decks rendered by assets/deck-markdown.js.
+import '../assets/deck-markdown.js';
 import template from '../presentations/template/index.html?raw';
-import sample from '../presentations/a-portfolio-that-measures-itself/index.html?raw';
+import templateMarkdown from '../presentations/template/slides.md?raw';
+import sample from '../presentations/a-portfolio-that-measures-itself/slides.md?raw';
 
 const illustrations = import.meta.glob('../assets/illustrations/*.svg', {query: '?raw', import: 'default', eager: true});
 const parse = html => [...new DOMParser().parseFromString(html, 'text/html').querySelectorAll('.slide-frame')];
 const templateFrames = parse(template);
-const sampleFrames = parse(sample);
+const markdown = text => parse(`<body>${globalThis.DeckMarkdown.render(text).html}</body>`);
+const sampleFrames = markdown(sample);
+const templateMarkdownFrames = markdown(templateMarkdown);
 
 // Decks live two levels down; Storybook serves the same assets at assets/.
 function prepare(frame, index) {
@@ -37,6 +42,7 @@ export default {title: 'Presentation'};
 
 export const AllTemplates = {name: 'All templates', render: () => grid(templateFrames)};
 export const SampleTalk = {name: 'Sample talk', render: () => grid(sampleFrames)};
+export const MarkdownTemplate = {name: 'Markdown template', render: () => grid(templateMarkdownFrames)};
 export const Title = story('Title', 'title');
 export const Agenda = story('Agenda', 'agenda');
 export const Section = story('Section', 'section');

@@ -34,32 +34,6 @@
 })();
 
 (() => {
-  const root = document.documentElement;
-  const button = document.querySelector('#theme-toggle');
-  const preference = matchMedia('(prefers-color-scheme: dark)');
-  function apply(theme) {
-    root.dataset.theme = theme;
-    button.firstElementChild.textContent = theme === 'dark' ? '☀\uFE0E' : '☾';
-    button.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
-    button.setAttribute('aria-pressed', String(theme === 'dark'));
-    document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#111e2e' : '#f5f7fc';
-    document.dispatchEvent(new Event('themechange'));
-  }
-  apply(root.dataset.theme);
-  button.hidden = false;
-  button.addEventListener('click', () => {
-    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-    try { localStorage.setItem('theme', next); } catch {}
-    apply(next);
-  });
-  preference.addEventListener('change', event => {
-    let saved;
-    try { saved = localStorage.getItem('theme'); } catch {}
-    if (saved !== 'light' && saved !== 'dark') apply(event.matches ? 'dark' : 'light');
-  });
-})();
-
-(() => {
   const tabs = [...document.querySelectorAll('.showcase-tab')];
   const panels = [...document.querySelectorAll('.featured-panel')];
   const nav = document.querySelector('#showcase-tabs');

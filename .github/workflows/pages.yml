@@ -37,7 +37,11 @@ jobs:
           node --check assets/termites.js
           node --check assets/mario.js
           node --check assets/slides.js
-          node --test tests/termites.test.cjs
+          node --check assets/theme-toggle.js
+          node --check assets/deck-markdown.js
+          node --check assets/deck-editor.js
+          node --check assets/deck-viewer.js
+          node --test tests/termites.test.cjs tests/deck-markdown.test.cjs
       - name: Refresh public projects and measure source and tests
         env:
           GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deck editor — Adrian.Marza</title>
+  <meta name="description" content="Write a presentation in Markdown and see the slides as you type. Runs entirely in your browser.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      let saved;
+      try { saved = localStorage.getItem('theme'); } catch {}
+      document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+        ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/tokens.css">
+  <link rel="stylesheet" href="../../assets/theme-toggle.css">
+  <link rel="stylesheet" href="../../assets/slides.css">
+  <link rel="stylesheet" href="../../assets/deck-tools.css">
+  <script src="../../assets/theme-toggle.js" defer></script>
+  <script src="../../assets/slides.js" defer></script>
+  <script src="../../assets/deck-markdown.js" defer></script>
+  <script src="../../assets/deck-editor.js" defer></script>
+</head>
+<body class="tool">
+  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" hidden><span aria-hidden="true">☾</span></button>
+  <header class="tool-bar">
+    <a class="tool-handle" href="../"><span aria-hidden="true">/</span> presentations</a>
+    <h1>Deck editor</h1>
+    <div class="tool-actions">
+      <button class="tool-button" type="button" id="load-template" title="Every sheet, with the syntax explained">Template</button>
+      <button class="tool-button" type="button" id="load-sample">Sample talk</button>
+      <button class="tool-button" type="button" id="open-file">Open .md</button>
+      <input type="file" id="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
+      <button class="tool-button" type="button" id="download">Download .md</button>
+      <button class="tool-button" type="button" id="copy-link" title="The deck is stored in the link itself">Copy link</button>
+      <button class="tool-button is-primary" type="button" id="present">Present ↗</button>
+    </div>
+  </header>
+  <main class="tool-panes">
+    <label class="sr-only" for="source">Markdown</label>
+    <textarea class="tool-source" id="source" spellcheck="false" autocomplete="off" placeholder="Loading…"></textarea>
+    <section class="tool-preview" id="preview" aria-label="Preview"></section>
+  </main>
+  <p class="tool-status" id="status" role="status">Your draft stays in this browser. Separate slides with a line of ---.</p>
+</body>
+</html>

@@ -15,13 +15,16 @@
     })();
   </script>
   <link rel="stylesheet" href="../../assets/tokens.css">
+  <link rel="stylesheet" href="../../assets/theme-toggle.css">
   <link rel="stylesheet" href="../../assets/slides.css">
+  <script src="../../assets/theme-toggle.js" defer></script>
   <script src="../../assets/slides.js" defer></script>
 </head>
 <!-- Copy this directory to presentations/<talk-name>/ to start a deck. Each slide is a
      .slide-frame holding one .slide-<template>; delete the sheets you don't need and
      duplicate the rest. Keys: ←/→ move, O overview, B black out, T theme, P print/PDF. -->
 <body class="deck">
+  <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" hidden><span aria-hidden="true">☾</span></button>
   <div class="slide-frame">
     <section class="slide slide-title" data-template="title" aria-label="Title">
       <p class="slide-kicker">Talk kicker</p>
@@ -36,10 +39,10 @@
       <p class="slide-kicker">Agenda</p>
       <h2>What we'll cover</h2>
       <ol>
-        <li aria-current="step">First part <span>10 min</span></li>
-        <li>Second part <span>15 min</span></li>
-        <li>Live demo <span>10 min</span></li>
-        <li>Questions <span>10 min</span></li>
+        <li aria-current="step">First part <span class="slide-time">10 min</span></li>
+        <li>Second part <span class="slide-time">15 min</span></li>
+        <li>Live demo <span class="slide-time">10 min</span></li>
+        <li>Questions <span class="slide-time">10 min</span></li>
       </ol>
       <footer class="slide-footer"><span>Deck title</span></footer>
     </section>

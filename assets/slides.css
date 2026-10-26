@@ -2,6 +2,7 @@
    1280px design width (1em = 16px there), so they scale with whatever holds them.
    Each sheet is a .slide plus one .slide-<template> class; see presentations/template/. */
 .deck {--slide-width:min(100vw,177.78vh);margin:0;counter-reset:slide}
+body:has(> .deck) {margin:0}
 .slide-frame,.slide-frame * {box-sizing:border-box}
 .slide-frame {container-type:inline-size;width:100%}
 .slide {
@@ -13,8 +14,8 @@
 .slide a {color:var(--blue);text-decoration:none;border-bottom:var(--border) solid currentColor}
 /* footer offsets are in its own .75em: 6.667em and 2.667em line up with the slide's 5em and 2em */
 .slide-footer {
-  position:absolute;left:6.667em;right:6.667em;bottom:2.667em;display:flex;justify-content:space-between;
-  font:.75em var(--mono);color:var(--muted)
+  position:absolute;left:6.667em;right:6.667em;bottom:2.667em;display:flex;justify-content:space-between;gap:2em;
+  padding:0;font:.75em var(--mono);color:var(--muted)
 }
 .slide-footer::after {content:counter(slide,decimal-leading-zero)}
 .slide-kicker {font:.8em var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--muted);margin-bottom:1.6em}
@@ -37,7 +38,7 @@
 .slide-agenda ol {list-style:none;padding:0;counter-reset:agenda;display:grid;margin-top:auto;margin-bottom:2.5em;border-bottom:var(--border) solid var(--line)}
 .slide-agenda li {counter-increment:agenda;display:grid;grid-template-columns:4em 1fr auto;align-items:baseline;padding:.75em 0;border-top:var(--border) solid var(--line);font-size:1.5em;color:var(--muted)}
 .slide-agenda li::before {content:counter(agenda,decimal-leading-zero);font:.7em var(--mono)}
-.slide-agenda li span {font:.6em var(--mono)}
+.slide-agenda .slide-time {font:.6em var(--mono)}
 .slide-agenda li[aria-current] {color:var(--ink)}
 .slide-agenda li[aria-current]::before {color:var(--coral)}
 
@@ -164,10 +165,12 @@
 .deck[data-mode='present'] {display:grid;place-items:center;height:100vh;overflow:hidden;background:#000}
 .deck[data-mode='present'] .slide-frame {width:var(--slide-width)}
 .deck[data-mode='present'] .slide-frame:not([data-current]) {display:none}
-.deck[data-mode='overview'] {display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;padding:24px;background:var(--paper)}
+.deck[data-mode='overview'] {display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;padding:80px 24px 24px;background:var(--paper)}
 .deck[data-mode='overview'] .slide-frame {cursor:pointer;outline:var(--border) solid var(--line)}
 .deck[data-mode='overview'] .slide-frame[data-current] {outline:var(--border-strong) solid var(--coral)}
 .deck[data-blackout]::after {content:'';position:fixed;inset:0;z-index:10;background:#000}
+/* the theme button stays out of the way while presenting; hover or focus shows it */
+:is(.deck[data-mode='present'] .theme-toggle,.deck[data-mode='present'] ~ .theme-toggle):not(:hover,:focus-visible) {opacity:0}
 @media(prefers-reduced-motion:reduce) {
   .slide-demo h2::before {animation:none}
 }
