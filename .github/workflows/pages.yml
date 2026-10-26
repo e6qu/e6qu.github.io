@@ -36,6 +36,7 @@ jobs:
           node --check assets/site.js
           node --check assets/termites.js
           node --check assets/mario.js
+          node --check assets/slides.js
           node --test tests/termites.test.cjs
       - name: Refresh public projects and measure source and tests
         env:
@@ -43,6 +44,15 @@ jobs:
         run: python scripts/collect.py --cloc /tmp/cloc.pl --output data.json
       - name: Build static pages
         run: python scripts/build.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install Storybook
+        run: npm ci
+      # Every deploy replaces the whole site, so Storybook is rebuilt on each run.
+      - name: Build design system Storybook into /storybook
+        run: npm run build-storybook
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

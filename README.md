@@ -24,8 +24,15 @@ python3 -m http.server 8000 --directory _site
 ```
 
 Edit exclusions and short descriptions in `portfolio.json`, layout in
-`template.html`, and styles in `assets/style.css`. Fonts are self-hosted;
-their licenses are in `assets/fonts/`.
+`template.html`, design tokens in `assets/tokens.css`, and styles in
+`assets/style.css`. Fonts are self-hosted; their licenses are in `assets/fonts/`.
+
+The design system (tokens, site components and presentation templates, in
+light and dark) is documented in [docs/design-system.md](docs/design-system.md)
+and published as a Storybook at https://e6qu.github.io/storybook/. Slide decks
+live in `presentations/` and are published at https://e6qu.github.io/presentations/;
+copy `presentations/template/` to start a new talk. Run Storybook locally with
+`npm ci && npm run storybook`.
 
 The `featured` list in `portfolio.json` controls the showcase. Theme selection
 follows the system until changed with the sun/moon button, then persists locally.

@@ -77,15 +77,21 @@ def row(project):
 </li>'''
 
 
+def configured(data, config):
+    """Projects with demo links and known frameworks from portfolio.json merged in."""
+    return [{**p, 'demo_url': config.get('demo_urls', {}).get(p['name']),
+             'frameworks': sorted(set(p.get('frameworks', []) + config.get('frameworks', {}).get(p['name'], [])))}
+            for p in data['projects']]
+
+
 def build(data, destination):
     destination.mkdir(parents=True, exist_ok=True)
     shutil.copytree(ROOT / 'assets', destination / 'assets', dirs_exist_ok=True)
+    shutil.copytree(ROOT / 'presentations', destination / 'presentations', dirs_exist_ok=True)
     updated = datetime.fromisoformat(data['updated_at']).strftime('%d %b %Y')
     page = (ROOT / 'template.html').read_text()
     config = json.loads((ROOT / 'portfolio.json').read_text())
-    projects = [{**p, 'demo_url': config.get('demo_urls', {}).get(p['name']),
-                 'frameworks': sorted(set(p.get('frameworks', []) + config.get('frameworks', {}).get(p['name'], [])))}
-                for p in data['projects']]
+    projects = configured(data, config)
     page = page.replace('{{PROJECTS}}', '\n'.join(row(p) for p in projects))
     by_name = {p['name']: p for p in projects}
     selection = [by_name[name] for name in config['featured'] if name in by_name]

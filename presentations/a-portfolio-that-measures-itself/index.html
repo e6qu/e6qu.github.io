@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A portfolio that measures itself — Adrian.Marza</title>
+  <meta name="description" content="Sample technical talk using every slide template: how e6qu.github.io measures its projects.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      let saved;
+      try { saved = localStorage.getItem('theme'); } catch {}
+      document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+        ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/tokens.css">
+  <link rel="stylesheet" href="../../assets/slides.css">
+  <script src="../../assets/slides.js" defer></script>
+</head>
+<!-- Sample talk: uses every sheet from presentations/template/ once, in order. -->
+<body class="deck">
+  <div class="slide-frame">
+    <section class="slide slide-title" data-template="title" aria-label="Title">
+      <p class="slide-kicker">Sample talk</p>
+      <h1>A portfolio that measures itself<span class="slide-dot">.</span></h1>
+      <p class="slide-lead">How e6qu.github.io counts source and test lines across every public project, every day.</p>
+      <p class="slide-meta"><span>/ e6qu</span><span>e6qu.github.io</span><span>Design system demo deck</span></p>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-agenda" data-template="agenda" aria-label="Agenda">
+      <p class="slide-kicker">Agenda</p>
+      <h2>Where we're going</h2>
+      <ol>
+        <li aria-current="step">Why measure at all <span>5 min</span></li>
+        <li>Counting lines honestly <span>15 min</span></li>
+        <li>Shipping static pages <span>10 min</span></li>
+        <li>Live demo and questions <span>15 min</span></li>
+      </ol>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-section" data-template="section" aria-label="Section">
+      <p class="slide-number">01</p>
+      <h2>Why measure<span class="slide-mark"> ✳</span></h2>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-content" data-template="content" aria-label="Content">
+      <p class="slide-kicker">The problem</p>
+      <h2>A list of repositories says little about what's in them</h2>
+      <ul class="slide-list">
+        <li>GitHub shows languages, not how much code there is</li>
+        <li>Test code is the clearest signal of care</li>
+        <li>Numbers should come from the code, not from memory</li>
+      </ul>
+      <p class="slide-note">Public, non-fork projects only; research and throwaway repos are excluded</p>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-comparison" data-template="comparison" aria-label="Comparison">
+      <p class="slide-kicker">Approach</p>
+      <h2>Where the numbers come from</h2>
+      <div class="slide-columns">
+        <div class="slide-column"><h3>Hand-written list</h3><ul class="slide-list"><li>Goes stale the day after it's written</li><li>Counts whatever I remember</li></ul></div>
+        <div class="slide-column is-pick"><h3>Measured daily — chosen</h3><ul class="slide-list"><li>GitHub Actions refreshes every morning</li><li>Repository code is read, never run</li></ul></div>
+      </div>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-feature" data-template="feature" aria-label="Feature">
+      <div class="slide-copy">
+        <p class="slide-kicker">Featured project</p>
+        <h2>theseus</h2>
+        <p class="slide-lead">Deterministic testing for Linux services in microVMs. Each featured project gets its own illustration and palette.</p>
+        <p class="slide-meta"><span>Rust · Python</span><span>AGPL-3.0</span></p>
+        <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+      </div>
+      <div class="slide-art art-replay" data-illustration="replay" aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-code" data-template="code" aria-label="Code">
+      <h2>Test code is found by path</h2>
+<pre class="slide-pre"><code><span class="kw">def</span> <span class="fn">is_test</span>(path):
+    p = Path(path)
+    <span class="kw">if</span> any(part.lower() <span class="kw">in</span> TEST_DIRS <span class="kw">for</span> part <span class="kw">in</span> p.parts[:-1]):
+        <span class="kw">return</span> True
+<span class="mark">    <span class="kw">return</span> bool(re.search(</span>
+<span class="mark">        <span class="str">r'(^test[_.-]|[_.-]test\.|[_.-]tests\.|[_.-]spec\.|Tests?\.java$|Tests?\.cs$)'</span>,</span>
+        p.name, re.IGNORECASE))</code></pre>
+      <footer class="slide-footer"><span>scripts/collect.py</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-code-split" data-template="code-split" aria-label="Code with notes">
+      <h2>Inline Rust tests need a parser</h2>
+<pre class="slide-pre"><code><span class="kw">def</span> <span class="fn">visit</span>(node):
+    attrs = [] <b class="pin">1</b>
+    <span class="kw">for</span> child <span class="kw">in</span> node.named_children:
+        <span class="kw">if</span> child.type == <span class="str">'attribute_item'</span>:
+            attrs.append(child)
+            <span class="kw">continue</span>
+        is_test_attr = cfg_test(attrs) <b class="pin">2</b>
+        <span class="kw">if</span> is_test_attr <span class="kw">and</span> child.type.endswith(<span class="str">'_item'</span>):
+            ranges.append(...) <b class="pin">3</b>
+        <span class="kw">else</span>:
+            visit(child)</code></pre>
+      <ol class="slide-callouts">
+        <li><b class="pin">1</b>Collect the attributes above each item</li>
+        <li><b class="pin">2</b>Match #[cfg(test)] and #[test], async tests too</li>
+        <li><b class="pin">3</b>Blank those bytes out of the source count</li>
+      </ol>
+      <footer class="slide-footer"><span>scripts/collect.py · simplified</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-terminal" data-template="terminal" aria-label="Terminal">
+      <h2>Preview it locally</h2>
+      <div class="slide-window">
+        <div class="slide-window-bar">~/e6qu.github.io</div>
+<pre><span class="prompt">$</span> python3 scripts/build.py
+<span class="prompt">$</span> python3 -m http.server 8000 --directory _site
+<span class="out">Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...</span>
+<span class="ok">✓ built from the checked-in data.json snapshot</span></pre>
+      </div>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-diagram" data-template="diagram" aria-label="Diagram">
+      <p class="slide-kicker">Pipeline</p>
+      <h2>From repositories to a static page</h2>
+      <ol class="slide-flow">
+        <li><b>01 · List</b><strong>GitHub API</strong><span>Public, non-fork repositories</span></li>
+        <li class="is-key"><b>02 · Measure</b><strong>collect.py</strong><span>cloc 2.10 and tree-sitter count source and tests</span></li>
+        <li><b>03 · Render</b><strong>build.py</strong><span>Plain HTML; JavaScript only filters and sorts</span></li>
+        <li><b>04 · Publish</b><strong>Pages</strong><span>Daily, and on every push to main</span></li>
+      </ol>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-table" data-template="table" aria-label="Table">
+      <p class="slide-kicker">Snapshot</p>
+      <h2>Main languages across 32 projects</h2>
+      <table>
+        <thead><tr><th>Language</th><th class="num">Projects</th><th class="num">Share</th></tr></thead>
+        <tbody>
+          <tr class="is-best"><td>Rust</td><td class="num">12</td><td class="num">38%</td></tr>
+          <tr><td>Go</td><td class="num">11</td><td class="num">34%</td></tr>
+          <tr><td>TypeScript</td><td class="num">11</td><td class="num">34%</td></tr>
+          <tr><td>Python</td><td class="num">6</td><td class="num">19%</td></tr>
+        </tbody>
+      </table>
+      <footer class="slide-footer"><span>Up to three main languages per project</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-stats" data-template="stats" aria-label="Stats">
+      <p class="slide-kicker">By the numbers</p>
+      <h2>Small inputs, one page out</h2>
+      <p class="slide-lead">One Python build, no framework, self-hosted fonts.</p>
+      <div class="slide-figures">
+        <div><strong>32</strong><span>Public projects</span></div>
+        <div><strong>9</strong><span>Featured</span></div>
+        <div><strong>24h</strong><span>Refresh interval</span></div>
+      </div>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-image" data-template="image" aria-label="Image">
+      <h2>The link preview</h2>
+      <figure>
+        <img src="../../assets/social.png" alt="Social card: Adrian.Marza in large type, github.com/e6qu above, “Languages. Systems. Software.” below">
+        <figcaption>assets/social.png · the same type and coral dot as the page</figcaption>
+      </figure>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-quote" data-template="quote" aria-label="Quote">
+      <blockquote>Repository code is only read; it is never built or executed.</blockquote>
+      <cite>— README.md</cite>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-demo" data-template="demo" aria-label="Live demo">
+      <p class="slide-kicker">Switching to the browser</p>
+      <h2>Live demo</h2>
+      <ul class="slide-list">
+        <li>Search by name, language or description</li>
+        <li>Sort by latest contribution, SLOC or test SLOC</li>
+        <li>Stay idle for ten seconds and the termites arrive</li>
+        <li><a href="https://e6qu.github.io">e6qu.github.io</a></li>
+      </ul>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-blank" data-template="blank" aria-label="Blank"></section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-pause" data-template="pause" aria-label="Pause">
+      <p class="slide-mark" aria-hidden="true">✳</p>
+      <h2>Questions so far?</h2>
+      <p class="slide-lead">Then: what's next</p>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-closing" data-template="closing" aria-label="Closing">
+      <p class="slide-kicker">Thank you</p>
+      <h2>Questions<span class="slide-dot">?</span></h2>
+      <p class="slide-links"><a href="https://github.com/e6qu/e6qu.github.io">github.com/e6qu/e6qu.github.io</a><a href="https://e6qu.github.io">e6qu.github.io</a></p>
+      <footer class="slide-footer"><span>A portfolio that measures itself</span></footer>
+    </section>
+  </div>
+</body>
+</html>

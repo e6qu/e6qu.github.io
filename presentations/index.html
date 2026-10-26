@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presentations — Adrian.Marza</title>
+  <meta name="description" content="Talks by Adrian Marza, and the slide template they are built from.">
+  <link rel="canonical" href="https://e6qu.github.io/presentations/">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      let saved;
+      try { saved = localStorage.getItem('theme'); } catch {}
+      document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+        ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/tokens.css">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<!-- Add a talk: copy template/ to a new directory and add a row below. -->
+<body>
+  <div class="page-shell">
+    <header class="masthead">
+      <a class="github-handle" href="../"><span class="handle-mark" aria-hidden="true">/</span> e6qu</a>
+      <nav aria-label="Main"><a href="../">Projects</a><a href="../storybook/">Design system</a></nav>
+    </header>
+    <main>
+      <section class="identity" aria-labelledby="name">
+        <h1 id="name">Talks<span class="name-dot">.</span></h1>
+      </section>
+      <section class="project-index" aria-labelledby="talks-heading">
+        <div class="section-heading"><h2 id="talks-heading">Presentations</h2><span class="project-count">← → to move · O overview · B black out · T theme · P print</span></div>
+        <ul class="project-list">
+          <li class="project">
+            <div class="project-info"><h3><a class="project-link" href="a-portfolio-that-measures-itself/">A portfolio that measures itself<span class="outbound" aria-hidden="true">↗</span></a></h3><p class="description">Sample technical talk on how this site counts source and test lines. Uses every slide template once.</p><p class="project-meta"><span class="languages">Sample talk</span><span class="license">18 slides</span></p></div>
+          </li>
+          <li class="project">
+            <div class="project-info"><h3><a class="project-link" href="template/">Slide template<span class="outbound" aria-hidden="true">↗</span></a></h3><p class="description">Title, agenda, section, content, comparison, feature, code, code with notes, terminal, diagram, table, stats, image, quote, live demo, pause, blank and closing sheets.</p><p class="project-meta"><span class="languages">Template</span><span class="license">Copy the directory to start a talk</span></p></div>
+          </li>
+        </ul>
+      </section>
+    </main>
+    <footer><span>Built with the e6qu.github.io design system</span><a href="https://github.com/e6qu/e6qu.github.io/tree/main/presentations">Source ↗</a></footer>
+  </div>
+</body>
+</html>

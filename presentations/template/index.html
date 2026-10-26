@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presentation template — Adrian.Marza</title>
+  <meta name="description" content="Every slide template in the e6qu.github.io design system.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      let saved;
+      try { saved = localStorage.getItem('theme'); } catch {}
+      document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+        ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/tokens.css">
+  <link rel="stylesheet" href="../../assets/slides.css">
+  <script src="../../assets/slides.js" defer></script>
+</head>
+<!-- Copy this directory to presentations/<talk-name>/ to start a deck. Each slide is a
+     .slide-frame holding one .slide-<template>; delete the sheets you don't need and
+     duplicate the rest. Keys: ←/→ move, O overview, B black out, T theme, P print/PDF. -->
+<body class="deck">
+  <div class="slide-frame">
+    <section class="slide slide-title" data-template="title" aria-label="Title">
+      <p class="slide-kicker">Talk kicker</p>
+      <h1>Talk title<span class="slide-dot">.</span></h1>
+      <p class="slide-lead">A one-line subtitle that says what this talk is about and why it matters.</p>
+      <p class="slide-meta"><span>/ e6qu</span><span>Date</span><span>Event or venue</span></p>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-agenda" data-template="agenda" aria-label="Agenda">
+      <p class="slide-kicker">Agenda</p>
+      <h2>What we'll cover</h2>
+      <ol>
+        <li aria-current="step">First part <span>10 min</span></li>
+        <li>Second part <span>15 min</span></li>
+        <li>Live demo <span>10 min</span></li>
+        <li>Questions <span>10 min</span></li>
+      </ol>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-section" data-template="section" aria-label="Section">
+      <p class="slide-number">01</p>
+      <h2>Section title<span class="slide-mark"> ✳</span></h2>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-content" data-template="content" aria-label="Content">
+      <p class="slide-kicker">Context</p>
+      <h2>A clear claim as the slide heading</h2>
+      <ul class="slide-list">
+        <li>One idea per line, written as a short sentence</li>
+        <li>Three to five points keep a slide readable</li>
+        <li>Say the details; don't put them on the slide</li>
+      </ul>
+      <p class="slide-note">Source or footnote in mono, muted</p>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-comparison" data-template="comparison" aria-label="Comparison">
+      <p class="slide-kicker">Trade-off</p>
+      <h2>Option A or option B</h2>
+      <div class="slide-columns">
+        <div class="slide-column"><h3>Option A</h3><ul class="slide-list"><li>What it costs</li><li>Where it breaks</li></ul></div>
+        <div class="slide-column is-pick"><h3>Option B — chosen</h3><ul class="slide-list"><li>Why it wins</li><li>What we gave up</li></ul></div>
+      </div>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-feature" data-template="feature" aria-label="Feature">
+      <div class="slide-copy">
+        <p class="slide-kicker">Category</p>
+        <h2>Project name</h2>
+        <p class="slide-lead">Pair a short description with one of the site illustrations. Change the art-* class and data-illustration together.</p>
+        <p class="slide-meta"><span>Languages</span><span>License</span></p>
+        <footer class="slide-footer"><span>Deck title</span></footer>
+      </div>
+      <div class="slide-art art-pipes" data-illustration="pipes" aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-code" data-template="code" aria-label="Code">
+      <h2>Show the code that matters</h2>
+<pre class="slide-pre"><code><span class="cm"># .kw keywords, .fn functions, .str strings, .cm comments</span>
+<span class="kw">def</span> <span class="fn">greet</span>(name):
+<span class="mark">    message = <span class="str">f'Hello, {name}'</span>  <span class="cm"># .mark highlights a line</span></span>
+    <span class="kw">return</span> message</code></pre>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-code-split" data-template="code-split" aria-label="Code with notes">
+      <h2>Walk through the code</h2>
+<pre class="slide-pre"><code><span class="kw">def</span> <span class="fn">handler</span>(request): <b class="pin">1</b>
+    user = authenticate(request)
+    <span class="kw">if not</span> user: <b class="pin">2</b>
+        <span class="kw">return</span> forbidden()
+    <span class="kw">return</span> render(user) <b class="pin">3</b></code></pre>
+      <ol class="slide-callouts">
+        <li><b class="pin">1</b>Number the parts you want to talk about</li>
+        <li><b class="pin">2</b>Keep each note to one line</li>
+        <li><b class="pin">3</b>Three or four pins per slide at most</li>
+      </ol>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-terminal" data-template="terminal" aria-label="Terminal">
+      <h2>Run it</h2>
+      <div class="slide-window">
+        <div class="slide-window-bar">~/project</div>
+<pre><span class="prompt">$</span> command --flag argument
+<span class="out">output that matters, trimmed to a few lines</span>
+<span class="ok">✓ the result you want people to notice</span></pre>
+      </div>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-diagram" data-template="diagram" aria-label="Diagram">
+      <p class="slide-kicker">How it works</p>
+      <h2>A pipeline in three to five steps</h2>
+      <ol class="slide-flow">
+        <li><b>01 · Input</b><strong>Step one</strong><span>What goes in</span></li>
+        <li class="is-key"><b>02 · Transform</b><strong>Step two</strong><span>Mark the step you're explaining with .is-key</span></li>
+        <li><b>03 · Output</b><strong>Step three</strong><span>What comes out</span></li>
+      </ol>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-table" data-template="table" aria-label="Table">
+      <p class="slide-kicker">Benchmark</p>
+      <h2>Compare in a table</h2>
+      <table>
+        <thead><tr><th>Approach</th><th class="num">Time</th><th class="num">Memory</th></tr></thead>
+        <tbody>
+          <tr><td>Baseline</td><td class="num">120 ms</td><td class="num">64 MB</td></tr>
+          <tr class="is-best"><td>Improved</td><td class="num">35 ms</td><td class="num">40 MB</td></tr>
+          <tr><td>Alternative</td><td class="num">80 ms</td><td class="num">22 MB</td></tr>
+        </tbody>
+      </table>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-stats" data-template="stats" aria-label="Stats">
+      <p class="slide-kicker">By the numbers</p>
+      <h2>Numbers carry the slide</h2>
+      <p class="slide-lead">Use two to four figures with short labels.</p>
+      <div class="slide-figures">
+        <div><strong>42</strong><span>First figure</span></div>
+        <div><strong>1.2M</strong><span>Second figure</span></div>
+        <div><strong>99%</strong><span>Third figure</span></div>
+      </div>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-image" data-template="image" aria-label="Image">
+      <h2>Screenshot or figure</h2>
+      <figure>
+        <div class="slide-placeholder">Replace with &lt;img src="…" alt="…"&gt;</div>
+        <figcaption>Caption: what the audience should look at</figcaption>
+      </figure>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-quote" data-template="quote" aria-label="Quote">
+      <blockquote>A memorable line, quoted large enough to read from the back of the room.</blockquote>
+      <cite>— Name, role or source</cite>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-demo" data-template="demo" aria-label="Live demo">
+      <p class="slide-kicker">Switching to the demo</p>
+      <h2>Live demo</h2>
+      <ul class="slide-list">
+        <li>What to watch for first</li>
+        <li>What to watch for next</li>
+        <li><a href="https://e6qu.github.io">link-to-the-demo</a></li>
+      </ul>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-pause" data-template="pause" aria-label="Pause">
+      <p class="slide-mark" aria-hidden="true">✳</p>
+      <h2>Short break</h2>
+      <p class="slide-lead">Back at 15:30</p>
+    </section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-blank" data-template="blank" aria-label="Blank"></section>
+  </div>
+
+  <div class="slide-frame">
+    <section class="slide slide-closing" data-template="closing" aria-label="Closing">
+      <p class="slide-kicker">Thank you</p>
+      <h2>Questions<span class="slide-dot">?</span></h2>
+      <p class="slide-links"><a href="https://github.com/e6qu">github.com/e6qu</a><a href="https://e6qu.github.io">e6qu.github.io</a></p>
+      <footer class="slide-footer"><span>Deck title</span></footer>
+    </section>
+  </div>
+</body>
+</html>

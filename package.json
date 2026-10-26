@@ -1,0 +1,16 @@
+{
+  "name": "e6qu-design-system",
+  "private": true,
+  "type": "module",
+  "description": "Design tokens, components and presentation templates for e6qu.github.io",
+  "scripts": {
+    "fixtures": "python3 scripts/stories.py",
+    "storybook": "npm run fixtures && storybook dev -p 6006",
+    "build-storybook": "npm run fixtures && storybook build --output-dir _site/storybook"
+  },
+  "devDependencies": {
+    "@storybook/html-vite": "10.6.4",
+    "storybook": "10.6.4",
+    "vite": "8.3.5"
+  }
+}
