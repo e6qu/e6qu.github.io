@@ -18,6 +18,8 @@ body:has(> .deck) {margin:0}
   padding:0;font:.75em var(--mono);color:var(--muted)
 }
 .slide-footer::after {content:counter(slide,decimal-leading-zero)}
+/* the part a slide belongs to, at the very top, on the footer's grid */
+.slide-part {position:absolute;left:6.667em;right:6.667em;top:2.4em;font:.75em var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--muted)}
 .slide-kicker {font:.8em var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--muted);margin-bottom:1.6em}
 /* the deck's h1 is its (visually hidden) title; slides use h2, and the title sheet's big h2 is .slide-display */
 .slide-display {font:800 6em/1 var(--display);letter-spacing:var(--tracking-h1)}

@@ -9,6 +9,7 @@
   const ART = ['pipes', 'replay', 'database', 'branches', 'cloud', 'containers', 'board', 'chat', 'terminal'];
   const TERMINAL = ['console', 'terminal', 'shell-session', 'sh-session'];
   const NO_FOOTER = ['title', 'pause', 'blank'];
+  const PART_LESS = ['title', 'section', 'closing', 'blank'];
   const KEYWORDS = new Set(('def return if elif else for while in not and or is import from as class try except finally ' +
     'with yield async await lambda pass break continue raise True False None fn let mut pub impl struct enum match use ' +
     'mod trait where self Self const static func package var type interface go defer chan map range select switch case ' +
@@ -213,6 +214,8 @@
   function render(markdown) {
     const {meta, slides} = split(markdown);
     let sections = 0;
+    let part = '';
+    let subpart = '';
     let firstTitle = '';
     const rendered = slides.map((slide, index) => {
       const {template: chosen, args, lines} = directive(slide.lines);
@@ -257,7 +260,10 @@
         }
         case 'section': {
           sections++;
-          body = `<p class="slide-number">${esc(args.number || pad(sections))}</p><h2>${inline(heading(2) ?? heading(1) ?? '')}<span class="slide-mark"> ✳</span></h2>`;
+          const title = heading(2) ?? heading(1) ?? '';
+          part = `${args.number || pad(sections)} · ${title}`;
+          subpart = '';
+          body = `<p class="slide-number">${esc(args.number || pad(sections))}</p><h2>${inline(title)}<span class="slide-mark"> ✳</span></h2>`;
           break;
         }
         case 'comparison': {
@@ -384,6 +390,10 @@
           }).join('');
         }
       }
+      // Every slide inside a part names that part (and the service it is on) at the very top.
+      if (template === 'pause' && part) subpart = args.label ?? '';
+      const where = [part, template === 'pause' ? '' : subpart].filter(Boolean).join(' · ');
+      if (where && !PART_LESS.includes(template)) body = `<p class="slide-part">${inline(where)}</p>` + body;
       const footerText = args.footer ?? meta.footer ?? meta.title;
       const footer = NO_FOOTER.includes(template) || !footerText ? '' : `<footer class="slide-footer"><span>${inline(footerText)}</span></footer>`;
       body = body.includes('\u0000footer\u0000') ? body.replace('\u0000footer\u0000', footer) : body + footer;

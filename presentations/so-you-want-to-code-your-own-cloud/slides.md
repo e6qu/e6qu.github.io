@@ -354,7 +354,7 @@ On Hetzner, everything above VMs, dedicated servers and object storage is yours 
 
 ---
 
-:: pause
+:: pause label="Identity and access"
 
 ## Who goes there?
 
@@ -483,7 +483,7 @@ sockerless-cloud is also the identity provider: it signs Google tokens, serves t
 
 ---
 
-:: pause
+:: pause label="Functions"
 
 ## Functions
 
@@ -532,7 +532,7 @@ The emulators run these as containers: Lambda on AWS's base images, Azure Functi
 
 ---
 
-:: pause
+:: pause label="Events and queues"
 
 ## Events and queues
 
@@ -577,7 +577,7 @@ EventBridge, SQS · Eventarc, Pub/Sub · Event Grid, Service Bus
 
 ---
 
-:: pause
+:: pause label="Storage and databases"
 
 ## Bucket list
 
@@ -601,7 +601,7 @@ Both run the real engine for SQL. Nobody ships DynamoDB, Firestore or Cosmos DB 
 
 ---
 
-:: pause
+:: pause label="Workflows and provisioning"
 
 ## Workflows and provisioning
 
@@ -652,7 +652,7 @@ Each service team owns its resource handlers in the CloudFormation registry. AWS
 
 ---
 
-:: pause
+:: pause label="Logs, metrics, audit"
 
 ## Logs, metrics, audit
 
@@ -711,7 +711,7 @@ Every cloud logs the calls made against it: who called, which action, on which r
 
 ---
 
-:: pause
+:: pause label="Virtual machines"
 
 ## Virtual machines
 
@@ -834,7 +834,7 @@ A stopped guest keeps its disk; capturing an image exports that disk again. Floc
 
 ---
 
-:: pause
+:: pause label="Instance metadata"
 
 ## Instance metadata
 
@@ -871,7 +871,7 @@ In a real VM, 169.254.169.254 is a link-local address the host answers itself. T
 
 ---
 
-:: pause
+:: pause label="Networks"
 
 ## Networks
 
@@ -1095,9 +1095,9 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 
 :: comparison pick=0 dense footer="Sources: SC [run-fuzz.sh](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/scripts/run-fuzz.sh) · [fuzz-nightly.yml](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/.github/workflows/fuzz-nightly.yml) · Floci [RuleSqlFuzzTest.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/test/java/io/github/hectorvent/floci/services/iot/rules/RuleSqlFuzzTest.java)"
 
-### Fuzz Lightyear
+### Testing
 
-## Fuzzing
+## Fuzz Lightyear
 
 #### sockerless-cloud: Go's built-in fuzzing
 

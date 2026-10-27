@@ -105,3 +105,11 @@ test('~~text~~ renders as a deletion, in headings too', () => {
   assert.match(slides[0].html, /<h2>No place like <del>127.0.0.1<\/del> 169.254.169.254<\/h2>/);
   assert.match(slides[0].html, /A <del>wrong<\/del> right word./);
 });
+
+test('slides inside a part name the part, and the service after a labelled pause', () => {
+  const {slides} = render('---\n\n:: section\n\n## Core\n\n---\n\n:: content\n\n## A\n\nText.\n\n---\n\n:: pause label="Functions"\n\n## Functions\n\n---\n\n:: content\n\n## B\n\nText.');
+  assert.doesNotMatch(slides[0].html, /slide-part/);
+  assert.match(slides[1].html, /<p class="slide-part">01 · Core<\/p>/);
+  assert.match(slides[2].html, /<p class="slide-part">01 · Core<\/p>/);
+  assert.match(slides[3].html, /<p class="slide-part">01 · Core · Functions<\/p>/);
+});
