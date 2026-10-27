@@ -354,7 +354,7 @@ provider "azurerm" {
 
 :: table dense footer="Sources: [How Workers work](https://developers.cloudflare.com/workers/reference/how-workers-works/) · [Workers bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/)"
 
-### Skip the VMs
+### Serverless-only
 
 ## A Minimal Viable Cloud, per cloud
 
