@@ -18,8 +18,9 @@ body:has(> .deck) {margin:0}
   padding:0;font:.75em var(--mono);color:var(--muted)
 }
 .slide-footer::after {content:counter(slide,decimal-leading-zero)}
-/* the part a slide belongs to, at the very top, on the footer's grid */
-.slide-part {position:absolute;left:6.667em;right:6.667em;top:2.4em;font:.75em var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--muted)}
+/* every part of the deck, at the very top, the current one in ink; offsets are in its own .6em */
+.slide-part {position:absolute;left:8.333em;right:8.333em;top:3.33em;display:flex;gap:1em;margin:0;padding:0;list-style:none;font:.6em var(--mono);white-space:nowrap;color:var(--muted)}
+.slide-part [aria-current] {color:var(--ink);font-weight:600}
 .slide-kicker {font:.8em var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--muted);margin-bottom:1.6em}
 /* the deck's h1 is its (visually hidden) title; slides use h2, and the title sheet's big h2 is .slide-display */
 .slide-display {font:800 6em/1 var(--display);letter-spacing:var(--tracking-h1)}
@@ -82,6 +83,7 @@ body:has(> .deck) {margin:0}
 .slide-feature h2 {font-size:3em}
 .slide-feature .slide-lead {font-size:1.25em}
 .slide-feature .slide-footer {right:calc(58% + 4.667em)}
+.slide-feature .slide-part li:not([aria-current]) {display:none}
 .slide-art {display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--art-paper);color:var(--art-ink);--art-paper:var(--art-pipes);--art-accent:var(--art-pipes-accent)}
 .slide-art svg {display:block;width:100%;height:auto}
 .art-replay {--art-paper:var(--art-replay);--art-accent:var(--art-replay-accent)}
@@ -165,7 +167,7 @@ body:has(> .deck) {margin:0}
 
 /* demo: hand-off to a live demo; list what the audience should watch for */
 .slide-demo {justify-content:center;background:var(--art-pipes);color:var(--art-ink)}
-.slide-demo .slide-kicker,.slide-demo .slide-part,.slide-demo .slide-footer {color:inherit}
+.slide-demo .slide-kicker,.slide-demo .slide-part,.slide-demo .slide-part [aria-current],.slide-demo .slide-footer {color:inherit}
 .slide-demo h2 {display:flex;align-items:center;gap:.3em;font-size:7em;margin-bottom:.4em}
 .slide-demo h2::before {content:'';width:.22em;height:.22em;border-radius:50%;background:var(--art-pipes-accent);animation:slide-live 1.6s ease-in-out 3}
 @keyframes slide-live {50%{opacity:.3}}
