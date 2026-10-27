@@ -216,6 +216,7 @@
     let sections = 0;
     let part = '';
     let subpart = '';
+    const parts = [];
     let firstTitle = '';
     const rendered = slides.map((slide, index) => {
       const {template: chosen, args, lines} = directive(slide.lines);
@@ -262,6 +263,7 @@
           sections++;
           const title = heading(2) ?? heading(1) ?? '';
           part = `${args.number || pad(sections)} · ${title}`;
+          parts.push(title);
           subpart = '';
           body = `<p class="slide-number">${esc(args.number || pad(sections))}</p><h2>${inline(title)}<span class="slide-mark"> ✳</span></h2>`;
           break;
@@ -390,15 +392,22 @@
           }).join('');
         }
       }
-      // Every slide inside a part names that part (and the service it is on) at the very top.
+      // Every slide inside a part lists all parts at the very top, the current one (and its service) highlighted.
       if (template === 'pause' && part) subpart = args.label ?? '';
-      const where = [part, template === 'pause' ? '' : subpart].filter(Boolean).join(' · ');
-      if (where && !PART_LESS.includes(template)) body = `<p class="slide-part">${inline(where)}</p>` + body;
+      if (part && !PART_LESS.includes(template)) {
+        const service = template === 'pause' ? '' : subpart;
+        // The list needs every part's title, so it is filled in once all slides are rendered.
+        body = `\u0000parts:${sections - 1}:${service}\u0000` + body;
+      }
       const footerText = args.footer ?? meta.footer ?? meta.title;
       const footer = NO_FOOTER.includes(template) || !footerText ? '' : `<footer class="slide-footer"><span>${inline(footerText)}</span></footer>`;
       body = body.includes('\u0000footer\u0000') ? body.replace('\u0000footer\u0000', footer) : body + footer;
       return {template, line: slide.start, html: `<div class="slide-frame"><section class="slide slide-${template}${args.dense ? ' slide-dense' : ''}" data-template="${template}">${body}</section></div>`};
     });
+    const partList = (current, service) => `<ol class="slide-part" aria-label="Parts">${parts.map((title, i) => i === current
+      ? `<li aria-current="step">${inline(title)}${service ? ` · ${inline(service)}` : ''}</li>`
+      : `<li>${inline(title)}</li>`).join('')}</ol>`;
+    for (const slide of rendered) slide.html = slide.html.replace(/\u0000parts:(\d+):([^\u0000]*)\u0000/, (_, current, service) => partList(Number(current), service));
     return {title: meta.title || firstTitle, slides: rendered, html: rendered.map(slide => slide.html).join('\n')};
   }
 

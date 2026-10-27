@@ -106,10 +106,11 @@ test('~~text~~ renders as a deletion, in headings too', () => {
   assert.match(slides[0].html, /A <del>wrong<\/del> right word./);
 });
 
-test('slides inside a part name the part, and the service after a labelled pause', () => {
-  const {slides} = render('---\n\n:: section\n\n## Core\n\n---\n\n:: content\n\n## A\n\nText.\n\n---\n\n:: pause label="Functions"\n\n## Functions\n\n---\n\n:: content\n\n## B\n\nText.');
+test('slides inside a part list every part, the current one and its service marked', () => {
+  const {slides} = render('---\n\n:: section\n\n## Core\n\n---\n\n:: content\n\n## A\n\nText.\n\n---\n\n:: pause label="Functions"\n\n## Functions\n\n---\n\n:: content\n\n## B\n\nText.\n\n---\n\n:: section\n\n## Edge\n\n---\n\n:: content\n\n## C\n\nText.');
   assert.doesNotMatch(slides[0].html, /slide-part/);
-  assert.match(slides[1].html, /<p class="slide-part">01 · Core<\/p>/);
-  assert.match(slides[2].html, /<p class="slide-part">01 · Core<\/p>/);
-  assert.match(slides[3].html, /<p class="slide-part">01 · Core · Functions<\/p>/);
+  assert.match(slides[1].html, /<ol class="slide-part" aria-label="Parts"><li aria-current="step">Core<\/li><li>Edge<\/li><\/ol>/);
+  assert.match(slides[2].html, /<li aria-current="step">Core<\/li>/);
+  assert.match(slides[3].html, /<li aria-current="step">Core · Functions<\/li><li>Edge<\/li>/);
+  assert.match(slides[5].html, /<li>Core<\/li><li aria-current="step">Edge<\/li>/);
 });
