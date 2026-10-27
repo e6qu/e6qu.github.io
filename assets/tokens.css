@@ -3,7 +3,8 @@
    side by side. Keep the dark block and the prefers-color-scheme block identical.
    --coral is for large display marks and decoration (3:1); --coral-strong is the accent
    for small text and for fills behind text (4.5:1); --coral-on-ink is the accent on an
-   --ink background (the inverted section sheet). */
+   --ink background. --section-* colour the section sheet: a tinted paper that follows the
+   theme, so a deck never flips between light and dark. */
 @font-face{font-family:Archivo;src:url('fonts/archivo.ttf') format('truetype');font-weight:800;font-display:swap}
 @font-face{font-family:Plex;src:url('fonts/plex-sans.ttf') format('truetype');font-weight:400;font-display:swap}
 @font-face{font-family:PlexMono;src:url('fonts/plex-mono.ttf') format('truetype');font-weight:400;font-display:swap}
@@ -30,6 +31,7 @@
   --art-pipes:#315ddd; --art-replay:#c85845; --art-database:#19766e; --art-branches:#514dab;
   --art-cloud:#355c7d; --art-containers:#956035; --art-board:#705064; --art-chat:#2d6a80; --art-terminal:#4c675d;
   --terminal-bg:#152e3b;
+  --section-bg:#e4eaf5; --section-ink:#152e3b; --section-accent:#b8432d;
 }
 [data-theme='dark'] {
   color-scheme:dark;
@@ -39,6 +41,7 @@
   --art-pipes:#2947a4; --art-replay:#914634; --art-database:#175d59; --art-branches:#443c86;
   --art-cloud:#274963; --art-containers:#69472d; --art-board:#513b4b; --art-chat:#234d60; --art-terminal:#334c43;
   --terminal-bg:#0b1520;
+  --section-bg:#0b1520; --section-ink:#e0e9f7; --section-accent:#f3917b;
 }
 @media(prefers-color-scheme:dark) {
   :root:not([data-theme]) {
@@ -49,6 +52,7 @@
     --art-pipes:#2947a4; --art-replay:#914634; --art-database:#175d59; --art-branches:#443c86;
     --art-cloud:#274963; --art-containers:#69472d; --art-board:#513b4b; --art-chat:#234d60; --art-terminal:#334c43;
     --terminal-bg:#0b1520;
+    --section-bg:#0b1520; --section-ink:#e0e9f7; --section-accent:#f3917b;
   }
 }
 @media(max-width:750px) {

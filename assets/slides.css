@@ -32,6 +32,9 @@ body:has(> .deck) {margin:0}
 .slide-dense h2 {font-size:2.6em}
 .slide-dense .slide-kicker {margin-bottom:1em}
 .slide-dense .slide-lead {font-size:1.3em;max-width:none}
+/* consecutive lead paragraphs read as prose: spaced apart; a dense content slide sets them in body color */
+.slide-lead + .slide-lead {margin-top:.8em}
+.slide-content.slide-dense .slide-lead {font-size:1.35em;line-height:1.5;max-width:44em;color:var(--ink)}
 .slide-dense .slide-list {font-size:1.3em;gap:.6em;max-width:none}
 .slide-dense .slide-list li {padding-top:.45em}
 .slide-dense .slide-column .slide-list {font-size:1.1em}
@@ -53,9 +56,10 @@ body:has(> .deck) {margin:0}
 .slide-agenda li[aria-current]::before {color:var(--coral-strong)}
 
 /* section */
-.slide-section {justify-content:flex-end;background:var(--ink);color:var(--paper)}
-.slide-section .slide-number {font:800 12em/.8 var(--display);letter-spacing:var(--tracking-h1);color:var(--coral-on-ink);margin-bottom:.15em}
-.slide-section .slide-mark {color:var(--coral-on-ink)}
+/* section breaks stand out without leaving the theme: a tinted paper, lighter or darker with it */
+.slide-section {justify-content:flex-end;background:var(--section-bg);color:var(--section-ink)}
+.slide-section .slide-number {font:800 12em/.8 var(--display);letter-spacing:var(--tracking-h1);color:var(--section-accent);margin-bottom:.15em}
+.slide-section .slide-mark {color:var(--section-accent)}
 .slide-section h2 {font-size:5em;margin:0}
 .slide-section .slide-footer {color:inherit;opacity:.7}
 
@@ -192,11 +196,12 @@ body:has(> .deck) {margin:0}
 .deck[data-blackout]::after {content:'';position:fixed;inset:0;z-index:10;background:#000}
 .deck:focus {outline:none}
 .deck:focus-visible {outline:var(--border-strong) solid var(--coral);outline-offset:-4px}
-/* a deck's overview (Esc) adds Edit Markdown and Save as PDF beside the theme toggle */
+/* a deck's overview (Esc) shows Edit, Download .md and Save as PDF beside the theme toggle */
 .page-controls .when-overview {display:none}
 :root:has(.deck[data-mode='overview']:not([hidden])) .page-controls .when-overview:not([hidden]) {display:inline-flex}
-/* the page controls stay out of the way while presenting; hover or focus shows them */
-:root:has(.deck[data-mode='present']:not([hidden])) .page-controls:not(:hover,:focus-within) {opacity:0}
+/* the page controls (theme toggle included) live in the overview (Esc or O); while presenting
+   they are hidden, T still switches the theme, and the choice holds for every slide and visit */
+:root:has(.deck[data-mode='present']:not([hidden])) .page-controls {display:none}
 @media(prefers-reduced-motion:reduce) {
   .slide-demo h2::before {animation:none}
 }

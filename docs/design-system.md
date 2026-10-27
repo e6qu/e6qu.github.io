@@ -50,8 +50,10 @@ blocks drift apart.
 Every page has the same sun/moon toggle in a circle in the top right corner
 (☾ in light mode, ☀ in dark). It follows the system until clicked, then the
 choice is remembered. The homepage adds a pause button beside it. While a deck
-is presenting the controls fade out; hover or tab to them to bring them back,
-or press T.
+is presenting, the controls are hidden: Esc opens the overview, which shows the
+toggle beside Edit, Download .md and Save as PDF; T switches the theme from any slide.
+The choice holds for every slide and later visits. Every sheet, section breaks included, follows
+the theme, so a deck never flips between light and dark.
 
 Illustration colors follow the same rule: each illustration has a themed
 paper token (`--art-replay`) and a fixed accent (`--art-replay-accent`),
@@ -137,9 +139,12 @@ A talk on the site is a directory under `presentations/` with a `slides.md`
 and an `index.html` like the sample's (`<div class="deck" data-markdown="slides.md">`).
 
 The **editor** (`/presentations/editor/`) shows the slide under the cursor,
-and clicking a slide jumps to its Markdown. Nothing is stored on a server or in the browser: the deck lives in the address (`#md=`, compressed),
+and clicking a slide jumps to its Markdown. Nothing is stored on a server: the deck lives in the address (`#md=`, compressed),
 so reloading, bookmarking or sharing the link keeps it. Save as PDF prints the preview.
-In a deck, the overview (Esc or O) shows Edit Markdown, which reopens that deck in the editor, and Save as PDF.
+The editor also keeps each deck's latest edits in this browser (localStorage, keyed by the
+deck's file), so Edit on a deck brings them back; Revert returns to the published file.
+In a deck, the overview (Esc or O) shows Edit, which reopens that deck in the editor,
+Download .md and Save as PDF.
 It opens `?src=<path>` or a share link. **Copy link** and **Present** put the
 whole deck, compressed, in the link (`viewer/#md=…`), so sharing needs no
 server. The **viewer** (`/presentations/viewer/`) presents a pasted or dropped
@@ -168,8 +173,10 @@ Storybook's Accessibility panel shows the same axe results for each story.
 Rules the components follow:
 
 - `--coral` is for large display marks and decoration (3:1). Small accent text
-  and fills behind text use `--coral-strong` (4.5:1); accents on the inverted
-  section sheet use `--coral-on-ink`.
+  and fills behind text use `--coral-strong` (4.5:1); accents on an `--ink`
+  background use `--coral-on-ink`.
+- The section sheet uses `--section-bg`, `--section-ink` and `--section-accent`. It follows
+  the theme (a tinted paper, light or dark), so a deck never flips between modes.
 - State is never shown by color alone: the selected tab has a thicker bar, the
   current agenda item a bar, the chosen comparison column a ✓, the best table
   row a ▸, highlighted code lines a left rule.
