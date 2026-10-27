@@ -94,3 +94,8 @@ test('dense fits more on a slide, on any sheet', () => {
   assert.match(slides[1].html, /<footer class="slide-footer"><span><a href="https:\/\/example.com"/);
   assert.doesNotMatch(slides[2].html, /slide-dense/);
 });
+
+test('a paragraph after a table becomes its note', () => {
+  const {slides} = render('---\n\n:: table\n\n## T\n\n| a | b |\n| --- | --- |\n| 1 | 2 |\n\nThe [source](https://example.com) of it.');
+  assert.match(slides[0].html, /<\/table><p class="slide-note">The <a href="https:\/\/example.com"[^>]*>source<\/a> of it.<\/p>/);
+});

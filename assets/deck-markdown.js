@@ -317,7 +317,7 @@
           body = `${top}<table><thead><tr>${table.head.map((text, i) => cell('th', text, i)).join('')}</tr></thead><tbody>${table.rows.map(row => {
             const best = /^\*\*.+\*\*$/.test(row[0] || '');
             return `<tr${best ? ' class="is-best"' : ''}>${row.map((text, i) => cell('td', best ? text.replace(/^\*\*(.+)\*\*$/, '$1') : text, i)).join('')}</tr>`;
-          }).join('')}</tbody></table>`;
+          }).join('')}</tbody></table>${paragraphs().map(text => `<p class="slide-note">${inline(text)}</p>`).join('')}`;
           break;
         }
         case 'stats': {
