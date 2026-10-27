@@ -505,19 +505,7 @@ sockerless-cloud evaluates steps 1, 3, 4 plus users' permissions boundaries. Flo
 | Cloud Run, functions | Metadata server, even serverless | Metadata server behind a sidecar | `GCE_METADATA_HOST` to the main port |
 | Azure Functions | `IDENTITY_ENDPOINT` + header | `/msi/token`, per-site header | Managed identity endpoint |
 
----
-
-:: content dense footer="Sources: SC [docs/iam.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/docs/iam.md)"
-
-### Identity
-
-## An emulator is also an identity provider
-
-- sockerless-cloud signs Google access and ID tokens with its own RSA key, then serves the matching JWKS
-- It runs its own Entra ID tenant for Azure, with a fixed client ID, secret
-- Its STS session tokens seal their expiry with a key kept in the database, so sessions survive a restart
-- It verifies federated tokens against the issuer's published keys
-- floci-az issues real RS256 tokens; its services accept any bearer
+sockerless-cloud is also the identity provider: it signs Google tokens, serves their JWKS, runs an Entra ID tenant.
 
 ---
 
@@ -1179,6 +1167,24 @@ Write each module against an interface. A manifest says which binary holds each 
 - **Next, replicas:** prefer stateless services, with state in a shared store; then each binary runs as several replicas behind one address
 - **SameOldChat**, a self-hosted Slack clone, generates both providers from `modules.json`, which also sets replicas per process
 - **fwp**, a pipe-based language, swaps calls into a module for gRPC stubs when built with `--service`
+
+---
+
+:: table dense footer="Sources: [pos3ql](https://github.com/e6qu/pos3ql/blob/dbfb0d303db0ff64ce2ff4256d64b72a262085c3/README.md) · [Neon architecture](https://neon.com/docs/introduction/architecture-overview) · [SlateDB](https://slatedb.io) · [Litestream](https://litestream.io/how-it-works/) · DuckDB [httpfs](https://duckdb.org/docs/stable/core_extensions/httpfs/overview), [DuckLake](https://ducklake.select)"
+
+### State
+
+## Stateless services, state in object storage
+
+| Store | What it is | Where the data lives |
+| --- | --- | --- |
+| pos3ql | A PostgreSQL-compatible database in Rust | An S3-compatible store; memory, disk only cache |
+| Neon | Serverless PostgreSQL | Compute nodes keep nothing; pages, WAL end up in object storage |
+| SlateDB | An embedded key-value store | Object storage, written as an LSM tree |
+| Litestream | Replication for SQLite | Streams the WAL to S3; restores the file on start |
+| DuckDB | An in-process analytics database | A local file; reads Parquet on S3 through `httpfs`, or a DuckLake catalog |
+
+A replica that keeps no local state can crash, restart, scale out; the object store stays the one durable place.
 
 ---
 
