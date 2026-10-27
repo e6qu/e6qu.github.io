@@ -75,8 +75,7 @@ Integration tests need environments that start in seconds, behave the same on ev
 - **The case against:** emulators [drift](https://news.ycombinator.com/item?id=47593285); even AWS's own [DynamoDB Local fails part](https://news.ycombinator.com/item?id=49870948) of an independent conformance suite
 - **The cost:** the clouds change their APIs daily, faster than a small team can follow
 - **Cloud slices 🍉:** emulate the few services an application uses, in depth
-- **Start small:** a Minimal Viable Cloud, run on cheap providers such as Hetzner
-- **Keep one real environment** for the last mile
+- **One option:** a Minimal Viable Cloud, run on cheap providers such as Hetzner
 
 ---
 
@@ -772,7 +771,7 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 
 ## Compose the cloud at build time
 
-Write each module against an interface. A manifest says which binary holds each one; build-time tooling emits the wiring: `go generate` with `text/template` in Go, macros or `build.rs` in Rust, annotation processors in Java, `comptime` in Zig.
+One approach: each module behind an interface, and a manifest saying which binary holds it; build-time tooling emits the wiring: `go generate` with `text/template` in Go, macros or `build.rs` in Rust, annotation processors in Java, `comptime` in Zig.
 
 - **One binary:** the wiring hands each caller the implementation; a call stays an ordinary function call
 - **Separate binaries:** the generator emits a gRPC client with the same interface, plus a server in the owning binary
@@ -812,14 +811,12 @@ A service that keeps no local state can crash, restart or run as many replicas; 
 
 ## Code your own cloud
 
-1. Start with CI: emulate the cloud slices 🍉 your tests use, in depth
-2. Let the real SDKs, CLIs, Terraform providers be your tests
-3. Vendor the specs; pin them, never edit them, refresh them periodically
-4. Authenticate, authorize, act, audit in one place, for every caller
-5. Store the cloud's exact states; put real work behind every transition
-6. Answer an unserved method with a declared 501
-7. Start serverless; add VMs once they run real workloads
-8. Compose at build time; keep services stateless, with state in object storage
+A cloud is a lot of small state machines behind one front door.
+
+- **Nobody needs the whole cloud:** build the cloud slices 🍉 your own systems use
+- **Fork, don't follow:** both projects are open source; keep what you need, change the rest
+- **What worked for sockerless-cloud:** the real SDKs, CLIs and Terraform as its tests; one front door; serverless first
+- [github.com/e6qu/sockerless-cloud](https://github.com/e6qu/sockerless-cloud) · [github.com/floci-io/floci](https://github.com/floci-io/floci)
 
 ---
 
