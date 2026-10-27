@@ -128,6 +128,12 @@
       }
     }
     slides.push(current);
+    // A line of "???" ends the slide and starts its speaker notes, which only the notes view shows.
+    for (const slide of slides) {
+      const at = slide.lines.findIndex(line => /^\?\?\?\s*$/.test(line));
+      slide.notes = at < 0 ? [] : slide.lines.slice(at + 1);
+      if (at >= 0) slide.lines = slide.lines.slice(0, at);
+    }
     return {meta, slides: slides.filter(slide => slide.lines.some(line => line.trim()))};
   }
 
@@ -210,6 +216,13 @@
     return match ? `${inline(match[1])}<span class="slide-dot">${match[2]}</span>` : inline(text);
   };
   const pad = n => String(n).padStart(2, '0');
+
+  // Speaker notes as plain paragraphs and lists.
+  function notesHtml(lines) {
+    return blocks(lines).map(block => block.type === 'list'
+      ? `<${block.ordered ? 'ol' : 'ul'}>${block.items.map(item => `<li>${inline(item)}</li>`).join('')}</${block.ordered ? 'ol' : 'ul'}>`
+      : block.type === 'paragraph' ? `<p>${inline(block.text)}</p>` : '').join('');
+  }
 
   function render(markdown) {
     const {meta, slides} = split(markdown);
@@ -403,7 +416,7 @@
       const footerText = args.footer ?? meta.footer ?? meta.title;
       const footer = NO_FOOTER.includes(template) || !footerText ? '' : `<footer class="slide-footer"><span>${inline(footerText)}</span></footer>`;
       body = body.includes('\u0000footer\u0000') ? body.replace('\u0000footer\u0000', footer) : body + footer;
-      return {template, line: slide.start, html: `<div class="slide-frame"><section class="slide slide-${template}${args.dense ? ' slide-dense' : ''}" data-template="${template}">${body}</section></div>`};
+      return {template, line: slide.start, notes: notesHtml(slide.notes), html: `<div class="slide-frame"><section class="slide slide-${template}${args.dense ? ' slide-dense' : ''}" data-template="${template}">${body}</section></div>`};
     });
     const partList = (current, service) => `<ol class="slide-part" aria-label="Parts">${parts.map((title, i) => i === current
       ? `<li aria-current="step">${inline(title)}${service ? ` · ${inline(service)}` : ''}</li>`

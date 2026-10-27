@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>So you want to code your own cloud: speaker notes — Adrian.Marza</title>
+  <meta name="description" content="Every slide of the talk with its speaker notes.">
+  <link rel="icon" href="../../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      let saved;
+      try { saved = localStorage.getItem('theme'); } catch {}
+      document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+        ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../assets/tokens.css">
+  <link rel="stylesheet" href="../../../assets/base.css">
+  <link rel="stylesheet" href="../../../assets/components.css">
+  <link rel="stylesheet" href="../../../assets/slides.css">
+  <script src="../../../assets/theme-toggle.js" defer></script>
+  <script src="../../../assets/slides.js" defer></script>
+  <script src="../../../assets/deck-markdown.js" defer></script>
+  <script src="../../../assets/deck-notes.js" defer></script>
+</head>
+<!-- The notes are the "???" sections of ../slides.md. -->
+<body>
+  <main class="notes-view" data-markdown="../slides.md"></main>
+  <nav class="page-controls notes-controls" aria-label="Notes"><a class="button" href="../">Present</a><button class="icon-button" id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" hidden><span aria-hidden="true">☾</span></button></nav>
+</body>
+</html>
