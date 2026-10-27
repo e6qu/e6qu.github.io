@@ -1077,19 +1077,6 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 
 ---
 
-:: content dense footer="Sources: SC [sim/specvalidate.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/sim/specvalidate.go) · [WHAT_WE_DID.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/WHAT_WE_DID.md) · Floci [capture_filter_patterns.py](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/tools/aws-capture/cloudwatchlogs/capture_filter_patterns.py)"
-
-### Validate the answers, test the tests
-
-## Response validation, testing the gates
-
-- sockerless-cloud validates every response body against the spec during its SDK, CLI suites: unknown members fail, wrong types fail
-- Its allow list is empty for AWS, Google; it holds four lines for Azure
-- Gates need tests too: after the split, two of sockerless-cloud's gates scanned the old monorepo's directories, found nothing, passed, hiding two live panics
-- Now every gate must fail on a planted violation; a gate with nothing to scan exits non-zero
-
----
-
 :: comparison pick=0 dense footer="Sources: SC [run-fuzz.sh](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/scripts/run-fuzz.sh) · [fuzz-nightly.yml](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/.github/workflows/fuzz-nightly.yml) · Floci [RuleSqlFuzzTest.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/test/java/io/github/hectorvent/floci/services/iot/rules/RuleSqlFuzzTest.java)"
 
 ### Fuzzing
@@ -1175,6 +1162,23 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 - sockerless-cloud's next milestone moves node agents to other hosts, with networks that span hosts: the data plane scales first
 - Splitting its control plane means replacing in-process stores, change signals, metadata tokens, the single SQLite writer
 - Floci keeps every service's state inside one process, with no clustering
+
+---
+
+:: content dense footer="Sources: SameOldChat [modules.md](https://github.com/e6qu/someoldchat/blob/d328d21c49b78d923644762b880b61562fbcf4a2/docs/modules.md) · [modules.json](https://github.com/e6qu/someoldchat/blob/d328d21c49b78d923644762b880b61562fbcf4a2/modules.json) · fwp [services.md](https://github.com/e6qu/fun-with-pipes/blob/f5621cb46828273f7ce8edf92be4062ccec0f17c/docs/services.md) · Go [text/template](https://pkg.go.dev/text/template)"
+
+### Scaling
+
+## Compose the cloud at build time
+
+Write each service against a Go interface. A manifest lists the services and, per target, which binary holds each one; a generator built on Go's `text/template` emits the wiring.
+
+- **One binary:** the wiring hands each caller the implementation; a call stays an ordinary function call
+- **Separate binaries:** the generator emits a gRPC client with the same interface, plus a server in the owning binary
+- **The interface becomes a protocol:** arguments, results, errors must survive Protocol Buffers; any call can time out
+- **Next, replicas:** prefer stateless services, with state in a shared store; then each binary runs as several replicas behind one address
+- **SameOldChat**, a self-hosted Slack clone, generates both providers from `modules.json`, which also sets replicas per process
+- **fwp**, a pipe-based language, swaps calls into a module for gRPC stubs when built with `--service`
 
 ---
 
