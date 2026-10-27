@@ -263,7 +263,7 @@
           sections++;
           const title = heading(2) ?? heading(1) ?? '';
           part = `${args.number || pad(sections)} · ${title}`;
-          parts.push(title);
+          parts.push(typeof args.short === 'string' ? args.short : title);  // short="…" names the part in the list
           subpart = '';
           body = `<p class="slide-number">${esc(args.number || pad(sections))}</p><h2>${inline(title)}<span class="slide-mark"> ✳</span></h2>`;
           break;
@@ -394,6 +394,7 @@
       }
       // Every slide inside a part lists all parts at the very top, the current one (and its service) highlighted.
       if (template === 'pause' && part) subpart = args.label ?? '';
+      else if (typeof args.service === 'string' && part) subpart = args.service;
       if (part && !PART_LESS.includes(template)) {
         const service = template === 'pause' ? '' : subpart;
         // The list needs every part's title, so it is filled in once all slides are rendered.

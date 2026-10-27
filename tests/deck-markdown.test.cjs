@@ -114,3 +114,16 @@ test('slides inside a part list every part, the current one and its service mark
   assert.match(slides[3].html, /<li aria-current="step">Core · Functions<\/li><li>Edge<\/li>/);
   assert.match(slides[5].html, /<li>Core<\/li><li aria-current="step">Edge<\/li>/);
 });
+
+test('service="…" on any slide names the service in the parts list until the next part', () => {
+  const {slides} = render('---\n\n:: section\n\n## Core\n\n---\n\n:: content service="Queues"\n\n## A\n\nText.\n\n---\n\n:: content\n\n## B\n\nText.\n\n---\n\n:: section\n\n## Edge\n\n---\n\n:: content\n\n## C\n\nText.');
+  assert.match(slides[1].html, /<li aria-current="step">Core · Queues<\/li>/);
+  assert.match(slides[2].html, /<li aria-current="step">Core · Queues<\/li>/);
+  assert.match(slides[4].html, /<li aria-current="step">Edge<\/li>/);
+});
+
+test('short="…" on a section names it in the parts list', () => {
+  const {slides} = render('---\n\n:: section short="Intro"\n\n## Introduction, motivation\n\n---\n\n:: content\n\n## A\n\nText.');
+  assert.match(slides[0].html, /<h2>Introduction, motivation/);
+  assert.match(slides[1].html, /<li aria-current="step">Intro<\/li>/);
+});
