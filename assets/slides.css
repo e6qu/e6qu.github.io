@@ -165,7 +165,7 @@ body:has(> .deck) {margin:0}
 
 /* demo: hand-off to a live demo; list what the audience should watch for */
 .slide-demo {justify-content:center;background:var(--art-pipes);color:var(--art-ink)}
-.slide-demo .slide-kicker,.slide-demo .slide-footer {color:inherit}
+.slide-demo .slide-kicker,.slide-demo .slide-part,.slide-demo .slide-footer {color:inherit}
 .slide-demo h2 {display:flex;align-items:center;gap:.3em;font-size:7em;margin-bottom:.4em}
 .slide-demo h2::before {content:'';width:.22em;height:.22em;border-radius:50%;background:var(--art-pipes-accent);animation:slide-live 1.6s ease-in-out 3}
 @keyframes slide-live {50%{opacity:.3}}
