@@ -24,6 +24,7 @@
   }
 
   const emphasis = html => html
+    .replace(/~~(.+?)~~/g, '<del>$1</del>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*\w])\*(?!\s)(.+?)\*(?!\w)/g, '$1<em>$2</em>');
 
@@ -39,7 +40,7 @@
     return html + emphasis(esc(text.slice(last)));
   }
 
-  // Inline Markdown: `code`, **bold**, *emphasis* and [links](url).
+  // Inline Markdown: `code`, **bold**, *emphasis*, ~~strikethrough~~ and [links](url).
   const inline = text => text.split(/(`[^`]+`)/).map((part, i) => i % 2 ? `<code>${esc(part.slice(1, -1))}</code>` : links(part)).join('');
 
   function blocks(lines) {
