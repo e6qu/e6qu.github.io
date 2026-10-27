@@ -338,7 +338,7 @@ public class IamEnforcementFilter implements ContainerRequestFilter {  // defaul
 
 | Where the code runs | Real cloud | sockerless-cloud | Floci |
 | --- | --- | --- | --- |
-| Lambda | Role session in env vars | Env vars; environments retire before expiry | Env vars, a session that never expires |
+| Lambda | Role session in env vars | Env vars | Env vars |
 | ECS task | 169.254.170.2 endpoint | Full URI through a forwarder | A proxy container on 169.254.170.2 |
 | Cloud Run, functions | Metadata server, even serverless | Metadata server behind a sidecar | `GCE_METADATA_HOST` to the main port |
 | Azure Functions | `IDENTITY_ENDPOINT` + header | `/msi/token`, per-site header | Managed identity endpoint |
