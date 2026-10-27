@@ -509,21 +509,6 @@ srv.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
 
 ---
 
-:: diagram key=4 footer="Sources: [Signature Version 4](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_sigv-create-signed-request.html) · [troubleshooting](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_sigv-troubleshooting.html)"
-
-### AWS Signature Version 4
-
-## Proving you hold the secret, without sending it
-
-1. Canonical request: **Normalise** — method, path, query, signed headers, SHA-256 of the body
-2. String to sign: **Scope it** — algorithm, timestamp, date/region/service/aws4_request
-3. Signing key: **Derive** — HMAC chain over date, region, service, from the secret
-4. Verify: **Compare in constant time** — reject requests more than five minutes old
-
-<!-- SC always verifies, with hmac.Equal; it does not yet check clock skew (BUG-3766) or streaming chunk signatures (BUG-3739). Floci verifies only with FLOCI_AUTH_VALIDATE_SIGNATURES=true, with a 15-minute window. -->
-
----
-
 :: table dense footer="Sources: [IAM policy evaluation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html) · [Google IAM deny](https://docs.cloud.google.com/iam/docs/deny-overview) · [Azure RBAC](https://learn.microsoft.com/azure/role-based-access-control/overview)"
 
 ### Three identity models
