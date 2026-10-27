@@ -32,13 +32,13 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 ## Eight parts in 25 minutes
 
 1. **Introduction, motivation** — 2 min
-2. Timeline of events — 4 min
+2. Timeline of events — 3 min
 3. The two code bases — 3 min
 4. A Minimal Viable Cloud — 2 min
 5. Service by service — 8 min
 6. Compatibility with the real clouds — 2 min
 7. Testing a cloud — 2 min
-8. Scaling the emulator — 2 min
+8. Scaling the emulator — 3 min
 
 ---
 
@@ -78,7 +78,7 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 
 Integration tests need environments that start in seconds, behave the same on every run, stay isolated, cost nothing per merge. [Real cloud accounts offer none of that](https://news.ycombinator.com/item?id=47475473).
 
-- **The case against:** drift between emulator and cloud breaks tests later; some teams give each developer [a short-lived real environment](https://news.ycombinator.com/item?id=28822696) instead; even AWS's own [DynamoDB Local fails part](https://news.ycombinator.com/item?id=49870948) of an independent conformance suite
+- **The case against:** [drift](https://news.ycombinator.com/item?id=47593285) between emulator and cloud breaks tests later; some teams give each developer [a short-lived real environment](https://news.ycombinator.com/item?id=28822696) instead; even AWS's own [DynamoDB Local fails part](https://news.ycombinator.com/item?id=49870948) of an independent conformance suite
 - **The cost:** the clouds change their APIs daily; matching all of it is too much for a small team
 - **Cloud slices 🍉:** emulate the few services an application uses, in depth
 - **Start small:** a Minimal Viable Cloud, run on cheap providers such as Hetzner
@@ -152,7 +152,7 @@ Integration tests need environments that start in seconds, behave the same on ev
 
 ## Floci's history
 
-Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. His first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci 1.0.0 shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials.
+Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. The first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci 1.0.0 shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials.
 
 - **39k → 1.56M** SLOC in the AWS repository, March to October
 - **129** AWS service packages in 2.3.0
@@ -583,7 +583,7 @@ Amazon EventBridge · Eventarc · Azure Event Grid
 - A hand-written matcher over Jackson trees
 - No `numeric`, `cidr` or `wildcard` in EventBridge
 - Pipes, SNS, Lambda filters each have their own matcher
-- Each pattern is re-parsed for every event
+- It re-parses each pattern for every event
 
 ---
 
@@ -1020,8 +1020,6 @@ A spec describes operations and shapes. The behaviour lives elsewhere:
 | Refresh | A daily workflow re-vendors drifted specs onto a pull request | Weekly workflows check IAM data, CloudFormation schemas |
 | Use | Specs generate tables; people write the handlers | Same |
 
-Before sockerless-cloud's drift gate existed, 43 AWS operations drifted unnoticed for eleven days.
-
 ---
 
 :: section
@@ -1194,13 +1192,14 @@ A replica that keeps no local state can crash, restart, scale out; the object st
 
 ## Rules for coding your own cloud
 
-1. Let the real SDKs, CLIs, Terraform providers be your tests
-2. Vendor the specs; pin them, never edit them, refresh them daily
-3. Authenticate, authorize, act, audit in one place, for every caller, services included
-4. Store the cloud's exact states; put real work behind every transition
-5. Wake waiters on writes; end every running operation at a restart
+1. Start with CI: emulate the cloud slices 🍉 your tests use, in depth
+2. Let the real SDKs, CLIs, Terraform providers be your tests
+3. Vendor the specs; pin them, never edit them, refresh them daily
+4. Authenticate, authorize, act, audit in one place, for every caller
+5. Store the cloud's exact states; put real work behind every transition
 6. Answer an unserved method with a declared 501
 7. Start serverless; add VMs once they run real workloads
+8. Compose at build time; keep services stateless, with state in object storage
 
 ---
 
