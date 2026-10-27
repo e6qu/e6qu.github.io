@@ -5,8 +5,8 @@ footer: So you want to code your own cloud
 
 <!--
 A technical talk: 45 minutes, 50 slides, about a minute per slide.
-The story: why people keep rebuilding the cloud, what contract they must honour,
-how to build a serverless cloud first, then VMs, then how to scale the result.
+The story: why people keep rebuilding the cloud, the smallest cloud worth building and
+its front door, its services, then VMs, compatibility and scaling; it ends with: do it yourself.
 Code links point at sockerless-cloud a614ccf (v3.0.1) and Floci b280a77 (2.3.0),
 both read on 2026-10-26.
 -->
@@ -34,8 +34,8 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 1. **Introduction, motivation** — 4 min
 2. Timeline of events — 3 min
 3. Two codebases — 5 min
-4. A Minimal Viable Cloud — 5 min
-5. The serverless core — 11 min
+4. A Minimal Viable Cloud — 7 min
+5. The serverless core — 9 min
 6. Beyond serverless — 6 min
 7. Keeping it honest — 6 min
 8. Scaling the emulator — 4 min
@@ -73,8 +73,8 @@ sockerless reimplements the Docker API on cloud primitives: `docker run` becomes
 
 Integration tests need environments that start in seconds, behave the same on every run, stay isolated, cost nothing per merge. [Real cloud accounts offer none of that](https://news.ycombinator.com/item?id=47475473).
 
-- **The case against:** [drift](https://news.ycombinator.com/item?id=47593285) between emulator and cloud breaks tests later; some teams give each developer [a short-lived real environment](https://news.ycombinator.com/item?id=28822696) instead; even AWS's own [DynamoDB Local fails part](https://news.ycombinator.com/item?id=49870948) of an independent conformance suite
-- **The cost:** the clouds change their APIs daily; matching all of it is too much for a small team
+- **The case against:** emulators [drift](https://news.ycombinator.com/item?id=47593285); even AWS's own [DynamoDB Local fails part](https://news.ycombinator.com/item?id=49870948) of an independent conformance suite
+- **The cost:** the clouds change their APIs daily, faster than a small team can follow
 - **Cloud slices 🍉:** emulate the few services an application uses, in depth
 - **Start small:** a Minimal Viable Cloud, run on cheap providers such as Hetzner
 - **Keep one real environment** for the last mile
@@ -152,16 +152,16 @@ Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and mo
 
 #### sockerless-cloud (SC from here on)
 
-- Grown out of sockerless
 - Go, one binary per cloud: AWS, Google Cloud, Azure
 - Workloads really run, in containers or Firecracker microVMs
+- Signature checks and IAM always on, for every caller
 - v3.0.1, released 26 October 2026
 
 #### Floci
 
-- Hector Ventura's LocalStack replacement
 - Java 25 on Quarkus, as a native binary or an image
-- AWS first; floci-gcp, floci-az are separate projects
+- Needs Docker only for container-backed services, such as Lambda or EC2
+- Signature checks and IAM opt-in; the `test` key acts as root
 - 2.3.0, released 15 October 2026
 
 ---
@@ -269,13 +269,7 @@ On Hetzner, everything above VMs, dedicated servers and object storage is yours 
 
 ---
 
-:: section short="Serverless core"
-
-## The serverless core
-
----
-
-:: code dense footer="Source: SC [simulator-aws/main.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/main.go#L197-L228)" service="Identity and access"
+:: code dense footer="Source: SC [simulator-aws/main.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/main.go#L197-L228)"
 
 ## Papers, please
 
@@ -301,7 +295,7 @@ srv.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
 
 :: code dense footer="Sources: Floci [AccountContextFilter.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/core/common/AccountContextFilter.java#L34-L35) · [SigV4HeaderSignatureFilter.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/core/common/SigV4HeaderSignatureFilter.java#L97-L148) · [IamEnforcementFilter.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/core/common/IamEnforcementFilter.java#L1433-L1446)"
 
-## Floci: the same steps as a chain of JAX-RS filters
+## Papers, please
 
 ```java
 // Floci: the same steps as JAX-RS filters, ordered by @Priority; both checks are opt-in
@@ -329,7 +323,13 @@ public class IamEnforcementFilter implements ContainerRequestFilter {  // defaul
 
 ---
 
-:: content dense footer="Source: [policy evaluation logic](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html)"
+:: section short="Serverless core"
+
+## The serverless core
+
+---
+
+:: content dense footer="Source: [policy evaluation logic](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html)" service="Identity and access"
 
 ### AWS policy evaluation
 
@@ -437,7 +437,7 @@ Both run the real engine for SQL. Nobody ships DynamoDB, Firestore or Cosmos DB 
 
 ---
 
-:: table dense footer="Sources: [registry history](https://www.amazonaws.cn/en/blog-selection/cloudformation-coverage/) · [Amplify FAQ](https://docs.amplify.aws/vue/how-amplify-works/faq/) · [Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers.html) · [Service Catalog product](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-servicecatalog-cloudformationprovisionedproduct.html) · [Control Tower](https://docs.aws.amazon.com/controltower/latest/userguide/creating-resources-with-cloudformation.html) · [Cloud Control](https://docs.aws.amazon.com/cloudcontrolapi/latest/userguide/resource-types.html)" service="Workflows and provisioning"
+:: table dense footer="Sources: [registry history](https://www.amazonaws.cn/en/blog-selection/cloudformation-coverage/) · [Amplify FAQ](https://docs.amplify.aws/vue/how-amplify-works/faq/) · [Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers.html) · [Service Catalog product](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-servicecatalog-cloudformationprovisionedproduct.html) · [Control Tower](https://docs.aws.amazon.com/controltower/latest/userguide/creating-resources-with-cloudformation.html) · [Cloud Control](https://docs.aws.amazon.com/cloudcontrolapi/latest/userguide/resource-types.html)" service="Provisioning"
 
 ### Infrastructure as code inside the cloud
 
@@ -685,7 +685,7 @@ provider "aws" {
 | Infrastructure as code | Terraform suites; tutorial stacks: apply, empty plan, destroy | Terraform, OpenTofu, CDK suites |
 | Spec conformance | Coverage gates; validates every response against the spec | Checks request shapes against botocore; compares log filters with real AWS |
 
-sockerless-cloud's three-client rule: a pre-commit hook rejects any new route that no SDK, CLI or Terraform test exercises. Tests make up 40% of its 878k SLOC.
+sockerless-cloud's three-client rule: a pre-commit hook rejects any new route that no SDK, CLI or Terraform test exercises.
 
 ---
 
@@ -766,7 +766,6 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 - Their metadata lives in distributed databases: AWS's DynamoDB, Google's Spanner, Azure's Service Fabric
 - An emulator is one cell, one zone, both planes in one process
 - sockerless-cloud's next milestone moves node agents to other hosts, with networks that span hosts: the data plane scales first
-- Splitting its control plane means replacing in-process stores, change signals, metadata tokens, the single SQLite writer
 - Floci keeps every service's state inside one process, with no clustering
 
 ---
@@ -782,8 +781,7 @@ Write each module against an interface. A manifest says which binary holds each 
 - **One binary:** the wiring hands each caller the implementation; a call stays an ordinary function call
 - **Separate binaries:** the generator emits a gRPC client with the same interface, plus a server in the owning binary
 - **The interface becomes a protocol:** arguments, results, errors must survive Protocol Buffers; any call can time out
-- **Next, replicas:** prefer stateless services, with state in a shared store; then each binary runs as several replicas behind one address
-- **SameOldChat**, a self-hosted Slack clone, generates both providers from `modules.json`, which also sets replicas per process
+- **SameOldChat**, a self-hosted Slack clone, generates both providers from `modules.json`
 - **fwp**, a pipe-based language, swaps calls into a module for gRPC stubs when built with `--service`
 
 ---
@@ -802,7 +800,7 @@ Write each module against an interface. A manifest says which binary holds each 
 | Litestream | Replication for SQLite | Streams the WAL to S3; restores the file on start |
 | DuckDB | An in-process analytics database | A local file; reads Parquet on S3 through `httpfs`, or a DuckLake catalog |
 
-A replica that keeps no local state can crash, restart, scale out; the object store stays the one durable place.
+A service that keeps no local state can crash, restart or run as many replicas; the object store stays the one durable place.
 
 ---
 
