@@ -31,8 +31,8 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 
 ## Eight parts in 25 minutes
 
-1. **Introduction, motivation** — 2 min
-2. Timeline of events — 3 min
+1. **Introduction, motivation** — 3 min
+2. Timeline of events — 2 min
 3. The two code bases — 3 min
 4. A Minimal Viable Cloud — 2 min
 5. Service by service — 8 min
@@ -48,7 +48,7 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 
 ---
 
-:: content dense footer="Sources: [sockerless README](https://github.com/e6qu/sockerless) · SC [first commit](https://github.com/e6qu/sockerless-cloud/commit/3ea55959) · [WHAT_WE_DID.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/WHAT_WE_DID.md)"
+:: content dense footer="Sources: [sockerless README](https://github.com/e6qu/sockerless) · sockerless-cloud [first commit](https://github.com/e6qu/sockerless-cloud/commit/3ea55959) · [WHAT_WE_DID.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/WHAT_WE_DID.md)"
 
 ### Where this started
 
@@ -60,29 +60,20 @@ sockerless reimplements the Docker API on cloud primitives: `docker run` becomes
 - **So I mocked** the AWS APIs it called, then the whole services behind them
 - **The mocks grew** into reimplementations of real services, on AWS, Google Cloud, Azure
 - **In August** they needed their own repository: sockerless-cloud started from a 677k-line snapshot
-- **Since then:** 114 releases in 76 days, 878k SLOC
+- **Since then:** 114 releases in 76 days
 
 ---
 
-:: comparison pick=0
+:: stats dense footer="Sources: Floci [git history](https://github.com/floci-io/floci/commits/main) · [README](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/README.md) · cloc at each tag"
 
-### Two projects, one question
+### Meanwhile
 
-## How far can you get rebuilding a cloud?
+## Floci, a LocalStack replacement
 
-#### sockerless-cloud (SC from here on)
+Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. The first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci 1.0.0 shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials.
 
-- Open-source cloud simulators by e6qu, the speaker
-- Go, one binary per cloud: AWS, Google Cloud, Azure
-- Workloads really run, in containers or Firecracker microVMs
-- v3.0.1, released 26 October 2026
-
-#### Floci
-
-- An open-source LocalStack replacement by Hector Ventura
-- Java 25 on Quarkus, as a native binary or an image
-- AWS first; floci-gcp, floci-az are separate projects
-- 2.3.0, released 15 October 2026
+- **129** AWS service packages in 2.3.0
+- **3** clouds: Google Cloud, Azure joined in August, as floci-gcp, floci-az
 
 ---
 
@@ -162,17 +153,31 @@ Integration tests need environments that start in seconds, behave the same on ev
 
 ---
 
-:: stats dense footer="Sources: Floci [git history](https://github.com/floci-io/floci/commits/main) · [README](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/README.md) · cloc at each tag"
+:: section
 
-### Floci
+## The two code bases
 
-## Floci's history
+---
 
-Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. The first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci 1.0.0 shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials.
+:: comparison pick=0
 
-- **39k → 1.56M** SLOC in the AWS repository, March to October
-- **129** AWS service packages in 2.3.0
-- **2** sibling repositories: floci-gcp, floci-az
+### The two projects
+
+## sockerless-cloud and Floci at a glance
+
+#### sockerless-cloud (SC from here on)
+
+- Grown out of sockerless
+- Go, one binary per cloud: AWS, Google Cloud, Azure
+- Workloads really run, in containers or Firecracker microVMs
+- v3.0.1, released 26 October 2026
+
+#### Floci
+
+- Hector Ventura's LocalStack replacement
+- Java 25 on Quarkus, as a native binary or an image
+- AWS first; floci-gcp, floci-az are separate projects
+- 2.3.0, released 15 October 2026
 
 ---
 
@@ -190,12 +195,6 @@ Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and mo
 | Aug 2026 (split) | 498,049 | 187,077 | 490,288 | 249,960 |
 | Sep 2026 | 618,148 | 234,615 | 756,957 | 410,332 |
 | Oct 2026 | 877,522 | 348,578 | 1,871,210 | 1,128,657 |
-
----
-
-:: section
-
-## The two code bases
 
 ---
 
@@ -858,11 +857,11 @@ Every cloud logs the calls made against it: who called, which action, on which r
 
 ## Logging
 
-| Trail | Real cloud | sockerless-cloud | Floci family |
-| --- | --- | --- | --- |
-| AWS CloudTrail | Management events, 90 days, about 5 min delay | Records every call at the one front door, 90 days | S3 data events only; LookupEvents returns an empty list |
-| Google Audit Logs | Admin Activity always; Data Access opt-in | Both, from vendored audit docs; they feed Eventarc | floci-gcp: none |
-| Azure Activity Log | ARM writes, 90 days | Every ARM write | floci-az: every write, 10,000 in memory |
+| Trail | sockerless-cloud | Floci family |
+| --- | --- | --- |
+| AWS CloudTrail | Records every call at the one front door, 90 days | S3 data events only; LookupEvents returns an empty list |
+| Google Audit Logs | Admin Activity, Data Access, from vendored audit docs; they feed Eventarc | floci-gcp: none |
+| Azure Activity Log | Every ARM write | floci-az: every write, 10,000 in memory |
 
 ---
 
@@ -907,7 +906,6 @@ EC2 IMDS · Compute Engine metadata server · Azure IMDS
 | Aspect | AWS | Google Cloud | Azure |
 | --- | --- | --- | --- |
 | Address | 169.254.169.254 | metadata.google.internal | 169.254.169.254, WireServer 168.63.129.16 |
-| Anti-SSRF | PUT for a token; hop limit 1 | Header `Metadata-Flavor: Google` | Header `Metadata: true`, no `X-Forwarded-For` |
 | Credentials | `iam/security-credentials/<role>` | `service-accounts/default/token` | `identity/oauth2/token` |
 | Serverless | Not on Lambda | Yes, on Cloud Run too | `IDENTITY_ENDPOINT` instead |
 
@@ -1124,7 +1122,7 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 
 ### State
 
-## Storage
+## Where the emulators keep their state
 
 #### sockerless-cloud: SQLite
 
