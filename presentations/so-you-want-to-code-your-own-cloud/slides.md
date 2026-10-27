@@ -4,7 +4,7 @@ footer: So you want to code your own cloud
 ---
 
 <!--
-A technical talk: 45 minutes, 50 slides, about a minute per slide.
+A technical talk: 45 minutes, 49 slides, about a minute per slide.
 The story: why people keep rebuilding the cloud, the smallest cloud worth building and
 its front door, its services, then VMs, compatibility and scaling; it ends with: do it yourself.
 Code links point at sockerless-cloud a614ccf (v3.0.1) and Floci b280a77 (2.3.0),
@@ -35,9 +35,9 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 2. Timeline of events — 3 min
 3. Two codebases — 5 min
 4. A Minimal Viable Cloud — 7 min
-5. The serverless core — 9 min
+5. The serverless core — 8 min
 6. Beyond serverless — 6 min
-7. Keeping it honest — 6 min
+7. Keeping it honest — 7 min
 8. Scaling the emulator — 4 min
 9. Do it yourself — 1 min
 
@@ -264,12 +264,18 @@ On Hetzner, everything above VMs, dedicated servers and object storage is yours 
 
 ---
 
+:: pause
+
+## Authenticate, Authorize, Act, Audit
+
+---
+
 :: code dense footer="Source: SC [simulator-aws/main.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/main.go#L197-L228)"
 
 ## Papers, please
 
 ```go
-// sockerless-cloud: authenticate, authorize, act, record, for every request
+// sockerless-cloud: authenticate, authorize, act, audit, for every request
 srv.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
 	body, _ = io.ReadAll(r.Body)        // buffered: CloudTrail needs it after the handler
 	rec := &cloudTrailStatusRecorder{ResponseWriter: w}
@@ -324,25 +330,7 @@ public class IamEnforcementFilter implements ContainerRequestFilter {  // defaul
 
 ---
 
-:: content dense footer="Source: [policy evaluation logic](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html)" service="Identity and access"
-
-### AWS policy evaluation
-
-## Deny everything, then negotiate
-
-Every request starts denied. AWS then checks the policies in this order:
-
-1. **Any explicit deny**, in any policy, ends the evaluation with a deny
-2. **Organization guardrails** (SCPs, RCPs) can only narrow what the account allows
-3. **A resource policy** on the target can allow the call, enough within one account
-4. **An identity policy** on the caller must allow it for calls across accounts
-5. **Permissions boundaries, session policies** intersect with the result; they never add permissions
-
-sockerless-cloud evaluates steps 1, 3, 4 plus users' permissions boundaries. Floci, once you turn enforcement on, evaluates denies, SCPs, resource, identity, boundary, session policies.
-
----
-
-:: table footer="Sources: [Lambda env vars](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html) · [ECS task roles](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-iam-roles.html) · [Cloud Run identity](https://docs.cloud.google.com/run/docs/securing/service-identity) · [App Service identity](https://learn.microsoft.com/azure/app-service/overview-managed-identity)"
+:: table footer="Sources: [Lambda env vars](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html) · [ECS task roles](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-iam-roles.html) · [Cloud Run identity](https://docs.cloud.google.com/run/docs/securing/service-identity) · [App Service identity](https://learn.microsoft.com/azure/app-service/overview-managed-identity)" service="Identity and access"
 
 ### Workload credentials
 
@@ -350,7 +338,7 @@ sockerless-cloud evaluates steps 1, 3, 4 plus users' permissions boundaries. Flo
 
 | Where the code runs | Real cloud | sockerless-cloud | Floci |
 | --- | --- | --- | --- |
-| Lambda | Role session in env vars | Env vars; environments retire before expiry | Env vars, a session that never expires |
+| Lambda | Role session in env vars | Env vars | Env vars |
 | ECS task | 169.254.170.2 endpoint | Full URI through a forwarder | A proxy container on 169.254.170.2 |
 | Cloud Run, functions | Metadata server, even serverless | Metadata server behind a sidecar | `GCE_METADATA_HOST` to the main port |
 | Azure Functions | `IDENTITY_ENDPOINT` + header | `/msi/token`, per-site header | Managed identity endpoint |
@@ -359,30 +347,7 @@ sockerless-cloud is also the identity provider: it signs Google tokens, serves t
 
 ---
 
-:: code dense footer="Source: SC [lambda_runtime.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/lambda_runtime.go#L131-L134)" service="Functions"
-
-## The Lambda Runtime API
-
-```go
-// sockerless-cloud: one listener per execution environment, inside the simulator,
-// passed to the container as AWS_LAMBDA_RUNTIME_API
-mux.HandleFunc("GET /2018-06-01/runtime/invocation/next", s.handleNext)
-mux.HandleFunc("POST /2018-06-01/runtime/invocation/{id}/response", s.handleResponse)
-mux.HandleFunc("POST /2018-06-01/runtime/invocation/{id}/error", s.handleInvocationError)
-mux.HandleFunc("POST /2018-06-01/runtime/init/error", s.handleInitError)
-
-s.server = &http.Server{
-	Handler:     mux,
-	ReadTimeout: 0, // Next is a long poll
-}
-
-// Floci: one Vert.x server per container on ports 12000-12499, non-blocking.
-// Both run AWS's own public.ecr.aws/lambda base images.
-```
-
----
-
-:: table dense footer="Sources: [Lambda execution environment](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html) · [Cloud Run environments](https://docs.cloud.google.com/run/docs/about-execution-environments) · [Container Apps](https://learn.microsoft.com/azure/container-apps/overview) · [Functions hosting](https://learn.microsoft.com/azure/azure-functions/functions-scale)"
+:: table dense footer="Sources: [Lambda execution environment](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html) · [Cloud Run environments](https://docs.cloud.google.com/run/docs/about-execution-environments) · [Container Apps](https://learn.microsoft.com/azure/container-apps/overview) · [Functions hosting](https://learn.microsoft.com/azure/azure-functions/functions-scale)" service="Functions"
 
 ### Serverless compute
 
