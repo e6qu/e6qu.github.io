@@ -1165,13 +1165,13 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 
 ---
 
-:: content dense footer="Sources: SameOldChat [modules.md](https://github.com/e6qu/someoldchat/blob/d328d21c49b78d923644762b880b61562fbcf4a2/docs/modules.md) · [modules.json](https://github.com/e6qu/someoldchat/blob/d328d21c49b78d923644762b880b61562fbcf4a2/modules.json) · fwp [services.md](https://github.com/e6qu/fun-with-pipes/blob/f5621cb46828273f7ce8edf92be4062ccec0f17c/docs/services.md) · Go [text/template](https://pkg.go.dev/text/template)"
+:: content dense footer="Sources: SameOldChat [modules.md](https://github.com/e6qu/someoldchat/blob/d328d21c49b78d923644762b880b61562fbcf4a2/docs/modules.md) · [modules.json](https://github.com/e6qu/someoldchat/blob/d328d21c49b78d923644762b880b61562fbcf4a2/modules.json) · fwp [services.md](https://github.com/e6qu/fun-with-pipes/blob/f5621cb46828273f7ce8edf92be4062ccec0f17c/docs/services.md) · Go [text/template](https://pkg.go.dev/text/template) · Rust [build scripts](https://doc.rust-lang.org/cargo/reference/build-scripts.html) · Java [annotation processing](https://docs.oracle.com/en/java/javase/21/docs/api/java.compiler/javax/annotation/processing/Processor.html)"
 
 ### Scaling
 
 ## Compose the cloud at build time
 
-Write each service against a Go interface. A manifest lists the services and, per target, which binary holds each one; a generator built on Go's `text/template` emits the wiring.
+Write each module against an interface. A manifest says which binary holds each one; build-time tooling emits the wiring: `go generate` with `text/template` in Go, macros or `build.rs` in Rust, annotation processors in Java, `comptime` in Zig.
 
 - **One binary:** the wiring hands each caller the implementation; a call stays an ordinary function call
 - **Separate binaries:** the generator emits a gRPC client with the same interface, plus a server in the owning binary
