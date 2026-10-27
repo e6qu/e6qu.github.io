@@ -18,7 +18,9 @@ const COLORS = [
   ['muted', 'Secondary text and labels'], ['line', 'Borders and dividers'], ['blue', 'Links, languages, hover'],
   ['coral', 'Large accent marks, decoration, focus rings (3:1)'],
   ['coral-strong', 'Accent for small text and fills behind text (4.5:1)'],
-  ['coral-on-ink', 'Accent on an ink background (section sheet)'], ['teal', 'Strings in code slides, secondary accent'],
+  ['coral-on-ink', 'Accent on an ink background'], ['teal', 'Strings in code slides, secondary accent'],
+  ['section-bg', 'Section sheet background, a tinted paper'], ['section-ink', 'Section sheet text'],
+  ['section-accent', 'Section sheet number and mark'],
 ];
 const ART = ['pipes', 'replay', 'database', 'branches', 'cloud', 'containers', 'board', 'chat', 'terminal'];
 const TEXT = [

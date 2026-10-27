@@ -435,6 +435,12 @@
         editor.href = new URL(`../editor/?src=${encodeURIComponent(new URL(deck.dataset.markdown, location.href).pathname)}`, location.href).href;
         editor.hidden = false;
       }
+      const download = document.querySelector('#download-deck');
+      if (download) {
+        download.href = deck.dataset.markdown;
+        download.download = `${location.pathname.split('/').filter(Boolean).pop() || 'slides'}.md`;
+        download.hidden = false;
+      }
       if (result.title) document.title = result.title;
       globalThis.Slides.start(deck);
     })

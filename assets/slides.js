@@ -5,7 +5,8 @@
 // labelled "3 of 18") and changes are announced politely. The deck takes focus, and the
 // single-key shortcuts only work while it has it (WCAG 2.1.4); keys never act on text
 // fields or buttons. A slide whose content overflows scrolls with ↑/↓ before moving on.
-// The overview (O or Esc) shows Save as PDF and, for Markdown decks, Edit Markdown.
+// The overview (O or Esc) shows the theme toggle, Save as PDF and, for Markdown decks,
+// Edit and Download .md. While presenting the page controls are hidden.
 // Elements with data-illustration get the matching SVG inlined so its colors follow the
 // theme. Decks rendered later (Markdown, the editor) call Slides.start(deck),
 // Slides.label(container) or Slides.illustrate(element) themselves.

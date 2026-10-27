@@ -36,6 +36,7 @@
       <button class="button" type="button" id="open-file">Open .md</button>
       <input type="file" id="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
       <button class="button" type="button" id="download">Download .md</button>
+      <button class="button" type="button" id="revert" title="Discard your saved edits and reload the deck's file" hidden>Revert</button>
       <button class="button" type="button" id="copy-link" title="The deck is stored in the link itself">Copy link</button>
       <button class="button primary" type="button" id="present">Present <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></button>
       <button class="button" type="button" id="print" title="Print the preview, one slide per page">Save as PDF</button>
@@ -46,6 +47,6 @@
     <textarea class="tool-source" id="source" spellcheck="false" autocomplete="off" placeholder="Loading…"></textarea>
     <section class="tool-preview" id="preview" aria-label="Preview"></section>
   </main>
-  <p class="tool-status" id="status" role="status">The deck lives in this address. Separate slides with a line of ---.</p>
+  <p class="tool-status" id="status" role="status">Edits are saved in this browser and in the address. Separate slides with a line of ---.</p>
 </body>
 </html>

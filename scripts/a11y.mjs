@@ -150,15 +150,21 @@ for (const theme of ['light', 'dark']) {
   expect(label, said.startsWith('Slide 2 of 18: '), `slide change not announced (got "${said}")`);
   await page.keyboard.press('o');
   expect(label, await page.evaluate(() => document.querySelector('.deck').dataset.mode === 'overview'), 'O does not open the overview');
-  expect(label, await page.isVisible('#edit-deck') && await page.isVisible('#print-deck'), 'the overview does not offer Edit Markdown and Save as PDF');
-  await page.keyboard.press('Enter');
-  expect(label, !await page.isVisible('#edit-deck') && !await page.isVisible('#print-deck'), 'Edit Markdown or Save as PDF shows while presenting');
+  expect(label, await page.isVisible('#edit-deck') && await page.isVisible('#print-deck') && await page.isVisible('#theme-toggle'),
+    'the overview does not offer Edit, Save as PDF and the theme toggle');
   await page.focus('#theme-toggle');
   await page.keyboard.press('o');
-  expect(label, await page.evaluate(() => document.querySelector('.deck').dataset.mode === 'present'), 'O acts while focus is outside the deck');
+  expect(label, await page.evaluate(() => document.querySelector('.deck').dataset.mode === 'overview'), 'O acts while focus is outside the deck');
   const before = await page.evaluate(() => location.hash);
   await page.keyboard.press('Space');
   expect(label, await page.evaluate(([hash]) => location.hash === hash && document.documentElement.dataset.theme === 'dark', [before]), 'Space on the theme button changed the slide or did nothing');
+  await page.keyboard.press('Escape');
+  expect(label, await page.evaluate(() => document.querySelector('.deck').dataset.mode === 'present'), 'Esc does not return to presenting');
+  expect(label, !await page.isVisible('#edit-deck') && !await page.isVisible('#print-deck') && !await page.isVisible('#theme-toggle'),
+    'page controls show while presenting');
+  await page.locator('.deck').focus();
+  await page.keyboard.press('t');
+  expect(label, await page.evaluate(() => document.documentElement.dataset.theme === 'light'), 'T does not switch the theme while presenting');
   await page.context().close();
 
   const editor = await open('/presentations/editor/', 'light');

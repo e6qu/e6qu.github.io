@@ -1,7 +1,9 @@
 // Dual-pane Markdown deck editor: Markdown on the left, live slides on the right.
-// The URL is the only storage: every edit rewrites #md=… (the deck, compressed), so
-// reloading, bookmarking or sharing the address brings back exactly this deck. Opens
-// #md=…, then ?src=<path>, then the template. Nothing is uploaded or kept elsewhere.
+// Every edit rewrites #md=… (the deck, compressed), so reloading, bookmarking or sharing
+// the address brings back exactly this deck. Edits are also kept in this browser
+// (localStorage, one draft per ?src= file), so a deck's Edit button brings them back
+// later; Revert returns to the file. Opens #md=…, then the saved draft of ?src=, then
+// ?src=, then the template. Nothing is uploaded.
 (() => {
   const {render, slideAt, pack, unpack} = globalThis.DeckMarkdown;
   const TEMPLATE = '../template/slides.md';
@@ -14,13 +16,19 @@
   let currentSlide = -1;
   let timer;
   let writes = 0;
+  const revert = document.querySelector('#revert');
+  // The draft belongs to the deck file being edited, or to "untitled" without one.
+  const src = new URLSearchParams(location.search).get('src');
+  const draftKey = `deck-draft:${src ? new URL(src, location.href).pathname : 'untitled'}`;
+  const readDraft = () => { try { return localStorage.getItem(draftKey); } catch { return null; } };
 
   const say = message => { status.textContent = message; };
   // Write the deck into the address; a newer write wins over a slower older one.
   async function save() {
     const write = ++writes;
     const packed = await pack(source.value);
-    if (write === writes) history.replaceState(null, '', `${location.pathname}#md=${packed}`);
+    if (write === writes) history.replaceState(null, '', `${location.pathname}${location.search}#md=${packed}`);
+    try { localStorage.setItem(draftKey, source.value); } catch {}
   }
   const fetchText = url => fetch(url).then(response => response.ok ? response.text() : Promise.reject(new Error(`${url}: HTTP ${response.status}`)));
 
@@ -116,12 +124,21 @@
   // Prints the live preview, one slide per page (deck-tools.css has the print layout).
   document.querySelector('#print').addEventListener('click', () => print());
 
+  // Revert drops the saved draft and reloads the deck's file.
+  revert.hidden = !src;
+  revert.addEventListener('click', () => {
+    if (!confirm(`Discard your edits and reload ${src}?`)) return;
+    try { localStorage.removeItem(draftKey); } catch {}
+    fetchText(src).then(text => load(text, `Reverted to ${src}.`)).catch(error => say(error.message));
+  });
+
   async function initial() {
-    const params = new URLSearchParams(location.search);
     const shared = new URLSearchParams(location.hash.slice(1)).get('md');
-    if (shared) return [await unpack(shared), 'Editing the deck in this address. Edits stay in the URL; nothing is stored anywhere else.'];
-    if (params.get('src')) return [await fetchText(params.get('src')), `Opened ${params.get('src')}. From now on the deck lives in this address.`];
-    return [await fetchText(TEMPLATE), 'Started from the template. The deck lives in this address: bookmark or share it to keep it.'];
+    if (shared) return [await unpack(shared), 'Editing the deck in this address. Edits are also saved in this browser.'];
+    const draft = readDraft();
+    if (draft) return [draft, src ? `Restored your saved edits of ${src}. Revert reloads the original.` : 'Restored your saved deck.'];
+    if (src) return [await fetchText(src), `Opened ${src}. Edits are saved in this browser and in the address.`];
+    return [await fetchText(TEMPLATE), 'Started from the template. Edits are saved in this browser and in the address.'];
   }
   initial()
     .then(([markdown, message]) => load(markdown, message))

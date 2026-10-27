@@ -8,7 +8,8 @@
   const status = document.querySelector('#status');
   const file = document.querySelector('#file');
   const editLink = document.querySelector('#edit-deck');
-  // Edit Markdown reopens this deck in the editor: the same #md=… if the address has one,
+  const downloadLink = document.querySelector('#download-deck');
+  // Edit reopens this deck in the editor: the same #md=… if the address has one,
   // otherwise the ?src= file. The editor keeps editing it in its own address.
   editLink.addEventListener('click', () => {
     const md = new URLSearchParams(location.hash.slice(1)).get('md');
@@ -27,6 +28,11 @@
     paste.hidden = true;
     deck.hidden = false;
     editLink.hidden = false;
+    // Download .md saves the Markdown this deck was rendered from.
+    URL.revokeObjectURL(downloadLink.href);
+    downloadLink.href = URL.createObjectURL(new Blob([markdown], {type: 'text/markdown'}));
+    downloadLink.download = `${(result.title || 'slides').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'slides'}.md`;
+    downloadLink.hidden = false;
     globalThis.Slides.start(deck);
   }
   function ask(message) {
