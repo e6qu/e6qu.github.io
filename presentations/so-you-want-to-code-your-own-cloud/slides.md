@@ -430,7 +430,7 @@ AWS IAM · Google Cloud IAM · Microsoft Entra ID
 
 :: code dense footer="Source: SC [simulator-aws/main.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/main.go#L197-L228)"
 
-## Every request: authenticate, authorize, act, record
+## sockerless-cloud: authenticate, authorize, act, record
 
 ```go
 srv.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
@@ -447,6 +447,35 @@ srv.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
 	awsRouter.ServeHTTP(rec, r)         // X-Amz-Target, or queryRouter for Action=
 	cloudTrailRecordAPICall(srv, r, body, rec.statusCode(), rec.Header(), rec.body.Bytes())
 })
+```
+
+---
+
+:: code dense footer="Sources: Floci [AccountContextFilter.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/core/common/AccountContextFilter.java#L34-L35) · [SigV4HeaderSignatureFilter.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/core/common/SigV4HeaderSignatureFilter.java#L97-L148) · [IamEnforcementFilter.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/core/common/IamEnforcementFilter.java#L1433-L1446)"
+
+## Floci: the same steps as a chain of JAX-RS filters
+
+```java
+@Priority(Priorities.AUTHENTICATION - 100)
+public class AccountContextFilter implements ContainerRequestFilter { … }  // the access key picks the account
+
+@Priority(Priorities.AUTHENTICATION)
+public class SigV4HeaderSignatureFilter implements ContainerRequestFilter {
+    public void filter(ContainerRequestContext ctx) throws IOException {
+        if (!configProvider.get().auth().validateSignatures()) return;  // authenticate: opt-in
+        …
+
+public class IamEnforcementFilter implements ContainerRequestFilter {  // default priority: runs next
+    public void filter(ContainerRequestContext ctx) {
+        if (!config.services().iam().enforcementEnabled()) return;       // authorize: opt-in
+        if ("test".equals(akid)) return; // root bypass
+        …
+        Decision decision = evaluator.evaluateResolvedResourcePolicy(
+                caller, effectiveDecision, accountRelationship, action, resource, effectiveContext);
+        if (decision != Decision.DENY) return;                           // act: the resource method runs
+        if (deniedEvent != null)                                         // record: S3 requests only
+            emitS3Denial(akid, deniedEvent.name(), resource, deniedEvent.region(), denyMessage);
+        throw new AwsException("AccessDenied", denyMessage, 403);
 ```
 
 ---
@@ -570,9 +599,9 @@ The emulators run these as containers: Lambda on AWS's base images, Azure Functi
 
 :: pause
 
-## Events
+## Events and queues
 
-Amazon EventBridge · Eventarc · Azure Event Grid
+EventBridge, SQS · Eventarc, Pub/Sub · Event Grid, Service Bus
 
 ---
 
@@ -594,14 +623,6 @@ Amazon EventBridge · Eventarc · Azure Event Grid
 - No `numeric`, `cidr` or `wildcard` in EventBridge
 - Pipes, SNS, Lambda filters each have their own matcher
 - It re-parses each pattern for every event
-
----
-
-:: pause
-
-## Queues
-
-Amazon SQS · Pub/Sub · Azure Service Bus
 
 ---
 
