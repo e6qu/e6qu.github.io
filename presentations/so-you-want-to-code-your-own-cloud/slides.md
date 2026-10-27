@@ -978,7 +978,7 @@ Amazon VPC · Google Cloud VPC · Azure Virtual Network
 | Documentation | Quotas, defaults, state diagrams | Precision; it drifts from the API |
 | The real cloud | The truth, today | Cost, accounts, repeatability |
 
-The specs change daily: AWS publishes Smithy models, Google Discovery documents and protos, Azure OpenAPI files.
+The specs keep changing: AWS publishes Smithy models, Google Discovery documents and protos, Azure OpenAPI files.
 
 ---
 
@@ -1024,7 +1024,7 @@ A spec describes operations and shapes. The behaviour lives elsewhere:
 | Store | Every spec, gzipped, in `specs/` | 21 JSON files derived from botocore, the IAM Service Reference, CloudFormation schemas |
 | Record the origin | A `SOURCES.md` row per file: upstream, path, licence, commit or hash | 23 `regen_*.py` scripts, each with its own test |
 | Build | Fetches no spec at build or test time | Ships the generated files in its source tree |
-| Refresh | A daily workflow re-vendors drifted specs onto a pull request | Weekly workflows check IAM data, CloudFormation schemas |
+| Refresh | A periodic workflow re-vendors drifted specs onto a pull request | Periodic workflows check IAM data, CloudFormation schemas |
 | Use | Specs generate tables; people write the handlers | Same |
 
 ---
@@ -1201,7 +1201,7 @@ A replica that keeps no local state can crash, restart, scale out; the object st
 
 1. Start with CI: emulate the cloud slices 🍉 your tests use, in depth
 2. Let the real SDKs, CLIs, Terraform providers be your tests
-3. Vendor the specs; pin them, never edit them, refresh them daily
+3. Vendor the specs; pin them, never edit them, refresh them periodically
 4. Authenticate, authorize, act, audit in one place, for every caller
 5. Store the cloud's exact states; put real work behind every transition
 6. Answer an unserved method with a declared 501
