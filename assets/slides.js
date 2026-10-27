@@ -8,6 +8,9 @@
 // Text can be selected and copied: a click that ends a selection does not change slides.
 // The overview (O or Esc) shows the theme toggle, Save as PDF and, for Markdown decks,
 // Edit and Download .md. While presenting the page controls are hidden.
+// On touch screens and narrow windows a large ✕ (top left) opens that overview, a swipe
+// moves between slides, and the root's data-orientation (portrait or landscape) lets the
+// styles adapt the layout when the device turns.
 // Elements with data-illustration get the matching SVG inlined so its colors follow the
 // theme. Decks rendered later (Markdown, the editor) call Slides.start(deck),
 // Slides.label(container) or Slides.illustrate(element) themselves.
@@ -145,7 +148,35 @@
     status = document.createElement('p');
     status.className = 'sr-only';
     status.setAttribute('role', 'status');
-    document.body.append(status);
+    const menu = document.createElement('button');
+    menu.type = 'button';
+    menu.className = 'deck-menu';
+    menu.setAttribute('aria-label', 'Close slide, show the overview (Esc)');
+    menu.innerHTML = '<span aria-hidden="true">✕</span>';
+    menu.addEventListener('click', () => { if (deck) mode('overview'); });
+    document.body.append(status, menu);
+    const portrait = matchMedia('(orientation: portrait)');
+    const orient = () => { root.dataset.orientation = portrait.matches ? 'portrait' : 'landscape'; };
+    orient();
+    portrait.addEventListener('change', orient);
+  }
+
+  // A horizontal swipe on the presented slide moves to the next or previous one.
+  function swipe(element) {
+    let start = null;
+    element.addEventListener('touchstart', event => {
+      start = event.touches.length === 1 ? {x: event.touches[0].clientX, y: event.touches[0].clientY} : null;
+    }, {passive: true});
+    element.addEventListener('touchend', event => {
+      if (!start || element.dataset.mode !== 'present') return;
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - start.x;
+      const dy = touch.clientY - start.y;
+      start = null;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      clearTimeout(clickTimer);
+      show(current + (dx < 0 ? 1 : -1));
+    }, {passive: true});
   }
 
   function start(element) {
@@ -153,6 +184,7 @@
     if (deck !== element) {
       // a click that only clears an earlier selection keeps the slide too
       element.addEventListener('mousedown', () => { hadSelection = !getSelection().isCollapsed; });
+      swipe(element);
       element.addEventListener('click', event => {
         if (event.target.closest('a, button')) return;
         const frame = event.target.closest('.slide-frame');
