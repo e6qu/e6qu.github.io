@@ -243,13 +243,13 @@ body:has(> .deck) {margin:0}
 @media (pointer:coarse), (max-width:750px) {
   :root:has(.deck[data-mode='present']:not([hidden])) .deck-menu {
     position:fixed;z-index:20;top:12px;left:12px;display:grid;place-items:center;width:56px;height:56px;
-    border:var(--border) solid rgba(255,255,255,.5);border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:28px;line-height:1
+    border:var(--border) solid rgba(255,255,255,.5);border-radius:50%;background:rgba(0,0,0,.6);color:var(--terminal-ink);font-size:28px;line-height:1
   }
   /* turned upright, the slide sits a little above centre and the deck suggests turning the device */
   .deck[data-mode='present'] {height:100dvh}
   :root[data-orientation='portrait'] .deck[data-mode='present'] {place-items:center;align-content:center;gap:16px}
   :root[data-orientation='portrait'] .deck[data-mode='present']::before {
-    content:'Turn the device sideways for a larger slide';grid-row:2;color:#d6d6d6;font:14px var(--mono);text-align:center;padding:0 16px
+    content:'Turn the device sideways for a larger slide';grid-row:2;color:var(--terminal-muted);font:14px var(--mono);text-align:center;padding:0 16px
   }
   :root[data-orientation='landscape'] .deck[data-mode='present'] .slide-frame {width:min(100vw,177.78dvh)}
   /* the overview's controls wrap above the slides instead of covering them */
