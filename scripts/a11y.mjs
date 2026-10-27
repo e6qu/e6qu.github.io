@@ -60,7 +60,7 @@ async function layout(page, label, {spacing = false} = {}) {
     if (document.documentElement.scrollWidth > innerWidth + 1) found.push(['reflow', `page scrolls sideways: ${document.documentElement.scrollWidth}px wide at ${innerWidth}px`]);
     for (const el of document.querySelectorAll('body *')) {
       const style = getComputedStyle(el);
-      if (!/hidden|clip/.test(style.overflowX + style.overflowY) || el.closest('[aria-hidden="true"], .sr-only, [hidden]')) continue;
+      if (!/hidden|clip/.test(style.overflowX + style.overflowY) || el.closest('[aria-hidden="true"], .sr-only, [hidden], [inert]')) continue;
       if (!el.innerText?.trim() || el.offsetParent === null) continue;
       if (el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2) found.push(['clipped', `${name(el)} cuts off text (${el.scrollWidth}×${el.scrollHeight} in ${el.clientWidth}×${el.clientHeight})`]);
     }
@@ -118,11 +118,12 @@ async function deck(path, theme, ready) {
 }
 
 for (const theme of ['light', 'dark']) {
-  for (const path of ['/', '/presentations/', '/presentations/viewer/', '/presentations/editor/']) {
+  for (const path of ['/', '/presentations/', '/presentations/viewer/', '/presentations/editor/', '/presentations/so-you-want-to-code-your-own-cloud/notes/']) {
     for (const viewport of [undefined, {width: 320, height: 640}]) {
       const label = `${theme} ${path}${viewport ? ' @320px' : ''}`;
       const page = await open(path, theme, viewport);
       if (path.includes('editor')) await page.waitForFunction(() => document.querySelectorAll('#preview .slide-frame').length > 0);
+      if (path.includes('notes')) await page.waitForFunction(() => document.querySelectorAll('.notes-slide').length > 0);
       await audit(page, label);
       await layout(page, label);
       await focusWalk(page, label);

@@ -127,3 +127,9 @@ test('short="…" on a section names it in the parts list', () => {
   assert.match(slides[0].html, /<h2>Introduction, motivation/);
   assert.match(slides[1].html, /<li aria-current="step">Intro<\/li>/);
 });
+
+test('lines after ??? are speaker notes, kept off the slide', () => {
+  const {slides} = render('---\n\n:: content\n\n## A\n\nOn the slide.\n\n???\n\n- Say *this*\n- Then that');
+  assert.doesNotMatch(slides[0].html, /Say|\?\?\?/);
+  assert.equal(slides[0].notes, '<ul><li>Say <em>this</em></li><li>Then that</li></ul>');
+});

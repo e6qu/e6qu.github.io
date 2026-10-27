@@ -221,3 +221,19 @@ body:has(> .deck) {margin:0}
   .deck[data-blackout]::after {content:none}
   .slide {height:720px;overflow:hidden;print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }
+/* Speaker-notes view (deck-notes.js): each slide with its notes, stacked on phones */
+.notes-controls {position:absolute}
+.notes-view {display:grid;gap:40px;max-width:1200px;margin:0 auto;padding:80px 16px 48px}
+.notes-heading {font-size:clamp(32px,6vw,56px)}
+.notes-heading span {display:block;margin-top:8px;font:var(--text-body) var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--muted)}
+.notes-slide {display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:24px;align-items:start;scroll-margin-top:24px}
+.notes-preview .slide-frame {outline:var(--border) solid var(--line)}
+.notes-text {font-size:17px;line-height:1.5}
+.notes-text ul,.notes-text ol {margin:0;padding-left:1.2em;display:grid;gap:6px}
+.notes-text p {margin:0 0 8px}
+.notes-number {font:13px var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--muted)}
+.notes-number a {border-bottom:var(--border) solid currentColor}
+@media(max-width:750px) {
+  .notes-view {gap:32px;padding-top:64px}
+  .notes-slide {grid-template-columns:1fr;gap:12px}
+}
