@@ -61,7 +61,6 @@ sockerless reimplements the Docker API on cloud primitives: `docker run` becomes
 - **So I mocked** the AWS APIs it called, then the whole services behind them
 - **The mocks grew** into reimplementations of real services, on AWS, Google Cloud, Azure
 - **In August** they needed their own repository: sockerless-cloud started from a 677k-line snapshot
-- **Since then:** 114 releases in 76 days
 
 ---
 
@@ -76,8 +75,7 @@ Integration tests need environments that start in seconds, behave the same on ev
 - **The case against:** emulators [drift](https://news.ycombinator.com/item?id=47593285); even AWS's own [DynamoDB Local fails part](https://news.ycombinator.com/item?id=49870948) of an independent conformance suite
 - **The cost:** the clouds change their APIs daily, faster than a small team can follow
 - **Cloud slices 🍉:** emulate the few services an application uses, in depth
-- **Start small:** a Minimal Viable Cloud, run on cheap providers such as Hetzner
-- **Keep one real environment** for the last mile
+- **One option:** a Minimal Viable Cloud, run on cheap providers such as Hetzner
 
 ---
 
@@ -116,7 +114,7 @@ Integration tests need environments that start in seconds, behave the same on ev
 | --- | --- | --- |
 | Feb | sockerless starts; MinIO marks its repository unmaintained | [MinIO repository is no longer maintained](https://news.ycombinator.com/item?id=47000041) |
 | Early Mar | LocalStack Community requires an account | [Community edition abandoned](https://news.ycombinator.com/item?id=47245078) |
-| 15–22 Mar | Floci 1.0.0 ships on its first commit's day; a week later it reaches the front page | [Floci](https://news.ycombinator.com/item?id=47471801): a 51k-line first commit draws suspicion; [CI users cheer](https://news.ycombinator.com/item?id=47475473) |
+| 15–22 Mar | Floci ships on its first commit's day; a week later it reaches the front page | [Floci](https://news.ycombinator.com/item?id=47471801): a 51k-line first commit draws suspicion; [CI users cheer](https://news.ycombinator.com/item?id=47475473) |
 | 23 Mar | LocalStack archives its GitHub repository | [Repo archived, account required](https://news.ycombinator.com/item?id=47493657): pin the `community-archive` tag |
 | 31 Mar | MiniStack, another open-source LocalStack replacement | [MiniStack](https://news.ycombinator.com/item?id=47593285): commenters name drift as LocalStack's real problem |
 | Apr | Fakecloud, a Rust AWS emulator that tests itself against AWS's Smithy API models | [Show HN: Fakecloud](https://news.ycombinator.com/item?id=47782696): fewer services, correct behaviour |
@@ -137,9 +135,9 @@ Integration tests need environments that start in seconds, behave the same on ev
 
 ## Floci, a LocalStack replacement
 
-Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. The first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci 1.0.0 shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials.
+Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. The first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials.
 
-- **129** AWS service packages in 2.3.0
+- **129** AWS service packages
 - **3** clouds: Google Cloud, Azure joined in August, as floci-gcp, floci-az
 
 ---
@@ -155,14 +153,12 @@ Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and mo
 - Go, one binary per cloud: AWS, Google Cloud, Azure
 - Workloads really run, in containers or Firecracker microVMs
 - Signature checks and IAM always on, for every caller
-- v3.0.1, released 26 October 2026
 
 #### Floci
 
 - Java 25 on Quarkus, as a native binary or an image
 - Needs Docker only for container-backed services, such as Lambda or EC2
 - Signature checks and IAM opt-in; the `test` key acts as root
-- 2.3.0, released 15 October 2026
 
 ---
 
@@ -190,7 +186,6 @@ Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and mo
 ```console
 $ go install github.com/e6qu/sockerless-cloud/simulator-aws@latest
 $ simulator-aws                      # :4566, workloads need Docker or Podman
-$ docker run --rm -p 4566:4566 -e SIM_RUNTIME=process ghcr.io/e6qu/sockerless-simulator-aws:v3.0.1
 $ docker run --rm -p 4566:4566 -v /var/run/docker.sock:/var/run/docker.sock floci/floci:latest
 $ export AWS_ENDPOINT_URL=http://localhost:4566 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test
 $ aws sqs create-queue --queue-name orders
@@ -251,17 +246,17 @@ All seven offer S3-compatible object storage; all but Hetzner offer managed Post
 
 :: table dense footer="Sources: the providers' docs, 2026-10 · [Firecracker requirements](https://github.com/firecracker-microvm/firecracker/blob/main/docs/getting-started.md) · [pos3ql](https://github.com/e6qu/pos3ql) · [SlateDB](https://slatedb.io)"
 
-### Build up from the cheapest layer
+### Hosting
 
 ## An MVC on a cheap provider
 
 | MVC service | Build it on | Notes |
 | --- | --- | --- |
-| Identity, request signing | Your own control plane | It issues the keys and tokens, evaluates the policies |
+| Identity, request signing | Your own control plane | Keys, tokens, policies |
 | Functions | Containers on managed Kubernetes or plain VMs | Firecracker microVMs need KVM: dedicated servers, or VMs with nested virtualization |
 | Events, queues | Managed Kafka, RabbitMQ or NATS where offered | Or a queue table in PostgreSQL |
 | Workflows | An interpreter in your control plane | State in PostgreSQL |
-| Object storage | The provider's S3-compatible storage | Every provider here offers it |
+| Object storage | The provider's S3-compatible storage | — |
 | Key-value, documents | Managed PostgreSQL, or a store on object storage | pos3ql, SlateDB |
 | Logs, metrics, audit | Managed OpenSearch where offered | The front door writes the audit records |
 
@@ -423,7 +418,7 @@ The emulators run these as containers: Lambda on AWS's base images, Azure Functi
 
 :: table dense footer="Sources: SC [architecture.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/docs/architecture.md) · [BUGS.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/BUGS.md) · Floci [s3.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/s3.md), [rds.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/rds.md), [dynamodb.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/dynamodb.md) · floci-az [cosmos.md](https://github.com/floci-io/floci-az/blob/e2b6c9022fbb6bf8545450a0c48b29619491661d/docs/services/cosmos.md)" service="Storage and databases"
 
-### Honest status
+### Where the emulators stand
 
 ## Storage, databases in the emulators
 
@@ -462,7 +457,7 @@ Each service team owns its resource handlers in the CloudFormation registry. AWS
 
 ## Who logs the loggers?
 
-Every cloud logs the calls made against it: who called, which action, on which resource, from where, with what result. Teams use it to investigate incidents, to show compliance, to trigger automation.
+Every cloud logs the calls made against it: who called, which action, on which resource, from where, with what result.
 
 - **AWS CloudTrail** always records management events, the control-plane calls, with 90 days of history for free. Data events, such as S3 object reads, are opt-in. Records arrive in about five minutes
 - **Google Cloud Audit Logs** always write Admin Activity, System Event logs, kept 400 days. Data Access logs are opt-in; Policy Denied logs record refusals
@@ -669,6 +664,8 @@ provider "aws" {
 | Refresh | A periodic workflow re-vendors drifted specs onto a pull request | Periodic workflows check IAM data, CloudFormation schemas |
 | Use | Specs generate tables; people write the handlers | Same |
 
+Watch out for supply-chain risks: review a refreshed spec like any other dependency update.
+
 ---
 
 :: table dense footer="Sources: SC [.pre-commit-config.yaml](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/.pre-commit-config.yaml) · Floci [compatibility-tests](https://github.com/floci-io/floci/tree/b280a7764a8e5cad24e3f364fc98c660735c0a85/compatibility-tests)"
@@ -695,7 +692,7 @@ sockerless-cloud's three-client rule: a pre-commit hook rejects any new route th
 
 ## 501 ways to say no
 
-The vendored specs list every method a cloud documents. Four checks turn that list into a coverage count that cannot drift silently:
+The vendored specs list every method a cloud documents. sockerless-cloud turns that list into a coverage count:
 
 1. **Count what the spec declares.** A table records each document's method total (Google: 5,714). A refreshed spec that adds methods changes the total, failing the test until someone serves the new methods or records why not
 2. **Call every method.** A probe sends one concrete request per documented method through the real handler chain: routing, authentication, the handler
@@ -742,7 +739,7 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 
 #### sockerless-cloud
 
-- One binary per cloud; every service on one port, the way SDKs reach a cloud through one endpoint override
+- One binary per cloud, every service on one port
 - Slices share one Go package, reading each other's stores directly
 - No way to start a subset of services; `SIM_RUNTIME=process` turns workloads off
 - Already outside the process: workloads, sidecars, node agents, managed databases
@@ -751,7 +748,7 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 
 - One Quarkus process serves every AWS service on 4566
 - `FLOCI_SERVICES_<SVC>_ENABLED=false` blocks a service with a request filter; its code still ships
-- Most services start lazily, so idle ones cost little
+- Services start lazily
 - Several processes may share a Docker daemon, never a state directory
 
 ---
@@ -776,7 +773,7 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 
 ## Compose the cloud at build time
 
-Write each module against an interface. A manifest says which binary holds each one; build-time tooling emits the wiring: `go generate` with `text/template` in Go, macros or `build.rs` in Rust, annotation processors in Java, `comptime` in Zig.
+One approach: each module behind an interface, and a manifest saying which binary holds it; build-time tooling emits the wiring: `go generate` with `text/template` in Go, macros or `build.rs` in Rust, annotation processors in Java, `comptime` in Zig.
 
 - **One binary:** the wiring hands each caller the implementation; a call stays an ordinary function call
 - **Separate binaries:** the generator emits a gRPC client with the same interface, plus a server in the owning binary
@@ -816,14 +813,12 @@ A service that keeps no local state can crash, restart or run as many replicas; 
 
 ## Code your own cloud
 
-1. Start with CI: emulate the cloud slices 🍉 your tests use, in depth
-2. Let the real SDKs, CLIs, Terraform providers be your tests
-3. Vendor the specs; pin them, never edit them, refresh them periodically
-4. Authenticate, authorize, act, audit in one place, for every caller
-5. Store the cloud's exact states; put real work behind every transition
-6. Answer an unserved method with a declared 501
-7. Start serverless; add VMs once they run real workloads
-8. Compose at build time; keep services stateless, with state in object storage
+A cloud is a lot of small state machines behind one front door.
+
+- **Nobody needs the whole cloud:** build the cloud slices 🍉 your own systems use
+- **Fork, don't follow:** both projects are open source; keep what you need, change the rest
+- **What worked for sockerless-cloud:** the real SDKs, CLIs and Terraform as its tests; one front door; serverless first
+- [github.com/e6qu/sockerless-cloud](https://github.com/e6qu/sockerless-cloud) · [github.com/floci-io/floci](https://github.com/floci-io/floci)
 
 ---
 
