@@ -5,6 +5,7 @@
 // labelled "3 of 18") and changes are announced politely. The deck takes focus, and the
 // single-key shortcuts only work while it has it (WCAG 2.1.4); keys never act on text
 // fields or buttons. A slide whose content overflows scrolls with ↑/↓ before moving on.
+// Text can be selected and copied: a click that ends a selection does not change slides.
 // The overview (O or Esc) shows the theme toggle, Save as PDF and, for Markdown decks,
 // Edit and Download .md. While presenting the page controls are hidden.
 // Elements with data-illustration get the matching SVG inlined so its colors follow the
@@ -20,6 +21,8 @@
   let frames = [];
   let current = 0;
   let status = null;
+  let clickTimer;
+  let hadSelection = false;
 
   function illustrate(container) {
     for (const art of container.querySelectorAll('[data-illustration]')) {
@@ -148,14 +151,21 @@
   function start(element) {
     if (!deck) bind();
     if (deck !== element) {
+      // a click that only clears an earlier selection keeps the slide too
+      element.addEventListener('mousedown', () => { hadSelection = !getSelection().isCollapsed; });
       element.addEventListener('click', event => {
         if (event.target.closest('a, button')) return;
         const frame = event.target.closest('.slide-frame');
         if (element.dataset.mode === 'overview') {
           if (frame) { show(frames.indexOf(frame)); mode('present'); }
-        } else {
-          show(current + (event.clientX < innerWidth / 3 ? -1 : 1));
+          return;
         }
+        // Text stays selectable for Ctrl/Cmd+C: a click that ends a drag selection keeps the
+        // slide, and a single click waits out a double click (which selects a word) first.
+        clearTimeout(clickTimer);
+        if (event.detail > 1 || hadSelection || !getSelection().isCollapsed) return;
+        const step = event.clientX < innerWidth / 3 ? -1 : 1;
+        clickTimer = setTimeout(() => { if (getSelection().isCollapsed) show(current + step); }, 250);
       });
     }
     deck = element;
