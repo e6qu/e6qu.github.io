@@ -247,7 +247,7 @@ All seven offer S3-compatible object storage; all but Hetzner offer managed Post
 
 :: table dense footer="Sources: the providers' docs, 2026-10 · [Firecracker requirements](https://github.com/firecracker-microvm/firecracker/blob/main/docs/getting-started.md) · [pos3ql](https://github.com/e6qu/pos3ql) · [SlateDB](https://slatedb.io)"
 
-### Build up from the cheapest layer
+### Hosting
 
 ## An MVC on a cheap provider
 
@@ -419,7 +419,7 @@ The emulators run these as containers: Lambda on AWS's base images, Azure Functi
 
 :: table dense footer="Sources: SC [architecture.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/docs/architecture.md) · [BUGS.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/BUGS.md) · Floci [s3.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/s3.md), [rds.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/rds.md), [dynamodb.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/dynamodb.md) · floci-az [cosmos.md](https://github.com/floci-io/floci-az/blob/e2b6c9022fbb6bf8545450a0c48b29619491661d/docs/services/cosmos.md)" service="Storage and databases"
 
-### Honest status
+### Where the emulators stand
 
 ## Storage, databases in the emulators
 
