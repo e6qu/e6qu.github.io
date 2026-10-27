@@ -25,17 +25,26 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 
 ---
 
-:: agenda
+:: agenda dense
 
 ### Agenda
 
-## Five parts in 25 minutes
+## Eight parts in 25 minutes
 
-1. **Why people keep rebuilding the cloud** — 5 min
-2. The contract: specs, clients, tests — 5 min
-3. A Minimal Viable Cloud — 9 min
-4. Adding virtual machines — 3 min
-5. Scaling the emulator, then the lessons — 3 min
+1. **Introduction, motivation** — 2 min
+2. Timeline of events — 4 min
+3. The two code bases — 3 min
+4. A Minimal Viable Cloud — 2 min
+5. Service by service — 8 min
+6. Compatibility with the real clouds — 2 min
+7. Testing a cloud — 2 min
+8. Scaling the emulator — 2 min
+
+---
+
+:: section
+
+## Introduction, motivation
 
 ---
 
@@ -61,9 +70,30 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 
 ---
 
+:: comparison pick=0 dense footer="Sources: Hacker News threads linked in each point"
+
+### Motivation
+
+## Should you emulate the cloud at all?
+
+#### The case for: CI
+
+- Integration tests need environments that start in seconds
+- They must behave deterministically, stay isolated, cost nothing per merge
+- [Real accounts offer none of that](https://news.ycombinator.com/item?id=47475473)
+- Emulate for the fast loop; keep one real environment for the last mile
+
+#### The case against: fidelity
+
+- Some teams call local cloud development [an anti-pattern](https://news.ycombinator.com/item?id=28822696); each developer gets a short-lived real environment
+- [Drift](https://news.ycombinator.com/item?id=47593285) between emulator and cloud breaks tests in staging
+- AWS's own [DynamoDB Local fails part](https://news.ycombinator.com/item?id=49870948) of an independent conformance suite
+
+---
+
 :: section
 
-## Why people keep rebuilding the cloud
+## Timeline of events
 
 ---
 
@@ -80,7 +110,7 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 | 2013 | moto, a Python library, mocks AWS inside boto tests | [Careful with moto](https://news.ycombinator.com/item?id=34070272): a wrong setup leaks calls to real AWS |
 | Mar 2017 | LocalStack, an AWS emulator started at Atlassian, puts AWS in a container | [First big thread](https://news.ycombinator.com/item?id=13966088); commenters suggest ElasticMQ, an SQS-compatible server, for queues alone |
 | Nov 2018 | AWS open-sources Firecracker, the microVM under Lambda | [Launch thread](https://news.ycombinator.com/item?id=18539539); [debate](https://news.ycombinator.com/item?id=24993949) over its roots in crosvm, Chrome OS's VM monitor |
-| Nov 2019 | LocalStack on the front page again | [LocalStack, 2019](https://news.ycombinator.com/item?id=21436244): covers 80% of the APIs, fails on error conditions |
+| Nov 2019 | LocalStack on the front page again | [LocalStack, 2019](https://news.ycombinator.com/item?id=21436244): it handles the common calls, fails on error conditions |
 
 ---
 
@@ -116,8 +146,8 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 | 23 Mar | LocalStack archives its GitHub repository | [Repo archived, account required](https://news.ycombinator.com/item?id=47493657): pin the `community-archive` tag |
 | 31 Mar | MiniStack, another open-source LocalStack replacement | [MiniStack](https://news.ycombinator.com/item?id=47593285): commenters name drift as LocalStack's real problem |
 | Apr | Fakecloud, a Rust AWS emulator that tests itself against AWS's Smithy API models | [Show HN: Fakecloud](https://news.ycombinator.com/item?id=47782696): fewer services, correct behaviour |
-| Aug | sockerless-cloud splits from sockerless; Floci adds Google Cloud, Azure siblings | [Using floci to emulate GCP, AWS, Azure](https://news.ycombinator.com/item?id=49475568): floci-gcp emulates 26 services |
-| 26–27 Sep | Floci, Fakecloud on the front page again | [Floci](https://news.ycombinator.com/item?id=49854416), [Fakecloud](https://news.ycombinator.com/item?id=49856885): an independent suite fails Fakecloud on 583 of 1,279 DynamoDB tests |
+| Aug | sockerless-cloud splits from sockerless; Floci adds Google Cloud, Azure siblings | [Using floci to emulate GCP, AWS, Azure](https://news.ycombinator.com/item?id=49475568): the maintainer presents the Google Cloud, Azure siblings |
+| 26–27 Sep | Floci, Fakecloud on the front page again | [Floci](https://news.ycombinator.com/item?id=49854416), [Fakecloud](https://news.ycombinator.com/item?id=49856885): an independent conformance suite finds gaps in Fakecloud's DynamoDB |
 
 ---
 
@@ -127,11 +157,11 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 
 ## Breadth from day one
 
-Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. His first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci 1.0.0 shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials. Version 2.3.0 has 129 service packages.
+Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. His first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci 1.0.0 shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials.
 
 - **39k → 1.56M** SLOC in the AWS repository, March to October
-- **62%** of those lines are tests
-- **4** clouds in the family: AWS, Azure, Google Cloud, OCI
+- **129** AWS service packages in 2.3.0
+- **2** sibling repositories: floci-gcp, floci-az
 
 ---
 
@@ -166,19 +196,9 @@ sockerless, also by e6qu, is a Docker API daemon that runs containers on ECS, La
 
 ---
 
-:: table footer="SC slices: vendored spec models (AWS services, Google APIs, Azure provider families). Registrations: register calls in each main.go. Floci: service packages."
+:: section
 
-### Supported slices over time
-
-## Floci grows wide; sockerless-cloud grows deep
-
-| Date | SC spec slices | SC registrations | Floci services |
-| --- | --- | --- | --- |
-| Feb 2026 | — | 36 | — |
-| Jun 2026 | 88 | 113 | 63 |
-| Aug 2026 (split) | 93 | 171 | 70 |
-| Sep 2026 | 95 | 219 | 123 |
-| Oct 2026 | 98 | 226 | 129 |
+## The two code bases
 
 ---
 
@@ -332,7 +352,624 @@ provider "azurerm" {
 
 :: section
 
-## The contract: specs, clients, tests
+## A Minimal Viable Cloud
+
+---
+
+:: content dense footer="Sources: [How Workers work](https://developers.cloudflare.com/workers/reference/how-workers-works/) · [Workers bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/)"
+
+### Skip the VMs
+
+## A serverless-only cloud skips the hardest parts
+
+Cloudflare Workers show the model works: functions get capability "bindings" to other services, with no metadata service.
+
+- Keep: identity with request signing, functions, events, queues, schedules, logs, metrics, audit
+- Drop: the hypervisor fleet, VM lifecycles, instance metadata, the software-defined network, block storage, machine images
+- In sockerless-cloud, identity with request signing is the largest piece left
+- Of Floci's serverless services, only Lambda needs Docker
+
+---
+
+:: table dense
+
+### The selected services
+
+## A Minimal Viable Cloud, per cloud
+
+| Service | AWS | Google Cloud | Azure |
+| --- | --- | --- | --- |
+| Identity | IAM, STS | IAM, service accounts | Entra ID, role-based access |
+| Functions | Lambda | Cloud Run functions | Azure Functions |
+| Events | EventBridge | Eventarc | Event Grid |
+| Queues | SQS | Pub/Sub | Service Bus |
+| Workflows | Step Functions | Workflows | Logic Apps |
+| Logs, metrics | CloudWatch | Cloud Logging, Cloud Monitoring | Azure Monitor |
+| Audit | CloudTrail | Cloud Audit Logs | Activity Log |
+
+---
+
+:: table dense footer="Europe-headquartered providers only, from their docs, 2026-10: [Scaleway](https://www.scaleway.com/en/docs/) · [OVHcloud](https://docs.ovhcloud.com/) · [Hetzner](https://docs.hetzner.com/cloud/) · [STACKIT](https://docs.stackit.cloud/) · [OTC](https://docs.otc.t-systems.com/) · [UpCloud](https://upcloud.com/docs) · [Exoscale](https://community.exoscale.com/)"
+
+### Europe
+
+## What independent European clouds actually ship
+
+| Provider | VMs | Functions | Events | Queues | Audit | IAM |
+| --- | --- | --- | --- | --- | --- | --- |
+| Scaleway (FR) | Own | Knative + gVisor | SNS-compatible | SQS-compatible, NATS | Beta | Policies, CEL |
+| OVHcloud (FR) | OpenStack | — | — | Kafka | To LDP | URN policies |
+| Hetzner (DE) | Own | — | — | — | — | Read or Read & Write |
+| STACKIT (DE) | OpenStack | — | — | RabbitMQ | Central log | Roles, OIDC federation |
+| Open Telekom (DE) | OpenStack-derived | FunctionGraph | SMN | Kafka, RabbitMQ | 7 days | Agencies |
+| UpCloud (FI) | Own | — | — | — | 180 days | Subaccounts |
+| Exoscale (CH) | Own | — | — | — | 30 days | Org + role policies |
+
+The minimal viable cloud already sells: Hetzner's whole authorization model is a Read or Read & Write project token. Scaleway reimplemented the SQS, SNS wire protocols in-house; no provider offers an EventBridge-style rule bus.
+
+---
+
+:: section
+
+## Service by service
+
+---
+
+:: pause
+
+## Identity and access
+
+AWS IAM · Google Cloud IAM · Microsoft Entra ID
+
+---
+
+:: code dense footer="Source: SC [simulator-aws/main.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/main.go#L197-L228)"
+
+## Every request: authenticate, authorize, act, record
+
+```go
+srv.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
+	body, _ = io.ReadAll(r.Body)        // buffered: CloudTrail needs it after the handler
+	rec := &cloudTrailStatusRecorder{ResponseWriter: w}
+	// Runs before authorization so a forged Credential= can never reach the policy evaluator.
+	if !sigv4EnforceControlPlane(rec, r, body) {
+		return
+	}
+	// Runs after authentication, so the principal is one the caller proved possession of.
+	if !iamEnforce(rec, r) {
+		return
+	}
+	awsRouter.ServeHTTP(rec, r)         // X-Amz-Target, or queryRouter for Action=
+	cloudTrailRecordAPICall(srv, r, body, rec.statusCode(), rec.Header(), rec.body.Bytes())
+})
+```
+
+---
+
+:: table dense footer="Sources: [IAM policy evaluation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html) · [Google IAM deny](https://docs.cloud.google.com/iam/docs/deny-overview) · [Azure RBAC](https://learn.microsoft.com/azure/role-based-access-control/overview)"
+
+### Three identity models
+
+## Who you are, and what you may do
+
+| Aspect | AWS | Google Cloud | Azure |
+| --- | --- | --- | --- |
+| Credential | Access key + secret, SigV4 | Service-account key signs a JWT | App secret or certificate |
+| Token | STS session (key, secret, token) | OAuth 2.0 access token | Entra ID JWT |
+| Policy | JSON policies on identities, resources | Role bindings down the hierarchy | Role assignments at a scope |
+| Deny | Explicit deny always wins | Deny policies win, checked first | Deny assignments, which only Azure creates |
+| Front door | Each service's endpoint | Each API's endpoint | Resource Manager |
+
+---
+
+:: content dense footer="Source: [policy evaluation logic](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html)"
+
+### AWS policy evaluation
+
+## Deny by default; an explicit deny always wins
+
+Every request starts denied. AWS then checks the policies in this order:
+
+1. **Any explicit deny**, in any policy, ends the evaluation with a deny
+2. **Organization guardrails** (SCPs, RCPs) can only narrow what the account allows
+3. **A resource policy** on the target can allow the call, enough within one account
+4. **An identity policy** on the caller must allow it for calls across accounts
+5. **Permissions boundaries, session policies** intersect with the result; they never add permissions
+
+sockerless-cloud evaluates steps 1, 3, 4 plus users' permissions boundaries. Floci, once you turn enforcement on, evaluates denies, SCPs, resource, identity, boundary, session policies.
+
+---
+
+:: table dense footer="Sources: SC [docs/iam.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/docs/iam.md) · Floci [IamEnforcementFilter.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/core/common/IamEnforcementFilter.java#L324-L327) · [multi-account.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/configuration/multi-account.md)"
+
+### What each emulator enforces
+
+## Authentication is easy; authorization is where they differ
+
+| Emulator | Authentication | Authorization |
+| --- | --- | --- |
+| SC, AWS | SigV4 always; `test` is an ordinary IAM user | Every call: "No principal bypasses evaluation" |
+| SC, Google Cloud | Every REST call needs a valid bearer | Four places, e.g. Cloud Run invoke |
+| SC, Azure | Entra tokens from its own tenant | Data planes only; any valid ARM token may do anything |
+| Floci, AWS | SigV4 opt-in; the access key picks the account | Full evaluator, opt-in; the `test` key is a root bypass |
+| floci-gcp | Ignores auth headers | GCS bucket IAM, opt-in |
+| floci-az | Issues real RS256 tokens | Accepts any bearer |
+
+---
+
+:: table footer="Sources: [Lambda env vars](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html) · [ECS task roles](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-iam-roles.html) · [Cloud Run identity](https://docs.cloud.google.com/run/docs/securing/service-identity) · [App Service identity](https://learn.microsoft.com/azure/app-service/overview-managed-identity)"
+
+### Workload credentials
+
+## How code inside the cloud gets its credentials
+
+| Where the code runs | Real cloud | sockerless-cloud | Floci |
+| --- | --- | --- | --- |
+| Lambda | Role session in env vars | Env vars; environments retire before expiry | Env vars, a session that never expires |
+| ECS task | 169.254.170.2 endpoint | Full URI through a forwarder | A proxy container on 169.254.170.2 |
+| Cloud Run, functions | Metadata server, even serverless | Metadata server behind a sidecar | `GCE_METADATA_HOST` to the main port |
+| Azure Functions | `IDENTITY_ENDPOINT` + header | `/msi/token`, per-site header | Managed identity endpoint |
+
+---
+
+:: content dense footer="Sources: SC [docs/iam.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/docs/iam.md)"
+
+### IAM is the biggest service you will write
+
+## An emulator is also an identity provider
+
+- sockerless-cloud signs Google access and ID tokens with its own RSA key, then serves the matching JWKS
+- It runs its own Entra ID tenant for Azure, with a fixed client ID, secret
+- Its STS session tokens seal their expiry with a key kept in the database, so sessions survive a restart
+- It verifies federated tokens against the issuer's published keys
+- floci-az issues real RS256 tokens; its services accept any bearer
+
+---
+
+:: pause
+
+## Functions
+
+AWS Lambda · Cloud Run functions · Azure Functions
+
+---
+
+:: code dense footer="Source: SC [lambda_runtime.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/lambda_runtime.go#L131-L134)"
+
+## The Lambda Runtime API is four routes
+
+```go
+// sockerless-cloud: one listener per execution environment, inside the simulator,
+// passed to the container as AWS_LAMBDA_RUNTIME_API
+mux.HandleFunc("GET /2018-06-01/runtime/invocation/next", s.handleNext)
+mux.HandleFunc("POST /2018-06-01/runtime/invocation/{id}/response", s.handleResponse)
+mux.HandleFunc("POST /2018-06-01/runtime/invocation/{id}/error", s.handleInvocationError)
+mux.HandleFunc("POST /2018-06-01/runtime/init/error", s.handleInitError)
+
+s.server = &http.Server{
+	Handler:     mux,
+	ReadTimeout: 0, // Next is a long poll
+}
+
+// Floci: one Vert.x server per container on ports 12000-12499, non-blocking.
+// Both run AWS's own public.ecr.aws/lambda base images.
+```
+
+---
+
+:: table dense footer="Sources: [Lambda execution environment](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html) · [Cloud Run environments](https://docs.cloud.google.com/run/docs/about-execution-environments) · [Container Apps](https://learn.microsoft.com/azure/container-apps/overview) · [Functions hosting](https://learn.microsoft.com/azure/azure-functions/functions-scale)"
+
+### Serverless compute
+
+## What does Cloud Run run?
+
+| Service | What you deploy | What runs it | Credentials |
+| --- | --- | --- | --- |
+| AWS Lambda | A zip or container image with a handler | A Firecracker microVM per execution environment, polling the Runtime API | Env vars |
+| Cloud Run | A container image serving HTTP on `$PORT` | gVisor, a user-space kernel (gen1), or a microVM (gen2) | Metadata server |
+| Cloud Run functions | Source code; Cloud Build turns it into a Cloud Run service | The same as Cloud Run: the function is that service | Metadata server |
+| Azure Container Apps | Container images | A managed Kubernetes environment, scaled by KEDA | `IDENTITY_ENDPOINT` |
+| Azure Functions | Code with triggers, bindings | The Functions host plus a language worker, on App Service | `IDENTITY_ENDPOINT` |
+
+The emulators run these as containers: Lambda on AWS's base images, Azure Functions on Microsoft's host image. sockerless-cloud can use Firecracker microVMs instead; floci-gcp keeps Cloud Run functions as metadata only.
+
+---
+
+:: pause
+
+## Events
+
+Amazon EventBridge · Eventarc · Azure Event Grid
+
+---
+
+:: comparison pick=0
+
+### Pattern matching is a language
+
+## Write one pattern matcher for every consumer
+
+#### sockerless-cloud
+
+- One grammar for EventBridge patterns, SNS filter policies, Lambda event filters
+- Per-consumer dialects decide what `anything-but` may wrap
+- Every operator, including numeric, cidr, wildcard, `$or`
+
+#### Floci
+
+- A hand-written matcher over Jackson trees
+- No `numeric`, `cidr` or `wildcard` in EventBridge
+- Pipes, SNS, Lambda filters each have their own matcher
+- Each pattern is re-parsed for every event
+
+---
+
+:: pause
+
+## Queues
+
+Amazon SQS · Pub/Sub · Azure Service Bus
+
+---
+
+:: table footer="Sources: [SQS parameters](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-configure-queue-parameters.html) · [Pub/Sub properties](https://docs.cloud.google.com/pubsub/docs/subscription-properties) · [Service Bus locks](https://learn.microsoft.com/azure/service-bus-messaging/message-transfers-locks-settlement)"
+
+### Queues
+
+## A queue is a lease, a receipt, a redrive
+
+| Aspect | Amazon SQS | Google Pub/Sub | Azure Service Bus |
+| --- | --- | --- | --- |
+| Lease | Visibility timeout, 30 s (max 12 h) | Ack deadline, 10 s (max 600 s) | Peek-lock, 1 min (max 5 min) |
+| Long poll | Up to 20 s | Streaming pull | AMQP link, or REST |
+| Ordering | FIFO per message group | Ordering keys, opt-in | Sessions |
+| Poison messages | `maxReceiveCount`, then a DLQ | Dead-letter topic | 10 deliveries, then the DLQ |
+| Max message | 1 MiB since Aug 2025 | 10 MB | 256 KB Standard |
+
+---
+
+:: pause
+
+## Lifecycles and workflows
+
+Step Functions · CloudFormation · Azure Resource Manager
+
+---
+
+:: content dense footer="Sources: [EC2 instance lifecycle](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html) · SC [ec2_instance_launch.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/ec2_instance_launch.go#L425-L438) · Floci [Ec2Service.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/services/ec2/Ec2Service.java#L4768-L4775)"
+
+### Lifecycles
+
+## Every resource is a state machine: an EC2 instance
+
+```text
+ RunInstances
+      |
+      v
+ +---------+  boot done  +---------+  StopInstances  +----------+      +---------+
+ | pending | ----------> | running | --------------> | stopping | ---> | stopped |
+ +---------+             +---------+                 +----------+      +---------+
+      ^                       |                                             |
+      +-----------------------|--------- StartInstances --------------------+
+                              | TerminateInstances
+                              v
+                      +---------------+       +------------+
+                      | shutting-down | ----> | terminated |
+                      +---------------+       +------------+
+```
+
+- sockerless-cloud moves pending to running only when the instance's init writes a ready marker
+- Floci moves pending to running on the next DescribeInstances
+- AWS refuses to reboot a pending instance: an emulator that skips pending hides that race
+
+---
+
+:: content dense footer="Sources: [Azure VM states](https://learn.microsoft.com/azure/virtual-machines/states-billing) · SC [compute.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-azure/compute.go#L1428-L1437)"
+
+### Lifecycles
+
+## An Azure VM runs two state machines at once
+
+```text
+ Provisioning state: the last control-plane operation
+   Creating --> Succeeded      Updating --> Succeeded | Failed      Deleting
+
+ Power state: the machine itself
+   starting --> running --> stopping --> stopped --> deallocating --> deallocated
+       ^                                    |                              |
+       +------------ start -----------------+----------- start ------------+
+```
+
+- A deallocated VM has released its host; a stopped one keeps it
+- sockerless-cloud keeps a table of power verbs, each naming its transitional, settled state
+- floci-az reports Succeeded at once in its default mocked mode; with real containers it waits for the container to run
+
+---
+
+:: content dense footer="Sources: [operations.proto](https://github.com/googleapis/googleapis/blob/master/google/longrunning/operations.proto) · [ARM async operations](https://learn.microsoft.com/azure/azure-resource-manager/management/async-operations)"
+
+### Lifecycles
+
+## Long-running operations: start now, poll until done
+
+```text
+ Google: google.longrunning.Operation
+   create --> { done: false } --- poll or wait ---> { done: true, response }
+                                                 \--> { done: true, error }
+
+ Azure Resource Manager
+   PUT --> 201/202 + Azure-AsyncOperation URL --- poll, honour Retry-After ---> Succeeded
+                                                                          \--> Failed | Canceled
+```
+
+- Every cloud has one shape: running, then done with a result or an error
+- sockerless-cloud has three trackers (Google operations, Compute zone operations, Azure), with a merge planned; floci-gcp has one
+- floci-gcp derives an operation's status from a 50 ms clock
+- Both end every running operation at a restart, with an error
+
+---
+
+:: code-split dense footer="Sources: botocore [ec2 waiters-2.json](https://github.com/boto/botocore/blob/develop/botocore/data/ec2/2016-11-15/waiters-2.json) · Terraform [helper/retry/state.go](https://github.com/hashicorp/terraform-plugin-sdk/blob/main/helper/retry/state.go)"
+
+## Clients encode the machine
+
+```json
+"InstanceRunning": {
+  "operation": "DescribeInstances",
+  "delay": 15, "maxAttempts": 40,
+  "acceptors": [
+    {"matcher": "pathAll", "expected": "running", "state": "success"},
+    {"matcher": "pathAny", "expected": "shutting-down",
+     "state": "failure"},
+    {"matcher": "pathAny", "expected": "terminated", "state": "failure"},
+    {"matcher": "pathAny", "expected": "stopping", "state": "failure"},
+    {"matcher": "error",
+     "expected": "InvalidInstanceID.NotFound", "state": "retry"}
+  ]
+}
+```
+
+1. botocore ships 642 waiters like this one, as data
+2. Retry on NotFound: a new instance may not be visible yet
+3. Terraform: a state "other than the Target state or one listed in Pending" fails the apply
+
+---
+
+:: comparison pick=0 dense
+
+### Workflows
+
+## A workflow engine is an interpreter that calls your API
+
+#### sockerless-cloud: Step Functions
+
+- JSONPath, JSONata; Standard, Express
+- Tasks call services through `sim.Server.Call`: authentication, IAM, audit, spec validation
+- `.sync` waits wake on store changes; Wait states use real time
+- Running executions resume from a checkpoint after a restart
+- Azure Logic Apps: a `runAfter` engine that fails actions it cannot run
+
+#### Floci: Step Functions
+
+- An interpreter for the Amazon States Language
+- Tasks call services as in-process Java methods
+- Caps waits, retry delays at 30 s by default, as its docs state
+- A restart aborts running executions
+- Also Simple Workflow (SWF), Lambda durable executions
+
+---
+
+:: table dense footer="Sources: [registry history](https://www.amazonaws.cn/en/blog-selection/cloudformation-coverage/) · [Amplify FAQ](https://docs.amplify.aws/vue/how-amplify-works/faq/) · [Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers.html) · [Service Catalog product](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-servicecatalog-cloudformationprovisionedproduct.html) · [Control Tower](https://docs.aws.amazon.com/controltower/latest/userguide/creating-resources-with-cloudformation.html) · [Cloud Control](https://docs.aws.amazon.com/cloudcontrolapi/latest/userguide/resource-types.html)"
+
+### Infrastructure as code inside the cloud
+
+## On AWS, CloudFormation is the engine under the other tools
+
+| Tool or service | How it uses CloudFormation |
+| --- | --- |
+| AWS CDK, AWS SAM | Turn code or a short template into a CloudFormation template, then deploy it as a stack |
+| Amplify Gen 2 | "layered on top of the AWS CDK and AWS CloudFormation" |
+| Elastic Beanstalk | Launches each environment's resources as a CloudFormation stack |
+| Service Catalog | Provisioning a product launches a CloudFormation stack |
+| Control Tower | Applies controls to every account with CloudFormation StackSets |
+| Cloud Control API | Serves the registry's resource handlers as one create, read, update, delete, list API; Terraform's `awscc` provider uses it |
+
+Each service team owns its resource handlers in the CloudFormation registry. AWS credits that model for RDS supporting Aurora Serverless v2 in CloudFormation within about a month.
+
+---
+
+:: content dense footer="Sources: [ProgressEvent](https://github.com/aws-cloudformation/cloudformation-cli-java-plugin) · Floci [cloudformation](https://github.com/floci-io/floci/tree/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/services/cloudformation) · [EC2 state-change events](https://github.com/awsdocs/amazon-ec2-user-guide/blob/master/doc_source/monitoring-instance-state-changes.md) · [Deployment Manager deprecation](https://docs.cloud.google.com/deployment-manager/docs/deprecations)"
+
+### Infrastructure as code inside the cloud
+
+## CloudFormation is a workflow engine over every service
+
+A resource provider returns IN_PROGRESS with a callback context until its resource is done.
+
+- Floci implements CloudFormation; unknown resource types become stubs unless strict mode is on
+- It provisions one resource at a time after a topological sort, where AWS works in parallel
+- Its provisioners call service methods directly, past the request filter that enforces IAM
+- floci-az runs ARM deployments through its normal request router
+- sockerless-cloud serves none of these; it tests with Terraform from outside
+- State machines should emit events: AWS sends "EC2 Instance State-change Notification" on every transition; neither emulator does
+
+---
+
+:: pause
+
+## Logs, metrics, audit
+
+CloudWatch, CloudTrail · Cloud Logging, Audit Logs · Azure Monitor
+
+---
+
+:: table dense footer="Sources: SC simulator READMEs · Floci [cloudwatch.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/cloudwatch.md) · floci-az monitor.md"
+
+### Application logs, metrics
+
+## Every cloud has its own query language
+
+| Feature | Real cloud | sockerless-cloud | Floci |
+| --- | --- | --- | --- |
+| Logs Insights | fields, filter, stats, parse, sort | A query engine in the CloudWatch slice | fields, filter (=, !=), sort, dedup, limit |
+| Filter patterns | Terms, JSON, space-delimited | Supports all three | Supports all three; compares with AWS |
+| Cloud Logging filter | Full language, sinks | Routing, sinks, exclusions | A subset, sinks to GCS |
+| KQL | Full language | where, extend, summarize, order by | where, project, take |
+| Alarms | M of N periods, missing-data rules | Every 250 ms; skips M of N | Every 10 s; skips metric math |
+
+---
+
+:: content dense footer="Sources: [CloudTrail](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/how-cloudtrail-works.html) · [record contents](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html) · [Cloud Audit Logs](https://docs.cloud.google.com/logging/docs/audit) · [Activity Log](https://learn.microsoft.com/azure/azure-monitor/platform/activity-log)"
+
+### The cloud's own logs
+
+## The cloud's own record of who did what
+
+Every cloud logs the calls made against it: who called, which action, on which resource, from where, with what result. It is the first place to look after an incident, the evidence for compliance, a source of events for automation.
+
+- **AWS CloudTrail** always records management events, the control-plane calls, with 90 days of history for free. Data events, such as S3 object reads, are opt-in. Records arrive in about five minutes
+- **Google Cloud Audit Logs** always write Admin Activity, System Event logs, kept 400 days. Data Access logs are opt-in; Policy Denied logs record refusals
+- **Azure Activity Log** records every Resource Manager write for 90 days; data-plane activity goes to separate resource logs
+- An emulator must record at the front door, after authentication, for every caller, services included; anywhere else, the trail misses calls
+
+---
+
+:: table dense footer="Sources: [CloudTrail](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/how-cloudtrail-works.html) · [Cloud Audit Logs](https://docs.cloud.google.com/logging/docs/audit) · [Activity Log](https://learn.microsoft.com/azure/azure-monitor/platform/activity-log) · SC [cloudtrail.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/cloudtrail.go#L878-L920) · Floci [CloudTrailJsonHandler.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/services/cloudtrail/CloudTrailJsonHandler.java#L222-L226)"
+
+### The cloud's own logs, compared
+
+## Logging
+
+| Trail | Real cloud | sockerless-cloud | Floci family |
+| --- | --- | --- | --- |
+| AWS CloudTrail | Management events, 90 days, about 5 min delay | Records every call at the one front door, 90 days | S3 data events only; LookupEvents returns an empty list |
+| Google Audit Logs | Admin Activity always; Data Access opt-in | Both, from vendored audit docs; they feed Eventarc | floci-gcp: none |
+| Azure Activity Log | ARM writes, 90 days | Every ARM write | floci-az: every write, 10,000 in memory |
+
+---
+
+:: pause
+
+## Virtual machines
+
+Amazon EC2 · Compute Engine · Azure Virtual Machines
+
+---
+
+:: table dense footer="Sources: [Nitro System](https://docs.aws.amazon.com/whitepapers/latest/security-design-of-aws-nitro-system/the-components-of-the-nitro-system.html) · [Google KVM hardening](https://cloud.google.com/blog/products/gcp/7-ways-we-harden-our-kvm-hypervisor-at-google-cloud-security-in-plaintext) · [Azure hypervisor](https://learn.microsoft.com/azure/security/fundamentals/hypervisor) · [Azure VM states](https://learn.microsoft.com/azure/virtual-machines/states-billing)"
+
+### The real thing
+
+## Three clouds, three hypervisors, all with custom hardware
+
+| Aspect | AWS EC2 | Compute Engine | Azure VMs |
+| --- | --- | --- | --- |
+| Hypervisor | Minimal KVM-based Nitro Hypervisor | Hardened KVM, Google's own VMM | Hyper-V based Azure Hypervisor |
+| Offload | Nitro Cards: storage, network, control | Andromeda SDN on the host | Azure Boost: FPGA storage, MANA NIC |
+| Lifecycle | pending, running, stopped, terminated | PROVISIONING, STAGING, RUNNING, TERMINATED | A power state plus a provisioning state |
+
+---
+
+:: comparison pick=0 dense
+
+### A VM in an emulator
+
+## A container that boots like a machine, or a real microVM
+
+#### sockerless-cloud
+
+- A digest-pinned OCI image whose init runs cloud-init, the startup script, then writes a ready marker
+- Stop keeps the disk; a guest that powers itself off ends like a real one
+- Or a Firecracker microVM, which a node agent boots from an ext4 image of the same OCI image
+- No host privilege: no capabilities, devices or engine socket for workloads
+
+#### Floci
+
+- One Docker container per instance, `tail -f /dev/null` unless the AMI wants systemd
+- Stop is `docker stop`, reboot is `docker restart`
+- Instance types map to `--cpus`, `--memory`
+- Privileged by default, to add the metadata address to loopback
+
+---
+
+:: pause
+
+## Instance metadata
+
+EC2 IMDS · Compute Engine metadata server · Azure IMDS
+
+---
+
+:: table footer="Sources: [EC2 IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-metadata-v2-how-it-works.html) · [Google metadata](https://docs.cloud.google.com/compute/docs/metadata/querying-metadata) · [Azure IMDS](https://learn.microsoft.com/azure/virtual-machines/instance-metadata-service) · [comparison](https://ahmet.im/blog/comparison-of-instance-metadata-services/)"
+
+### Instance metadata
+
+## The magic IP, three ways
+
+| Aspect | AWS | Google Cloud | Azure |
+| --- | --- | --- | --- |
+| Address | 169.254.169.254 | metadata.google.internal | 169.254.169.254, WireServer 168.63.129.16 |
+| Anti-SSRF | PUT for a token; hop limit 1 | Header `Metadata-Flavor: Google` | Header `Metadata: true`, no `X-Forwarded-For` |
+| Credentials | `iam/security-credentials/<role>` | `service-accounts/default/token` | `identity/oauth2/token` |
+| Serverless | Not on Lambda | Yes, on Cloud Run too | `IDENTITY_ENDPOINT` instead |
+
+---
+
+:: comparison pick=0
+
+### Answering at the magic IP
+
+## Routing 169.254.169.254 needs privilege; SC refuses it
+
+#### sockerless-cloud
+
+- The link-local address does not answer (BUG-3485)
+- Workloads get the SDK variables instead: `AWS_EC2_METADATA_SERVICE_ENDPOINT`, `GCE_METADATA_HOST`, `IDENTITY_ENDPOINT`
+- A sidecar per network proxies to the simulator with a token it mints
+- The caller is the TCP peer the sidecar saw: no workload can claim another's address
+
+#### Floci
+
+- A privileged container adds 169.254.169.254 to its loopback
+- A `socat` relay forwards it to Floci's metadata server on port 9169
+- The caller is the container's source IP
+- IMDSv2 tokens are UUIDs bound to the instance
+
+---
+
+:: pause
+
+## Networks
+
+Amazon VPC · Google Cloud VPC · Azure Virtual Network
+
+---
+
+:: comparison pick=0 dense
+
+### Networks, security groups, user data
+
+## A VPC is an engine network; a security group is nftables
+
+#### sockerless-cloud
+
+- One engine network per VPC, over the resource's own CIDR
+- DNS, metadata sidecar at the address the cloud reserves
+- The microVM's tap enforces security groups; nothing filters container-to-container traffic yet (BUG-3481)
+- 376 lines of POSIX shell reimplement cloud-init's stages
+
+#### Floci
+
+- One Docker bridge per VPC; Floci swaps overlapping CIDRs, with a warning
+- Opt-in enforcement: a helper container runs nftables, default deny
+- No routing, NACLs, NAT or peering enforcement
+- User data runs as a script after SSH key injection; its output goes to CloudWatch Logs
+
+---
+
+:: section
+
+## Compatibility with the real clouds
 
 ---
 
@@ -417,6 +1054,12 @@ Before sockerless-cloud's drift gate existed, 43 AWS operations drifted unnotice
 
 ---
 
+:: section
+
+## Testing a cloud
+
+---
+
 :: table dense footer="Sources: SC [.pre-commit-config.yaml](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/.pre-commit-config.yaml) · Floci [compatibility-tests](https://github.com/floci-io/floci/tree/b280a7764a8e5cad24e3f364fc98c660735c0a85/compatibility-tests)"
 
 ### Testing a cloud
@@ -426,12 +1069,12 @@ Before sockerless-cloud's drift gate existed, 43 AWS operations drifted unnotice
 | Kind | sockerless-cloud | Floci |
 | --- | --- | --- |
 | Unit | Go tests per package; `sim` libraries run without a simulator | JUnit tests in each repository: 36,500 methods in the AWS one |
-| SDK, against a running emulator | One Go module per cloud starts the real binary; AWS alone: 413 files | Java, Python, Node, Go SDK suites against a live native build |
+| SDK, against a running emulator | One Go module per cloud starts the real binary | Java, Python, Node, Go SDK suites against a live native build |
 | CLI | `aws`, `gcloud`, `az` suites | AWS CLI (bats); `gcloud` in floci-gcp; `az` in floci-az |
 | Infrastructure as code | Terraform suites; tutorial stacks: apply, empty plan, destroy | Terraform, OpenTofu, CDK suites |
 | Spec conformance | Coverage gates; validates every response against the spec | Checks request shapes against botocore; compares log filters with real AWS |
 
-sockerless-cloud's three-client rule: a pre-commit hook rejects any new route that no SDK, CLI or Terraform test exercises. It also fuzzes event patterns, cron, KQL nightly; tests make up 40% of its 878k SLOC.
+sockerless-cloud's three-client rule: a pre-commit hook rejects any new route that no SDK, CLI or Terraform test exercises. Tests make up 40% of its 878k SLOC.
 
 ---
 
@@ -465,551 +1108,25 @@ On AWS a simpler gate fails when an operation in a vendored Smithy model is neit
 
 ---
 
-:: section
+:: comparison pick=0 dense footer="Sources: SC [run-fuzz.sh](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/scripts/run-fuzz.sh) · [fuzz-nightly.yml](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/.github/workflows/fuzz-nightly.yml) · Floci [RuleSqlFuzzTest.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/test/java/io/github/hectorvent/floci/services/iot/rules/RuleSqlFuzzTest.java)"
 
-## A Minimal Viable Cloud
+### Fuzzing
 
----
+## Fuzz every parser that reads user input
 
-:: content dense footer="Sources: [How Workers work](https://developers.cloudflare.com/workers/reference/how-workers-works/) · [Workers bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/)"
+#### sockerless-cloud: Go's built-in fuzzing
 
-### Skip the VMs
+- 45 fuzz targets across 28 test files
+- Targets: EventBridge patterns, cron expressions, DynamoDB expressions, PartiQL, CloudWatch filter patterns, KQL, OData filters, AMQP frames, Step Functions definitions, request parsers
+- A nightly workflow runs every target for a fixed time, in sharded jobs
+- Any panic fails the run; the crashing input becomes a regression test
 
-## A serverless-only cloud is a fifth of the work
+#### Floci: one deterministic fuzz test
 
-Cloudflare proves the model works: Workers run as V8 isolates, with capability "bindings" in place of a metadata service.
-
-- Keep: identity with request signing, functions, events, queues, schedules, logs, metrics, audit
-- Drop: the hypervisor fleet, VM lifecycles, instance metadata, the software-defined network, block storage, machine images
-- sockerless-cloud: the AWS serverless slice is about 59k of 280k lines (21%); IAM with SigV4 is its largest part, at 25k
-- Floci: Lambda, EventBridge, Scheduler, SQS, CloudWatch, CloudTrail come to 51k of 693k lines (7.4%); only Lambda needs Docker
-
----
-
-:: code dense footer="Source: SC [simulator-aws/main.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/main.go#L197-L228)"
-
-## Every request: authenticate, authorize, act, record
-
-```go
-srv.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
-	body, _ = io.ReadAll(r.Body)        // buffered: CloudTrail needs it after the handler
-	rec := &cloudTrailStatusRecorder{ResponseWriter: w}
-	// Runs before authorization so a forged Credential= can never reach the policy evaluator.
-	if !sigv4EnforceControlPlane(rec, r, body) {
-		return
-	}
-	// Runs after authentication, so the principal is one the caller proved possession of.
-	if !iamEnforce(rec, r) {
-		return
-	}
-	awsRouter.ServeHTTP(rec, r)         // X-Amz-Target, or queryRouter for Action=
-	cloudTrailRecordAPICall(srv, r, body, rec.statusCode(), rec.Header(), rec.body.Bytes())
-})
-```
-
----
-
-:: table dense footer="Sources: [IAM policy evaluation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html) · [Google IAM deny](https://docs.cloud.google.com/iam/docs/deny-overview) · [Azure RBAC](https://learn.microsoft.com/azure/role-based-access-control/overview)"
-
-### Three identity models
-
-## Who you are, and what you may do
-
-| Aspect | AWS | Google Cloud | Azure |
-| --- | --- | --- | --- |
-| Credential | Access key + secret, SigV4 | Service-account key signs a JWT | App secret or certificate |
-| Token | STS session (key, secret, token) | OAuth 2.0 access token | Entra ID JWT |
-| Policy | JSON policies on identities, resources | Role bindings down the hierarchy | Role assignments at a scope |
-| Deny | Explicit deny always wins | Deny policies win, checked first | Deny assignments, which only Azure creates |
-| Front door | Each service's endpoint | Each API's endpoint | Resource Manager |
-
----
-
-:: diagram key=1 footer="Source: [policy evaluation logic](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html)"
-
-### AWS policy evaluation
-
-## Deny by default, explicit deny wins, then look for an allow
-
-1. Any policy: **Explicit deny** — ends the evaluation
-2. Organizations: **SCPs, RCPs** — guardrails that only narrow
-3. Resource policy: **Allow at the target** — enough within one account
-4. Identity policy: **Allow for the caller** — needed across accounts
-5. Boundaries: **Boundary, session policy** — intersect, never widen
-
-<!-- SC evaluates 1, 3, 4, the user's permissions boundary, plus iam:PassRole on every role ARN in a request. SCPs, RCPs, session policies are not evaluated yet (BUG-3738). Floci evaluates all of it, SCPs included, once enforcement is on. -->
-
----
-
-:: table dense footer="Sources: SC [docs/iam.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/docs/iam.md) · Floci [IamEnforcementFilter.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/core/common/IamEnforcementFilter.java#L324-L327) · [multi-account.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/configuration/multi-account.md)"
-
-### What each emulator enforces
-
-## Authentication is easy; authorization is where they differ
-
-| Emulator | Authentication | Authorization |
-| --- | --- | --- |
-| SC, AWS | SigV4 always; `test` is an ordinary IAM user | Every call: "No principal bypasses evaluation" |
-| SC, Google Cloud | Every REST call needs a valid bearer | Four places, e.g. Cloud Run invoke |
-| SC, Azure | Entra tokens from its own tenant | Data planes only; any valid ARM token may do anything |
-| Floci, AWS | SigV4 opt-in; the access key picks the account | Full evaluator, opt-in; the `test` key is a root bypass |
-| floci-gcp | Ignores auth headers | GCS bucket IAM, opt-in |
-| floci-az | Issues real RS256 tokens | Accepts any bearer |
-
----
-
-:: table footer="Sources: [Lambda env vars](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html) · [ECS task roles](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-iam-roles.html) · [Cloud Run identity](https://docs.cloud.google.com/run/docs/securing/service-identity) · [App Service identity](https://learn.microsoft.com/azure/app-service/overview-managed-identity)"
-
-### Workload credentials
-
-## How code inside the cloud gets its credentials
-
-| Where the code runs | Real cloud | sockerless-cloud | Floci |
-| --- | --- | --- | --- |
-| Lambda | Role session in env vars | Env vars; environments retire before expiry | Env vars, a session that never expires |
-| ECS task | 169.254.170.2 endpoint | Full URI through a forwarder | A proxy container on 169.254.170.2 |
-| Cloud Run, functions | Metadata server, even serverless | Metadata server behind a sidecar | `GCE_METADATA_HOST` to the main port |
-| Azure Functions | `IDENTITY_ENDPOINT` + header | `/msi/token`, per-site header | Managed identity endpoint |
-
----
-
-:: stats footer="Sources: [IT Brew on re:Inforce 2025](https://www.itbrew.com/stories/2025/06/25/how-aws-iam-stays-busy-behind-the-scenes) · [AWS Service Reference](https://docs.aws.amazon.com/service-authorization/latest/reference/service-reference.html)"
-
-### IAM is the biggest service you will write
-
-## An emulator is also an identity provider
-
-sockerless-cloud signs Google tokens with its own RSA key, serves the JWKS, runs its own Entra tenant. Its STS session tokens seal their expiry with a key kept in the database, so sessions survive a restart. IAM, STS, SigV4 total 25k lines: more than Lambda, SQS, EventBridge, Scheduler together.
-
-- **1.2B** authorization calls per second at AWS, 2025
-- **4,310** (action, condition key) pairs in the Service Reference
-- **615** of those pairs SC does not build yet, listed in a test file
-
----
-
-:: diagram key=2 footer="Sources: [Lambda execution environment](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html) · [Runtime API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html)"
-
-### Functions
-
-## A function is a long poll over a pool of sandboxes
-
-1. Init: **Start the sandbox** — extensions, runtime, your static code; 10 s cap
-2. Next: **The runtime asks for work** — GET /runtime/invocation/next blocks until an event arrives
-3. Respond: **Post the result** — /response or /error, keyed by the request ID
-4. Freeze: **Keep it warm** — the next Next ends this invocation; idle sandboxes retire
-
----
-
-:: code dense footer="Source: SC [lambda_runtime.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/lambda_runtime.go#L131-L134)"
-
-## The Lambda Runtime API is four routes
-
-```go
-// sockerless-cloud: one listener per execution environment, inside the simulator,
-// passed to the container as AWS_LAMBDA_RUNTIME_API
-mux.HandleFunc("GET /2018-06-01/runtime/invocation/next", s.handleNext)
-mux.HandleFunc("POST /2018-06-01/runtime/invocation/{id}/response", s.handleResponse)
-mux.HandleFunc("POST /2018-06-01/runtime/invocation/{id}/error", s.handleInvocationError)
-mux.HandleFunc("POST /2018-06-01/runtime/init/error", s.handleInitError)
-
-s.server = &http.Server{
-	Handler:     mux,
-	ReadTimeout: 0, // Next is a long poll
-}
-
-// Floci: one Vert.x server per container on ports 12000-12499, non-blocking.
-// Both run AWS's own public.ecr.aws/lambda base images.
-```
-
----
-
-:: comparison pick=0
-
-### Warm pools and concurrency
-
-## Throttling is a feature you must build
-
-#### sockerless-cloud: `sim/funcrt`
-
-- Lease an idle environment, join one starting, or start one
-- Limits form a tree: reserved concurrency owns its capacity; the rest share the account's 1,000
-- Over the limit: `TooManyRequestsException`
-- Environments retire before their role session expires
-
-#### Floci: `WarmPool`
-
-- Reuse containers; evict after an idle timeout
-- At most max(4, CPUs) warm per function, plus an optional global cap
-- Reserved, unreserved pools: 1,000, 100 by default
-- Executor: Docker, or Kubernetes pods for CI without a socket
-
----
-
-:: table footer="Sources: [Firecracker spec](https://github.com/firecracker-microvm/firecracker/blob/main/SPECIFICATION.md) · [Cloud Run environments](https://docs.cloud.google.com/run/docs/about-execution-environments) · [Workers security model](https://developers.cloudflare.com/workers/reference/security-model/)"
-
-### The isolation spectrum
-
-## What the clouds run your function in
-
-| Sandbox | Used by | Start | Boundary |
-| --- | --- | --- | --- |
-| V8 isolate | Cloudflare Workers, Bunny.net Edge Scripting | Milliseconds | The JavaScript engine |
-| gVisor | Cloud Run gen1, Scaleway (a French cloud) | Fast, partial syscalls | A user-space kernel |
-| Firecracker microVM | Lambda, Fargate, Koyeb (a French serverless host) | ≤ 125 ms to init | Hardware virtualization |
-| Container | Both emulators by default | Seconds | Namespaces, shared kernel |
-
-<!-- SC can place functions in Firecracker microVMs through its node agent (SIM_PLACEMENT). Cloud Run functions are Cloud Run services, which get credentials from the metadata server. Azure Functions run as App Service sites. floci-gcp keeps Cloud Functions as metadata only. -->
-
----
-
-:: diagram key=4 footer="Sources: [EventBridge retries](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rule-retry-policy.html) · [Event Grid retries](https://learn.microsoft.com/azure/event-grid/delivery-and-retry) · [Eventarc](https://docs.cloud.google.com/eventarc/docs/overview)"
-
-### Events
-
-## A bus matches, transforms, delivers, retries for a day
-
-1. Publish: **PutEvents** — to a bus; up to 1 MB on Eventarc Advanced
-2. Match: **Patterns over JSON** — prefix, suffix, anything-but, numeric, cidr, wildcard
-3. Transform: **Input transformers** — each target gets the shape it expects
-4. Deliver: **At least once** — EventBridge: 185 retries over 24 h, then a drop without a DLQ
-
----
-
-:: code dense footer="Source: SC [eventbridge_delivery.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/eventbridge_delivery.go#L41-L73)"
-
-## One bus library, three clouds
-
-```go
-ebBus = eventbus.New(srv, eventbus.Config[EBEventRecord, ebRoute, ebTargetDelivery]{
-	Subscriptions: ebBusRoutes,
-	Admits: func(route ebRoute, record EBEventRecord) bool {
-		return route.Rule.EventPattern != "" &&
-			ebEventPatternMatches(route.Rule.EventPattern, ebBuildEvent(record))
-	},
-	Transform: func(route ebRoute, records []EBEventRecord) (ebTargetDelivery, bool) { ... },
-	Archive:   archiveEBEvent,
-	Delivery: &eventbus.Delivery[ebTargetDelivery]{
-		Store:      store, // persisted: retries resume after a restart
-		Policy:     func(d ebTargetDelivery) delivery.Policy { ... },
-		Attempt:    func(ctx context.Context, item *delivery.Item[...]) delivery.Outcome { ... },
-		DeadLetter: ebDeadLetterTargetDelivery,
-	},
-})
-ebBus.Resume()
-```
-
----
-
-:: comparison pick=0
-
-### Pattern matching is a language
-
-## Write one matcher, then fuzz it
-
-#### sockerless-cloud
-
-- One grammar for EventBridge patterns, SNS filter policies, Lambda event filters
-- Per-consumer dialects decide what `anything-but` may wrap
-- Every operator, including numeric, cidr, wildcard, `$or`
-- A nightly fuzz job tests it
-
-#### Floci
-
-- A hand-written matcher over Jackson trees
-- No `numeric`, `cidr` or `wildcard` in EventBridge
-- Pipes, SNS, Lambda filters each have their own matcher
-- Each pattern is re-parsed for every event
-
----
-
-:: table footer="Sources: [SQS parameters](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-configure-queue-parameters.html) · [Pub/Sub properties](https://docs.cloud.google.com/pubsub/docs/subscription-properties) · [Service Bus locks](https://learn.microsoft.com/azure/service-bus-messaging/message-transfers-locks-settlement)"
-
-### Queues
-
-## A queue is a lease, a receipt, a redrive
-
-| Aspect | Amazon SQS | Google Pub/Sub | Azure Service Bus |
-| --- | --- | --- | --- |
-| Lease | Visibility timeout, 30 s (max 12 h) | Ack deadline, 10 s (max 600 s) | Peek-lock, 1 min (max 5 min) |
-| Long poll | Up to 20 s | Streaming pull | AMQP link, or REST |
-| Ordering | FIFO per message group | Ordering keys, opt-in | Sessions |
-| Poison messages | `maxReceiveCount`, then a DLQ | Dead-letter topic | 10 deliveries, then the DLQ |
-| Max message | 1 MiB since Aug 2025 | 10 MB | 256 KB Standard |
-
----
-
-:: code-split dense footer="Sources: SC [sqs_wait.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/sqs_wait.go#L10-L35) · Floci [SqsService.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/services/sqs/SqsService.java#L1481-L1484)"
-
-## Long polling without a timer
-
-```go
-// sockerless-cloud: wake on a write, or when a message becomes visible
-var sqsArrivals = msgq.NewWaiter(func(name string, now time.Time) (
-	time.Time, bool) {
-	q, ok := sqsQueues.Get(name)
-	if !ok {
-		return time.Time{}, false
-	}
-	return q.Messages.NextChange(sqsPolicy(q), now) // [1]
-})
-```
-
-```java
-// Floci: a monitor per queue, woken on send, re-checked every second
-synchronized (lock) {
-    lock.wait(Math.min(1000, maxWait - elapsed)); // [2]
-}
-```
-
-1. One waiter serves SQS, Pub/Sub pulls, Service Bus, Cloud Tasks
-2. Simple, correct; a parked receive holds a worker thread
-
----
-
-:: table footer="Sources: botocore [lambda model](https://github.com/boto/botocore/tree/develop/botocore/data/lambda) · [operations.proto](https://github.com/googleapis/googleapis/blob/master/google/longrunning/operations.proto) · [ARM async operations](https://learn.microsoft.com/azure/azure-resource-manager/management/async-operations)"
-
-### Lifecycles
-
-## Every resource is a state machine
-
-| Resource | States the client waits on |
-| --- | --- |
-| EC2 instance | pending → running → stopping → stopped; shutting-down → terminated |
-| Lambda function | Pending → Active or Failed; 8 states, plus LastUpdateStatus |
-| CloudFormation stack | 23 stack statuses, 28 resource statuses |
-| Google operation | `done` false, then exactly one of `error` or `response` |
-| Azure resource | `provisioningState`, polled at `Azure-AsyncOperation` or `Location` |
-| Azure VM | A provisioning state plus a power state, at the same time |
-
----
-
-:: code-split dense footer="Sources: botocore [ec2 waiters-2.json](https://github.com/boto/botocore/blob/develop/botocore/data/ec2/2016-11-15/waiters-2.json) · Terraform [helper/retry/state.go](https://github.com/hashicorp/terraform-plugin-sdk/blob/main/helper/retry/state.go)"
-
-## Clients encode the machine
-
-```json
-"InstanceRunning": {
-  "operation": "DescribeInstances",
-  "delay": 15, "maxAttempts": 40,
-  "acceptors": [
-    {"matcher": "pathAll", "expected": "running", "state": "success"},
-    {"matcher": "pathAny", "expected": "shutting-down",
-     "state": "failure"},
-    {"matcher": "pathAny", "expected": "terminated", "state": "failure"},
-    {"matcher": "pathAny", "expected": "stopping", "state": "failure"},
-    {"matcher": "error",
-     "expected": "InvalidInstanceID.NotFound", "state": "retry"}
-  ]
-}
-```
-
-1. botocore ships 642 waiters like this one, as data
-2. Retry on NotFound: a new instance may not be visible yet
-3. Terraform: a state "other than the Target state or one listed in Pending" fails the apply
-
----
-
-:: content dense footer="Sources: SC [ec2_instance_launch.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/ec2_instance_launch.go#L425-L438) · Floci [Ec2Service.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/services/ec2/Ec2Service.java#L4768-L4775)"
-
-### Real work behind every transition
-
-## An instant ACTIVE hides bugs
-
-A client that reboots an instance still pending works against an instant emulator, then fails in AWS. sockerless-cloud hit this exact race in its own code once a sidecar image stopped committing instantly.
-
-- sockerless-cloud: an instance turns running only when its init writes a ready marker
-- Each resource either shows its transient state for one read or settles at once; the docs record which
-- Floci settles EC2 on the next DescribeInstances; floci-gcp derives status from a 50 ms clock
-- Long-running operations need one tracker per cloud: running, then done with a result or an error. sockerless-cloud has three, with a merge planned; floci-gcp has one
-- Both end every running operation at a restart
-
----
-
-:: comparison pick=0 dense
-
-### Workflows
-
-## A workflow engine is an interpreter that calls your API
-
-#### sockerless-cloud: Step Functions
-
-- JSONPath, JSONata; Standard, Express
-- Tasks call services through `sim.Server.Call`: authentication, IAM, audit, spec validation
-- `.sync` waits wake on store changes; Wait states use real time
-- Running executions resume from a checkpoint after a restart
-- Azure Logic Apps: a `runAfter` engine that fails actions it cannot run
-
-#### Floci: Step Functions
-
-- 15k lines; the ASL executor alone is 6.4k
-- Tasks call services as in-process Java methods
-- Caps waits, retry delays at 30 s by default, as its docs state
-- A restart aborts running executions
-- Also Simple Workflow (SWF), Lambda durable executions
-
----
-
-:: content dense footer="Sources: [ProgressEvent](https://github.com/aws-cloudformation/cloudformation-cli-java-plugin) · Floci [cloudformation](https://github.com/floci-io/floci/tree/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/services/cloudformation) · [EC2 state-change events](https://github.com/awsdocs/amazon-ec2-user-guide/blob/master/doc_source/monitoring-instance-state-changes.md) · [Deployment Manager deprecation](https://docs.cloud.google.com/deployment-manager/docs/deprecations)"
-
-### Infrastructure as code inside the cloud
-
-## CloudFormation is a workflow engine over every service
-
-A resource provider returns IN_PROGRESS with a callback context until its resource is done.
-
-- Floci implements CloudFormation in 50k lines, about 194 resource types
-- It provisions one resource at a time after a topological sort, where AWS works in parallel
-- Its provisioners call service methods directly, past the request filter that enforces IAM
-- floci-az runs ARM deployments through its normal request router
-- sockerless-cloud serves none of these; it tests with Terraform from outside
-- State machines should emit events: AWS sends "EC2 Instance State-change Notification" on every transition; neither emulator does
-
----
-
-:: diagram key=3 footer="Sources: SC [sim/logstore](https://github.com/e6qu/sockerless-cloud/tree/a614ccfa97d463dd823eed9e67b2a81f6c345e43/sim/logstore) · Floci [ContainerLogStreamer.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/core/common/docker/ContainerLogStreamer.java#L270-L274)"
-
-### Logging
-
-## From a container's stdout to a log you can query
-
-1. Follow: **Stream the engine's logs** — split stdout from stderr, line by line
-2. Drain: **Lose nothing at exit** — re-read the full log, skip lines already written
-3. Store: **One row per entry** — the key: stream plus arrival order
-4. Query: **Insights, filters, KQL** — retention by each entry's own timestamp
-
-<!-- SC uses this path for all three clouds. Floci calls putLogEvents once per line, in process, keeping at most 20,000 events per account. -->
-
----
-
-:: table dense footer="Sources: SC simulator READMEs · Floci [cloudwatch.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/cloudwatch.md) · floci-az monitor.md"
-
-### Query languages and alarms
-
-## Every cloud has its own query language
-
-| Feature | Real cloud | sockerless-cloud | Floci |
-| --- | --- | --- | --- |
-| Logs Insights | fields, filter, stats, parse, sort | A query engine in the CloudWatch slice | fields, filter (=, !=), sort, dedup, limit |
-| Filter patterns | Terms, JSON, space-delimited | Supports all three | Supports all three; compares with AWS |
-| Cloud Logging filter | Full language, sinks | Routing, sinks, exclusions | A subset, sinks to GCS |
-| KQL | Full language | where, extend, summarize, order by | where, project, take |
-| Alarms | M of N periods, missing-data rules | Every 250 ms; skips M of N | Every 10 s; skips metric math |
-
----
-
-:: table dense footer="Sources: [CloudTrail](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/how-cloudtrail-works.html) · [Cloud Audit Logs](https://docs.cloud.google.com/logging/docs/audit) · [Activity Log](https://learn.microsoft.com/azure/azure-monitor/platform/activity-log) · SC [cloudtrail.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/cloudtrail.go#L878-L920) · Floci [CloudTrailJsonHandler.java](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/src/main/java/io/github/hectorvent/floci/services/cloudtrail/CloudTrailJsonHandler.java#L222-L226)"
-
-### Audit
-
-## The audit trail is where the emulators differ most
-
-| Trail | Real cloud | sockerless-cloud | Floci family |
-| --- | --- | --- | --- |
-| AWS CloudTrail | Management events, 90 days, about 5 min delay | Records every call at the one front door, 90 days | S3 data events only; LookupEvents returns an empty list |
-| Google Audit Logs | Admin Activity always; Data Access opt-in | Both, from vendored audit docs; they feed Eventarc | floci-gcp: none |
-| Azure Activity Log | ARM writes, 90 days | Every ARM write | floci-az: every write, 10,000 in memory |
-
----
-
-:: section
-
-## Adding virtual machines
-
----
-
-:: table dense footer="Sources: [Nitro System](https://docs.aws.amazon.com/whitepapers/latest/security-design-of-aws-nitro-system/the-components-of-the-nitro-system.html) · [Google KVM hardening](https://cloud.google.com/blog/products/gcp/7-ways-we-harden-our-kvm-hypervisor-at-google-cloud-security-in-plaintext) · [Azure hypervisor](https://learn.microsoft.com/azure/security/fundamentals/hypervisor) · [Azure VM states](https://learn.microsoft.com/azure/virtual-machines/states-billing)"
-
-### The real thing
-
-## Three clouds, three hypervisors, all with custom hardware
-
-| Aspect | AWS EC2 | Compute Engine | Azure VMs |
-| --- | --- | --- | --- |
-| Hypervisor | Minimal KVM-based Nitro Hypervisor | Hardened KVM, Google's own VMM | Hyper-V based Azure Hypervisor |
-| Offload | Nitro Cards: storage, network, control | Andromeda SDN on the host | Azure Boost: FPGA storage, MANA NIC |
-| Lifecycle | pending, running, stopped, terminated | PROVISIONING, STAGING, RUNNING, TERMINATED | A power state plus a provisioning state |
-| Billing trap | Volumes bill while stopped | Suspended memory keeps billing | "Stopped" still bills compute; only "deallocated" stops it |
-
----
-
-:: comparison pick=0 dense
-
-### A VM in an emulator
-
-## A container that boots like a machine, or a real microVM
-
-#### sockerless-cloud
-
-- A digest-pinned OCI image whose init runs cloud-init, the startup script, then writes a ready marker
-- Stop keeps the disk; a guest that powers itself off ends like a real one
-- Or a Firecracker microVM, which a node agent boots from an ext4 image of the same OCI image
-- No host privilege: no capabilities, devices or engine socket for workloads
-
-#### Floci
-
-- One Docker container per instance, `tail -f /dev/null` unless the AMI wants systemd
-- Stop is `docker stop`, reboot is `docker restart`
-- Instance types map to `--cpus`, `--memory`
-- Privileged by default, to add the metadata address to loopback
-
----
-
-:: table footer="Sources: [EC2 IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-metadata-v2-how-it-works.html) · [Google metadata](https://docs.cloud.google.com/compute/docs/metadata/querying-metadata) · [Azure IMDS](https://learn.microsoft.com/azure/virtual-machines/instance-metadata-service) · [comparison](https://ahmet.im/blog/comparison-of-instance-metadata-services/)"
-
-### Instance metadata
-
-## The magic IP, three ways
-
-| Aspect | AWS | Google Cloud | Azure |
-| --- | --- | --- | --- |
-| Address | 169.254.169.254 | metadata.google.internal | 169.254.169.254, WireServer 168.63.129.16 |
-| Anti-SSRF | PUT for a token; hop limit 1 | Header `Metadata-Flavor: Google` | Header `Metadata: true`, no `X-Forwarded-For` |
-| Credentials | `iam/security-credentials/<role>` | `service-accounts/default/token` | `identity/oauth2/token` |
-| Serverless | Not on Lambda | Yes, on Cloud Run too | `IDENTITY_ENDPOINT` instead |
-
----
-
-:: comparison pick=0
-
-### Answering at the magic IP
-
-## Routing 169.254.169.254 needs privilege; SC refuses it
-
-#### sockerless-cloud
-
-- The link-local address does not answer (BUG-3485)
-- Workloads get the SDK variables instead: `AWS_EC2_METADATA_SERVICE_ENDPOINT`, `GCE_METADATA_HOST`, `IDENTITY_ENDPOINT`
-- A sidecar per network proxies to the simulator with a token it mints
-- The caller is the TCP peer the sidecar saw: no workload can claim another's address
-
-#### Floci
-
-- A privileged container adds 169.254.169.254 to its loopback
-- A `socat` relay forwards it to Floci's metadata server on port 9169
-- The caller is the container's source IP
-- IMDSv2 tokens are UUIDs bound to the instance
-
----
-
-:: comparison pick=0 dense
-
-### Networks, security groups, user data
-
-## A VPC is an engine network; a security group is nftables
-
-#### sockerless-cloud
-
-- One engine network per VPC, over the resource's own CIDR
-- DNS, metadata sidecar at the address the cloud reserves
-- The microVM's tap enforces security groups; nothing filters container-to-container traffic yet (BUG-3481)
-- 376 lines of POSIX shell reimplement cloud-init's stages
-
-#### Floci
-
-- One Docker bridge per VPC; Floci swaps overlapping CIDRs, with a warning
-- Opt-in enforcement: a helper container runs nftables, default deny
-- No routing, NACLs, NAT or peering enforcement
-- User data runs as a script after SSH key injection; its output goes to CloudWatch Logs
+- Targets the IoT rules SQL parser
+- A fixed seed produces 400 mutations of each valid statement
+- The parser may raise only its own parse error
+- Every statement it accepts must evaluate against any payload
 
 ---
 
@@ -1051,7 +1168,7 @@ A resource provider returns IN_PROGRESS with a callback context until its resour
 
 - In memory by default; `SIM_PERSIST=true` writes one database file
 - One table per store: `key TEXT PRIMARY KEY, value BLOB` holding JSON
-- WAL mode with `synchronous=NORMAL`: FULL made DynamoDB writes take 500–1,100 ms, against single-digit ms on AWS
+- WAL mode with `synchronous=NORMAL`, trading power-loss safety for speed
 - Object bytes live in files, which SC writes before the row
 - A restart re-adopts running workload containers
 
@@ -1064,33 +1181,6 @@ A resource provider returns IN_PROGRESS with a callback context until its resour
 
 ---
 
-:: code-split dense footer="Source: SC [sim/state_sqlite.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/sim/state_sqlite.go#L303-L332)"
-
-## A store update is read, modify, write, under one lock
-
-```go
-func (s *SQLiteStore[T]) Update(id string, fn func(*T)) bool {
-	s.mu.Lock() // [1]
-	defer s.mu.Unlock()
-	var data []byte
-	s.db.QueryRow(`SELECT value FROM ... WHERE key = ?`, id).Scan(&data)
-	...
-	var v T
-	unmarshalPersistentValue(data, &v)
-	fn(&v) // [2]
-	updated, _ := marshalPersistentValue(v)
-	s.db.Exec(`INSERT OR REPLACE INTO ... VALUES (?, ?)`, id, updated)
-	s.generation.Store(nextStoreGeneration()) // [3]
-	return true
-}
-```
-
-1. A Go mutex per store: one process, one writer
-2. A whole SQS queue is one row, so each send rewrites the queue
-3. Waiters wake when the generation changes
-
----
-
 :: content dense footer="Sources: [static stability](https://aws.amazon.com/builders-library/static-stability-using-availability-zones/) · [cell-based architecture](https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/reducing-scope-of-impact-with-cell-based-architecture.html) · SC [PLAN.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/PLAN.md)"
 
 ### The way out
@@ -1099,64 +1189,10 @@ func (s *SQLiteStore[T]) Update(id string, fn func(*T)) bool {
 
 The real clouds separate control plane from data plane, run in independent cells, keep workloads running when the control plane fails. An emulator is the opposite: one cell, one zone, both planes in one address space.
 
-- Real metadata stores: DynamoDB (89.2 million requests per second at peak), Google's Spanner, Azure's Service Fabric
+- Real metadata stores: AWS's DynamoDB, Google's Spanner, Azure's Service Fabric
 - sockerless-cloud's milestone M5 moves node agents to other hosts, with engine networks that span hosts: that scales the data plane
 - Splitting its control plane means replacing shared package-level stores, in-process change signals, in-memory metadata tokens, the single SQLite writer
 - Floci keeps every service's state inside its process, with no clustering
-
----
-
-:: table dense footer="Europe-headquartered providers only, from their docs, 2026-10: [Scaleway](https://www.scaleway.com/en/docs/) · [OVHcloud](https://docs.ovhcloud.com/) · [Hetzner](https://docs.hetzner.com/cloud/) · [STACKIT](https://docs.stackit.cloud/) · [OTC](https://docs.otc.t-systems.com/) · [UpCloud](https://upcloud.com/docs) · [Exoscale](https://community.exoscale.com/)"
-
-### Europe
-
-## What independent European clouds actually ship
-
-| Provider | VMs | Functions | Events | Queues | Audit | IAM |
-| --- | --- | --- | --- | --- | --- | --- |
-| Scaleway (FR) | Own | Knative + gVisor | SNS-compatible | SQS-compatible, NATS | Beta | Policies, CEL |
-| OVHcloud (FR) | OpenStack | — | — | Kafka | To LDP | URN policies |
-| Hetzner (DE) | Own | — | — | — | — | Read or Read & Write |
-| STACKIT (DE) | OpenStack | — | — | RabbitMQ | Central log | Roles, OIDC federation |
-| Open Telekom (DE) | OpenStack-derived | FunctionGraph | SMN | Kafka, RabbitMQ | 7 days | Agencies |
-| UpCloud (FI) | Own | — | — | — | 180 days | Subaccounts |
-| Exoscale (CH) | Own | — | — | — | 30 days | Org + role policies |
-
----
-
-:: content dense footer="Sources: [Hetzner tokens](https://docs.hetzner.com/cloud/api/getting-started/generating-api-token) · [OTC metadata](https://docs.otc.t-systems.com/elastic-cloud-server/umn/) · [Scaleway messaging](https://www.scaleway.com/en/docs/messaging/faq)"
-
-### What Europe teaches
-
-## The minimal viable cloud already exists, and sells
-
-Most European providers stop at VMs, Kubernetes, S3-compatible storage. Queues come as managed open-source brokers; no provider surveyed offers an EventBridge-style rule bus.
-
-- Hetzner's entire authorization model: a project token, either "Read" or "Read & Write"
-- Scaleway reimplemented the SQS, SNS wire protocols in-house, so AWS SDKs work unchanged
-- Open Telekom Cloud alone hands VMs temporary keys from metadata, at `/openstack/latest/securitykey`
-- Scaleway serves user data only to source ports below 1024, a cheap defence against SSRF
-
----
-
-:: comparison pick=0 dense footer="Sources: Hacker News threads linked in each point"
-
-### The pushback
-
-## Should you emulate the cloud at all?
-
-#### The case for: CI
-
-- Integration tests need environments that start in seconds
-- They must behave deterministically, stay isolated, cost nothing per merge
-- [Real accounts offer none of that](https://news.ycombinator.com/item?id=47475473)
-- Emulate for the fast loop; keep one real environment for the last mile
-
-#### The case against: fidelity
-
-- Some teams call local cloud development [an anti-pattern](https://news.ycombinator.com/item?id=28822696); each developer gets a short-lived real environment
-- [Drift](https://news.ycombinator.com/item?id=47593285) between emulator and cloud breaks tests in staging
-- AWS's own [DynamoDB Local fails about 100 tests](https://news.ycombinator.com/item?id=49870948) of an independent conformance suite
 
 ---
 

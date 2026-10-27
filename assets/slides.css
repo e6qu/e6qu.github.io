@@ -54,6 +54,8 @@ body:has(> .deck) {margin:0}
 .slide-agenda .slide-time {font:.6em var(--mono)}
 .slide-agenda li[aria-current] {color:var(--ink);box-shadow:inset .2em 0 var(--coral);padding-left:.6em;margin-left:-.6em}
 .slide-agenda li[aria-current]::before {color:var(--coral-strong)}
+.slide-agenda.slide-dense li {padding:.45em 0;font-size:1.3em}
+.slide-agenda.slide-dense ol {margin-bottom:1.5em}
 
 /* section */
 /* section breaks stand out without leaving the theme: a tinted paper, lighter or darker with it */
@@ -174,7 +176,7 @@ body:has(> .deck) {margin:0}
 .slide-pause {justify-content:center;align-items:center;text-align:center;background:var(--surface)}
 .slide-pause .slide-mark {font-size:6em;line-height:1;margin-bottom:.3em}
 .slide-pause h2 {font-size:4.5em;margin-bottom:.3em}
-.slide-pause .slide-lead {font:1.4em var(--mono)}
+.slide-pause .slide-lead {font:1.4em var(--mono);max-width:none}
 
 /* blank: an empty sheet to sit on while switching screens */
 .slide-blank {padding:0}
