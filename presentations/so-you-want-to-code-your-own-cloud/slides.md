@@ -391,6 +391,7 @@ srv.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
 ## Floci: the same steps as a chain of JAX-RS filters
 
 ```java
+// Floci: the same steps as JAX-RS filters, ordered by @Priority; both checks are opt-in
 @Priority(Priorities.AUTHENTICATION - 100)
 public class AccountContextFilter implements ContainerRequestFilter { … }  // the access key picks the account
 
