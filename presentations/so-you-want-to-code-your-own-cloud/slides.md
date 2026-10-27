@@ -48,6 +48,22 @@ What it takes to rebuild the basic services of AWS, Google Cloud and Azure.
 
 ---
 
+:: content dense footer="Sources: [sockerless README](https://github.com/e6qu/sockerless) · SC [first commit](https://github.com/e6qu/sockerless-cloud/commit/3ea55959) · [WHAT_WE_DID.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/WHAT_WE_DID.md)"
+
+### Where this started
+
+## It started with sockerless
+
+sockerless reimplements the Docker API on cloud primitives: `docker run` becomes an ECS task, a Lambda function, a Cloud Run job or an Azure Functions app.
+
+- **It worked**, but testing it against real AWS got expensive
+- **So I mocked** the AWS APIs it called, then the whole services behind them
+- **The mocks grew** into reimplementations of real services, on AWS, Google Cloud, Azure
+- **In August** they needed their own repository: sockerless-cloud started from a 677k-line snapshot
+- **Since then:** 114 releases in 76 days, 878k SLOC
+
+---
+
 :: comparison pick=0
 
 ### Two projects, one question
@@ -157,20 +173,6 @@ Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and mo
 - **39k → 1.56M** SLOC in the AWS repository, March to October
 - **129** AWS service packages in 2.3.0
 - **2** sibling repositories: floci-gcp, floci-az
-
----
-
-:: stats footer="Sources: [sockerless README](https://github.com/e6qu/sockerless) · SC [first commit](https://github.com/e6qu/sockerless-cloud/commit/3ea55959) · [WHAT_WE_DID.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/WHAT_WE_DID.md)"
-
-### sockerless-cloud
-
-## sockerless-cloud's history
-
-sockerless, also by e6qu, is a Docker API daemon that runs containers on ECS, Lambda, Cloud Run or Azure Functions. To test it without cloud accounts, it grew simulators. By August they outgrew the product, moving to their own repository as "a general-purpose reimplementation of slices of the clouds".
-
-- **31k → 498k** SLOC from March to the August split
-- **677k** lines moved on 11 August, as a snapshot without history
-- **114** releases in the 76 days since the split
 
 ---
 
@@ -351,24 +353,9 @@ provider "azurerm" {
 
 ---
 
-:: content dense footer="Sources: [How Workers work](https://developers.cloudflare.com/workers/reference/how-workers-works/) · [Workers bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/)"
+:: table dense footer="Sources: [How Workers work](https://developers.cloudflare.com/workers/reference/how-workers-works/) · [Workers bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/)"
 
 ### Skip the VMs
-
-## What a serverless-only cloud keeps, drops
-
-Cloudflare Workers show the model works: functions get capability "bindings" to other services, with no metadata service.
-
-- Keep: identity with request signing, functions, events, queues, schedules, logs, metrics, audit
-- Drop: the hypervisor fleet, VM lifecycles, instance metadata, the software-defined network, block storage, machine images
-- In sockerless-cloud, identity with request signing is the largest piece left
-- Of Floci's serverless services, only Lambda needs Docker
-
----
-
-:: table dense
-
-### The selected services
 
 ## A Minimal Viable Cloud, per cloud
 
@@ -379,8 +366,12 @@ Cloudflare Workers show the model works: functions get capability "bindings" to 
 | Events | EventBridge | Eventarc | Event Grid |
 | Queues | SQS | Pub/Sub | Service Bus |
 | Workflows | Step Functions | Workflows | Logic Apps |
+| Object storage | S3 | Cloud Storage | Blob Storage |
+| Key-value, documents | DynamoDB | Firestore | Cosmos DB |
 | Logs, metrics | CloudWatch | Cloud Logging, Cloud Monitoring | Azure Monitor |
 | Audit | CloudTrail | Cloud Audit Logs | Activity Log |
+
+No VMs, instance metadata or software-defined network. Cloudflare Workers show the model works: functions get "bindings" to other services.
 
 ---
 
@@ -390,17 +381,37 @@ Cloudflare Workers show the model works: functions get capability "bindings" to 
 
 ## Independent European clouds
 
-| Provider | VMs | Kubernetes | Databases | Functions | Events | Queues | Audit | IAM |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Scaleway (FR) | Own | Kapsule | Managed | Knative + gVisor | SNS-compatible | SQS-compatible, NATS | Beta | Policies, CEL |
-| OVHcloud (FR) | OpenStack | Managed | Managed | — | — | Kafka | To LDP | URN policies |
-| Hetzner (DE) | Own | — | — | — | — | — | — | Read or Read & Write |
-| STACKIT (DE) | OpenStack | SKE | Managed | — | — | RabbitMQ | Central log | Roles, OIDC federation |
-| Open Telekom (DE) | OpenStack-derived | CCE | Managed | FunctionGraph | SMN | Kafka, RabbitMQ | 7 days | Agencies |
-| UpCloud (FI) | Own | Managed | Managed | — | — | — | 180 days | Subaccounts |
-| Exoscale (CH) | Own | SKS | Managed | — | — | — | 30 days | Org + role policies |
+| Provider | VMs | Kubernetes | Functions | Events | Queues | Audit | IAM |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Scaleway (FR) | Own | Kapsule | Knative + gVisor | SNS-compatible | SQS-compatible, NATS | Beta | Policies, CEL |
+| OVHcloud (FR) | OpenStack | Managed | — | — | Kafka | To LDP | URN policies |
+| Hetzner (DE) | Own | — | — | — | — | — | Read or Read & Write |
+| STACKIT (DE) | OpenStack | SKE | — | — | RabbitMQ | Central log | Roles, OIDC federation |
+| Open Telekom (DE) | OpenStack-derived | CCE | FunctionGraph | SMN | Kafka, RabbitMQ | 7 days | Agencies |
+| UpCloud (FI) | Own | Managed | — | — | — | 180 days | Subaccounts |
+| Exoscale (CH) | Own | SKS | — | — | — | 30 days | Org + role policies |
 
 All seven offer S3-compatible object storage; none offers an EventBridge-style rule bus.
+
+---
+
+:: table dense footer="Sources, 2026-10: [Scaleway](https://www.scaleway.com/en/cloud-database-solutions/) · [OVHcloud](https://docs.ovhcloud.com/en/guides/public-cloud/databases/capabilities) · [STACKIT](https://stackit.com/en/products/database) · [OTC RDS](https://open-telekom-cloud.com/en/products-services/relational-database-service) · [UpCloud](https://upcloud.com/docs/guides/managed-databases/) · [Exoscale](https://www.exoscale.com/dbaas)"
+
+### Europe
+
+## Managed databases in European clouds
+
+| Provider | Relational | Other engines | Serverless |
+| --- | --- | --- | --- |
+| Scaleway | PostgreSQL, MySQL | MongoDB, Redis, ClickHouse (beta) | Serverless SQL Database: PostgreSQL that scales to zero |
+| OVHcloud | PostgreSQL, MySQL | MongoDB, Valkey, Kafka, OpenSearch | — |
+| Hetzner | — | — | — |
+| STACKIT | PostgreSQL Flex, MariaDB, SQL Server Flex | MongoDB Flex, Redis, OpenSearch | — |
+| Open Telekom Cloud | RDS: MySQL, PostgreSQL, SQL Server | DDS (MongoDB), DCS (Redis) | — |
+| UpCloud | PostgreSQL, MySQL | Valkey, OpenSearch | — |
+| Exoscale | PostgreSQL, MySQL | Valkey, Kafka, OpenSearch | — |
+
+None lists a DynamoDB-style key-value service: a Minimal Viable Cloud on these providers brings its own, or builds one on object storage.
 
 ---
 
@@ -780,6 +791,30 @@ A resource provider returns IN_PROGRESS with a callback context until its resour
 
 :: pause
 
+## Storage and databases
+
+S3, RDS, DynamoDB · Cloud Storage, Cloud SQL, Firestore · Blob Storage, Azure Database, Cosmos DB
+
+---
+
+:: table dense footer="Sources: SC [architecture.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/docs/architecture.md) · [BUGS.md](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/BUGS.md) · Floci [s3.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/s3.md), [rds.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/rds.md), [dynamodb.md](https://github.com/floci-io/floci/blob/b280a7764a8e5cad24e3f364fc98c660735c0a85/docs/services/dynamodb.md) · floci-az [cosmos.md](https://github.com/floci-io/floci-az/blob/e2b6c9022fbb6bf8545450a0c48b29619491661d/docs/services/cosmos.md)"
+
+### Honest status
+
+## Storage, databases in the emulators
+
+| Kind | sockerless-cloud | Floci family |
+| --- | --- | --- |
+| Object storage | One blob store serves S3, Cloud Storage, Blob Storage, contents in files; S3 ACLs, Block Public Access not enforced yet | S3 with most bucket features, RestoreObject a stub; GCS over REST, gRPC; Blob over HTTP, in Floci's own storage modes |
+| Relational | Real PostgreSQL, MySQL containers behind RDS, Cloud SQL, Azure Database | Real PostgreSQL, MySQL, MariaDB, SQL Server containers; a mock mode keeps metadata only |
+| Key-value, documents | Own Go engines: DynamoDB without Streams, Firestore with listeners, Spanner on SQLite, Cosmos DB | DynamoDB in Java, with Streams; Firestore, Datastore; Cosmos DB in process, stored procedures never run |
+
+Both run the real engine for SQL. Nobody ships DynamoDB, Firestore or Cosmos DB as a container, so both rebuild those.
+
+---
+
+:: pause
+
 ## Logs, metrics, audit
 
 CloudWatch, CloudTrail · Cloud Logging, Audit Logs · Azure Monitor
@@ -836,20 +871,6 @@ Every cloud logs the calls made against it: who called, which action, on which r
 ## Virtual machines
 
 Amazon EC2 · Compute Engine · Azure Virtual Machines
-
----
-
-:: table dense footer="Sources: [Nitro System](https://docs.aws.amazon.com/whitepapers/latest/security-design-of-aws-nitro-system/the-components-of-the-nitro-system.html) · [Google KVM hardening](https://cloud.google.com/blog/products/gcp/7-ways-we-harden-our-kvm-hypervisor-at-google-cloud-security-in-plaintext) · [Azure hypervisor](https://learn.microsoft.com/azure/security/fundamentals/hypervisor) · [Azure VM states](https://learn.microsoft.com/azure/virtual-machines/states-billing)"
-
-### The real thing
-
-## How the three clouds run VMs
-
-| Aspect | AWS EC2 | Compute Engine | Azure VMs |
-| --- | --- | --- | --- |
-| Hypervisor | Minimal KVM-based Nitro Hypervisor | Hardened KVM, Google's own VMM | Hyper-V based Azure Hypervisor |
-| Offload | Nitro Cards: storage, network, control | Andromeda SDN on the host | Azure Boost: FPGA storage, MANA NIC |
-| Lifecycle | pending, running, stopped, terminated | PROVISIONING, STAGING, RUNNING, TERMINATED | A power state plus a provisioning state |
 
 ---
 
@@ -957,21 +978,7 @@ Amazon VPC · Google Cloud VPC · Azure Virtual Network
 | Documentation | Quotas, defaults, state diagrams | Precision; it drifts from the API |
 | The real cloud | The truth, today | Cost, accounts, repeatability |
 
----
-
-:: table footer="Sources: [aws/api-models-aws](https://github.com/aws/api-models-aws) · [Google Discovery](https://developers.google.com/discovery) · [googleapis](https://github.com/googleapis/googleapis) · [azure-rest-api-specs](https://github.com/Azure/azure-rest-api-specs) · measured 2026-10-26"
-
-### The specs
-
-## Published API specs
-
-| Cloud | Format | Size | Updated |
-| --- | --- | --- | --- |
-| AWS | Smithy 2.0 JSON, one model per service | 435 services, 169 MB | Daily |
-| AWS (Python SDK) | botocore `service-2.json` | 468 models, 126 MB | Near daily |
-| Google | Discovery documents | 316 APIs (Compute: 1,018 methods) | Per revision |
-| Google | googleapis protobuf | 7,475 `.proto` files | Continuous |
-| Azure | OpenAPI 2.0, more and more of it generated from TypeSpec | 15,336 versioned files | Continuous |
+The specs change daily: AWS publishes Smithy models, Google Discovery documents and protos, Azure OpenAPI files.
 
 ---
 
