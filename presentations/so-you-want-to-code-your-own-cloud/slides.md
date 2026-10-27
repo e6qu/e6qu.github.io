@@ -4,7 +4,7 @@ footer: So you want to code your own cloud
 ---
 
 <!--
-A technical talk: 45 minutes, 50 slides, about a minute per slide.
+A technical talk: 45 minutes, 51 slides, about a minute per slide.
 The story: why people keep rebuilding the cloud, the smallest cloud worth building and
 its front door, its services, then VMs, compatibility and scaling; it ends with: do it yourself.
 Code links point at sockerless-cloud a614ccf (v3.0.1) and Floci b280a77 (2.3.0),
@@ -264,12 +264,18 @@ On Hetzner, everything above VMs, dedicated servers and object storage is yours 
 
 ---
 
+:: pause
+
+## Authenticate, Authorize, Act, Audit
+
+---
+
 :: code dense footer="Source: SC [simulator-aws/main.go](https://github.com/e6qu/sockerless-cloud/blob/a614ccfa97d463dd823eed9e67b2a81f6c345e43/simulator-aws/main.go#L197-L228)"
 
 ## Papers, please
 
 ```go
-// sockerless-cloud: authenticate, authorize, act, record, for every request
+// sockerless-cloud: authenticate, authorize, act, audit, for every request
 srv.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
 	body, _ = io.ReadAll(r.Body)        // buffered: CloudTrail needs it after the handler
 	rec := &cloudTrailStatusRecorder{ResponseWriter: w}
