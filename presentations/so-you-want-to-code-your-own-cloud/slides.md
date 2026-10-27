@@ -61,7 +61,6 @@ sockerless reimplements the Docker API on cloud primitives: `docker run` becomes
 - **So I mocked** the AWS APIs it called, then the whole services behind them
 - **The mocks grew** into reimplementations of real services, on AWS, Google Cloud, Azure
 - **In August** they needed their own repository: sockerless-cloud started from a 677k-line snapshot
-- **Since then:** 114 releases in 76 days
 
 ---
 
@@ -116,7 +115,7 @@ Integration tests need environments that start in seconds, behave the same on ev
 | --- | --- | --- |
 | Feb | sockerless starts; MinIO marks its repository unmaintained | [MinIO repository is no longer maintained](https://news.ycombinator.com/item?id=47000041) |
 | Early Mar | LocalStack Community requires an account | [Community edition abandoned](https://news.ycombinator.com/item?id=47245078) |
-| 15–22 Mar | Floci 1.0.0 ships on its first commit's day; a week later it reaches the front page | [Floci](https://news.ycombinator.com/item?id=47471801): a 51k-line first commit draws suspicion; [CI users cheer](https://news.ycombinator.com/item?id=47475473) |
+| 15–22 Mar | Floci ships on its first commit's day; a week later it reaches the front page | [Floci](https://news.ycombinator.com/item?id=47471801): a 51k-line first commit draws suspicion; [CI users cheer](https://news.ycombinator.com/item?id=47475473) |
 | 23 Mar | LocalStack archives its GitHub repository | [Repo archived, account required](https://news.ycombinator.com/item?id=47493657): pin the `community-archive` tag |
 | 31 Mar | MiniStack, another open-source LocalStack replacement | [MiniStack](https://news.ycombinator.com/item?id=47593285): commenters name drift as LocalStack's real problem |
 | Apr | Fakecloud, a Rust AWS emulator that tests itself against AWS's Smithy API models | [Show HN: Fakecloud](https://news.ycombinator.com/item?id=47782696): fewer services, correct behaviour |
@@ -137,9 +136,9 @@ Integration tests need environments that start in seconds, behave the same on ev
 
 ## Floci, a LocalStack replacement
 
-Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. The first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci 1.0.0 shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials.
+Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and most active committer. The first commit, on 15 March 2026, added 51,124 lines for 19 AWS services. Floci shipped that day as a drop-in LocalStack replacement: same port, environment variables, `test` credentials.
 
-- **129** AWS service packages in 2.3.0
+- **129** AWS service packages
 - **3** clouds: Google Cloud, Azure joined in August, as floci-gcp, floci-az
 
 ---
@@ -155,14 +154,12 @@ Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and mo
 - Go, one binary per cloud: AWS, Google Cloud, Azure
 - Workloads really run, in containers or Firecracker microVMs
 - Signature checks and IAM always on, for every caller
-- v3.0.1, released 26 October 2026
 
 #### Floci
 
 - Java 25 on Quarkus, as a native binary or an image
 - Needs Docker only for container-backed services, such as Lambda or EC2
 - Signature checks and IAM opt-in; the `test` key acts as root
-- 2.3.0, released 15 October 2026
 
 ---
 
@@ -190,7 +187,6 @@ Floci is the work of Hector Ventura (`hectorvent` on GitHub), its creator and mo
 ```console
 $ go install github.com/e6qu/sockerless-cloud/simulator-aws@latest
 $ simulator-aws                      # :4566, workloads need Docker or Podman
-$ docker run --rm -p 4566:4566 -e SIM_RUNTIME=process ghcr.io/e6qu/sockerless-simulator-aws:v3.0.1
 $ docker run --rm -p 4566:4566 -v /var/run/docker.sock:/var/run/docker.sock floci/floci:latest
 $ export AWS_ENDPOINT_URL=http://localhost:4566 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test
 $ aws sqs create-queue --queue-name orders
