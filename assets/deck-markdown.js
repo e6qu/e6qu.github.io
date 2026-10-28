@@ -187,6 +187,11 @@
 
   // ```python {3,5-6} highlights lines 3, 5 and 6; a trailing "# [1]" comment becomes pin 1.
   function codeBlock(block) {
+    // ```mermaid draws a diagram (Slides.illustrate renders it); the source shows until then.
+    if (block.lang === 'mermaid') {
+      const name = block.info.match(/title="([^"]*)"/)?.[1] || 'Diagram';
+      return `<figure class="slide-mermaid" data-mermaid role="img" aria-label="${esc(name)}"><pre class="slide-pre">${esc(block.text)}</pre></figure>`;
+    }
     const marked = new Set();
     for (const range of (block.info.match(/\{([\d,\s-]+)\}/)?.[1] || '').split(',')) {
       const [from, to = from] = range.split('-').map(Number);
@@ -323,6 +328,8 @@
         }
         case 'diagram': {
           const key = Number(args.key || 0);
+          const drawing = take('code', block => block.lang === 'mermaid');
+          if (drawing) { body = `${kicker()}${h2()}${codeBlock(drawing)}`; break; }
           body = `${kicker()}${h2()}<ol class="slide-flow">${items(list(), (item, i) => {
             const match = item.match(/^(?:([^:*]+):\s*)?\*\*(.+?)\*\*\s*(?:[—–-]\s*)?(.*)$/);
             const [label, title, detail] = match ? [match[1], match[2], match[3]] : [null, item, ''];

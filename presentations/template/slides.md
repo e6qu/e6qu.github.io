@@ -7,9 +7,16 @@ footer: Deck title
 Slides are separated by a line with three dashes. The first line of a slide can
 pick a sheet with ":: <name> key=value"; without it the sheet is guessed from the
 content. ### is a small kicker above the heading, ## the slide heading.
-Comments like this one are speaker notes: they are never shown.
+Comments like this one are never shown. A line of ??? ends a slide's content: what
+follows it is that slide's speaker notes, shown only by a notes page (see
+presentations/so-you-want-to-code-your-own-cloud/notes/).
 Any slide can override the footer with ":: <name> footer="Other text"", and
 "dense" (":: content dense") fits more text on a crowded slide.
+Sections (":: section") number themselves and list every part at the top of the slides
+after them; short="Name" gives a section a shorter name in that list, and
+service="Name" on any slide (or label="Name" on a pause) adds a sub-part to it.
+Inline: `code`, **bold**, *emphasis*, ~~strikethrough~~, [links](https://e6qu.github.io).
+A ```mermaid block draws a diagram in the deck's colours, in light and dark.
 -->
 
 :: title
@@ -149,6 +156,15 @@ output that matters, trimmed to a few lines
 1. Input: **Step one** — What goes in
 2. Transform: **Step two** — key=2 marks the step you're explaining
 3. Output: **Step three** — What comes out
+
+<!-- A ```mermaid block in this sheet, or in any content sheet, draws a diagram from text
+     instead, in the deck's colours, and redraws it when the theme changes:
+
+```mermaid title="Names the diagram for screen readers"
+flowchart LR
+  a[Build] --> b[Test] --> c[Ship]
+```
+-->
 
 ---
 

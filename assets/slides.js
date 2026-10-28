@@ -12,7 +12,8 @@
 // moves between slides, and the root's data-orientation (portrait or landscape) lets the
 // styles adapt the layout when the device turns.
 // Elements with data-illustration get the matching SVG inlined so its colors follow the
-// theme. Decks rendered later (Markdown, the editor) call Slides.start(deck),
+// theme. Mermaid figures ([data-mermaid], from ```mermaid blocks) are drawn with the vendored
+// Mermaid in the deck's colors, and drawn again when the theme changes. Decks rendered later (Markdown, the editor) call Slides.start(deck),
 // Slides.label(container) or Slides.illustrate(element) themselves.
 (() => {
   const root = document.documentElement;
@@ -27,7 +28,47 @@
   let clickTimer;
   let hadSelection = false;
 
+  // Mermaid is large, so it loads only when a deck has a diagram.
+  let mermaid = null;
+  const drawn = new Set();
+  function loadMermaid() {
+    mermaid ||= new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = new URL('vendor/mermaid/mermaid.min.js', assets).href;
+      script.onload = () => resolve(globalThis.mermaid);
+      script.onerror = reject;
+      document.head.append(script);
+    });
+    return mermaid;
+  }
+  let renders = 0;
+  async function diagrams(container) {
+    const figures = [...container.querySelectorAll('[data-mermaid]')];
+    if (!figures.length) return;
+    const engine = await loadMermaid().catch(() => null);
+    if (!engine) return;
+    const token = name => getComputedStyle(root).getPropertyValue(name).trim();
+    engine.initialize({startOnLoad: false, securityLevel: 'strict', theme: 'base', fontFamily: token('--body'),
+      themeVariables: {background: token('--paper'), mainBkg: token('--surface'), primaryColor: token('--surface'),
+        primaryTextColor: token('--ink'), textColor: token('--ink'), primaryBorderColor: token('--blue'),
+        nodeBorder: token('--blue'), lineColor: token('--muted'), secondaryColor: token('--paper'),
+        tertiaryColor: token('--paper'), clusterBkg: token('--paper'), edgeLabelBackground: token('--paper'),
+        labelBackgroundColor: token('--paper'), fontSize: '16px'}});
+    for (const figure of figures) {
+      figure.dataset.source ??= figure.querySelector('pre')?.textContent || '';
+      try {
+        const {svg} = await engine.render(`mermaid-${++renders}`, figure.dataset.source);
+        figure.innerHTML = svg;
+        drawn.add(figure);
+      } catch {}
+    }
+  }
+  const redraw = () => { for (const figure of drawn) if (!figure.isConnected) drawn.delete(figure); diagrams({querySelectorAll: () => [...drawn]}); };
+  document.addEventListener('themechange', redraw);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redraw);
+
   function illustrate(container) {
+    diagrams(container);
     for (const art of container.querySelectorAll('[data-illustration]')) {
       const name = art.dataset.illustration;
       if (!svgs.has(name)) {
@@ -148,6 +189,8 @@
     status = document.createElement('p');
     status.className = 'sr-only';
     status.setAttribute('role', 'status');
+    // fixed, so the live region never adds scroll height below a full-screen slide
+    status.style.position = 'fixed';
     const menu = document.createElement('button');
     menu.type = 'button';
     menu.className = 'deck-menu';

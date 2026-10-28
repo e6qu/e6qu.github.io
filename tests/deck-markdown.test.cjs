@@ -133,3 +133,14 @@ test('lines after ??? are speaker notes, kept off the slide', () => {
   assert.doesNotMatch(slides[0].html, /Say|\?\?\?/);
   assert.equal(slides[0].notes, '<ul><li>Say <em>this</em></li><li>Then that</li></ul>');
 });
+
+test('```mermaid becomes a labelled figure holding the escaped source', () => {
+  const {slides} = render('---\n\n:: content\n\n## A\n\n```mermaid title="Flow"\nflowchart LR\n  a --> b\n```');
+  assert.match(slides[0].html, /<figure class="slide-mermaid" data-mermaid role="img" aria-label="Flow"><pre class="slide-pre">flowchart LR\n  a --&gt; b<\/pre><\/figure>/);
+});
+
+test('a diagram sheet with a ```mermaid block draws it instead of the step list', () => {
+  const {slides} = render('---\n\n:: diagram\n\n## Flow\n\n```mermaid\nflowchart LR\n  a --> b\n```');
+  assert.match(slides[0].html, /<h2>Flow<\/h2><figure class="slide-mermaid" data-mermaid role="img" aria-label="Diagram">/);
+  assert.doesNotMatch(slides[0].html, /slide-flow/);
+});
