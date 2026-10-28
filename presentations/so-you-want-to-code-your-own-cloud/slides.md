@@ -606,20 +606,19 @@ A stopped guest keeps its disk; capturing an image exports that disk again. Floc
 
 ## State machines: an EC2 instance
 
-```text
- RunInstances
-      |
-      v
- +---------+  boot done  +---------+  StopInstances  +----------+      +---------+
- | pending | ----------> | running | --------------> | stopping | ---> | stopped |
- +---------+             +---------+                 +----------+      +---------+
-      ^                       |                                             |
-      +-----------------------|--------- StartInstances --------------------+
-                              | TerminateInstances
-                              v
-                      +---------------+       +------------+
-                      | shutting-down | ----> | terminated |
-                      +---------------+       +------------+
+```mermaid title="EC2 instance states: pending, running, stopping, stopped, shutting-down, terminated"
+stateDiagram-v2
+  direction LR
+  [*] --> pending: RunInstances
+  pending --> running: boot done
+  running --> stopping: StopInstances
+  stopping --> stopped
+  stopped --> pending: StartInstances
+  running --> shutting_down: TerminateInstances
+  stopped --> shutting_down: TerminateInstances
+  shutting_down --> terminated
+  terminated --> [*]
+  shutting_down: shutting-down
 ```
 
 - sockerless-cloud moves pending to running only when the instance's init writes a ready marker

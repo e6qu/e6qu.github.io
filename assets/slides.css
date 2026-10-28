@@ -2,6 +2,7 @@
    1280px design width (1em = 16px there), so they scale with whatever holds them.
    Each sheet is a .slide plus one .slide-<template> class; see presentations/template/. */
 .deck {--slide-width:min(100vw,177.78vh);margin:0;counter-reset:slide}
+@supports (height:100dvh) {.deck {--slide-width:min(100vw,177.78dvh)}}
 body:has(> .deck) {margin:0}
 .slide-frame,.slide-frame * {box-sizing:border-box}
 .slide-frame {container-type:inline-size;width:100%}
@@ -195,7 +196,8 @@ body:has(> .deck) {margin:0}
 .slide-runner .runner-sprite {position:absolute;left:0;bottom:0;width:1.8em;height:1.8em;image-rendering:pixelated;pointer-events:none;transform-origin:50% 100%}
 
 /* presenting: one slide fills the viewport; the deck script marks the current one */
-.deck[data-mode='present'] {display:grid;place-items:center;height:100vh;overflow:hidden;background:#000}
+.deck[data-mode='present'] {display:grid;place-items:center;height:100vh;height:100dvh;overflow:hidden;background:#000}
+:root:has(.deck[data-mode='present']:not([hidden])) body {overflow:hidden}
 .deck[data-mode='present'] .slide-frame {width:var(--slide-width)}
 .deck[data-mode='present'] .slide-frame:not([data-current]) {display:none}
 .deck[data-mode='overview'] {display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;padding:80px 24px 24px;background:var(--paper)}
@@ -246,15 +248,19 @@ body:has(> .deck) {margin:0}
     border:var(--border) solid rgba(255,255,255,.5);border-radius:50%;background:rgba(0,0,0,.6);color:var(--terminal-ink);font-size:28px;line-height:1
   }
   /* turned upright, the slide sits a little above centre and the deck suggests turning the device */
-  .deck[data-mode='present'] {height:100dvh}
   :root[data-orientation='portrait'] .deck[data-mode='present'] {place-items:center;align-content:center;gap:16px}
   :root[data-orientation='portrait'] .deck[data-mode='present']::before {
     content:'Turn the device sideways for a larger slide';grid-row:2;color:var(--terminal-muted);font:14px var(--mono);text-align:center;padding:0 16px
   }
-  :root[data-orientation='landscape'] .deck[data-mode='present'] .slide-frame {width:min(100vw,177.78dvh)}
   /* the overview's controls wrap above the slides instead of covering them */
   :root:has(.deck[data-mode='overview']:not([hidden])) .page-controls {left:12px;right:12px;flex-wrap:wrap;justify-content:flex-end;gap:8px}
   :root:has(.deck[data-mode='overview']:not([hidden])) .page-controls .button {white-space:nowrap}
-  .deck[data-mode='overview'] {padding-top:136px}
+  /* the overview is a grid of small thumbnails: two across upright, more turned sideways */
+  .deck[data-mode='overview'] {grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:136px 12px 12px}
+  :root[data-orientation='landscape'] .deck[data-mode='overview'] {padding-top:88px}
 }
 @media print {.deck-menu {display:none!important}}
+/* Mermaid diagrams (```mermaid): drawn in the theme's colors, scaled to the slide */
+.slide-mermaid {margin:0;display:flex;justify-content:center;min-height:0}
+.slide-mermaid svg {width:100%;height:auto;max-height:24em}
+.slide-mermaid > .slide-pre {width:100%}
