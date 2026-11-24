@@ -115,6 +115,30 @@ def split_rust(data):
     return bytes(source), b'\n'.join(tests)
 
 
+def last_counts():
+    """Each project's line counts from the last published data.json, else the committed one."""
+    try:
+        with urlopen('https://e6qu.github.io/data.json', timeout=30) as response:
+            data = json.load(response)
+    except (OSError, ValueError):
+        try:
+            data = json.loads((ROOT / 'data.json').read_text())
+        except (OSError, ValueError):
+            return {}
+    keys = ('source_lines', 'test_lines', 'counted_commit')
+    return {p['name']: {k: p.get(k) for k in keys} for p in data.get('projects', [])}
+
+
+def count_or_keep(repo, cloc, excluded_paths, previous, count=None):
+    """Count a repo; if its clone or count fails (a huge repo can outlast the timeout),
+    keep its last published counts so one repo cannot stop the deploy."""
+    try:
+        return (count or count_repo)(repo, cloc, excluded_paths)
+    except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as error:
+        print(f'  could not count {repo["name"]} ({type(error).__name__}); keeping its last counts', flush=True)
+        return previous.get(repo['name'], {'source_lines': None, 'test_lines': None, 'counted_commit': None})
+
+
 def count_repo(repo, cloc, excluded_paths=()):
     with tempfile.TemporaryDirectory(prefix='portfolio-count-') as tmp:
         tmp = Path(tmp)
@@ -196,6 +220,7 @@ def collect(token, cloc=None):
             break
         page += 1
     projects = []
+    previous = last_counts() if cloc else {}
     for repo in repos:
         name = repo['name']
         print(f'Collecting {name}', flush=True)
@@ -214,7 +239,7 @@ def collect(token, cloc=None):
                        or (c.get('author') or {}).get('login', '').lower() == owner.lower()]
             commits = sorted(commits + matches, key=lambda c: c['commit']['author']['date'], reverse=True)
             if cloc:
-                metrics = count_repo(repo, cloc, config['excluded_paths'].get(name, []))
+                metrics = count_or_keep(repo, cloc, config['excluded_paths'].get(name, []), previous)
         elif cloc:
             metrics.update(source_lines=0, test_lines=0)
         languages = api(f'repos/{owner}/{name}/languages', token)
