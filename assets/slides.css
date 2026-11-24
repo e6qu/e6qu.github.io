@@ -32,6 +32,11 @@ body:has(> .deck) {margin:0}
 .slide-note {margin-top:auto;font:.85em var(--mono);color:var(--muted)}
 .slide-list {list-style:none;padding:0;display:grid;gap:.9em;font-size:1.45em;max-width:30em}
 .slide-list li {display:grid;grid-template-columns:1.6em 1fr;border-top:var(--border) solid var(--line);padding-top:.7em}
+/* `dialogue` (e.g. `:: content dialogue`): each bullet is a line of speech, `**Speaker:** words`; the speaker reads as a label */
+.slide-dialogue .slide-list {max-width:none;gap:.2em}
+.slide-dialogue .slide-list li {padding-top:.45em}
+.slide-dialogue .slide-list li > span:has(> strong:first-child) {display:grid;grid-template-columns:8.5em 1fr;column-gap:.8em;align-items:baseline}
+.slide-dialogue .slide-list li strong:first-child {font:600 .7em var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--coral-strong)}
 /* `dense` (any sheet, e.g. `:: content dense`) fits more on one slide: smaller heading, lists and tables, full width */
 .slide-dense h2 {font-size:2.6em}
 .slide-dense .slide-kicker {margin-bottom:1em}
@@ -67,7 +72,13 @@ body:has(> .deck) {margin:0}
 .slide-section .slide-number {font:800 12em/.8 var(--display);letter-spacing:var(--tracking-h1);color:var(--section-accent);margin-bottom:.15em}
 .slide-section .slide-mark {color:var(--section-accent)}
 .slide-section h2 {font-size:5em;margin:0}
+.slide-section .slide-lead {margin:.6em 0 0;max-width:30em;color:inherit;opacity:.8}
 .slide-section .slide-footer {color:inherit;opacity:.7}
+.slide-section .slide-picture {margin:.8em 0 0}
+.slide-section .slide-picture img {display:block;width:100%;height:20em;object-fit:contain;object-position:left center;image-rendering:pixelated}
+/* a content slide runs its picture full width under the text, at most 14em tall */
+.slide-content .slide-picture {margin-top:1.2em}
+.slide-content .slide-picture img {display:block;width:100%;height:auto;max-height:14em;object-fit:contain;object-position:left center;image-rendering:pixelated}
 
 /* comparison: two columns, the second one is the recommendation */
 .slide-columns {display:grid;grid-template-columns:1fr 1fr;gap:3em;flex:1;min-height:0;padding-bottom:2em}
@@ -144,6 +155,8 @@ body:has(> .deck) {margin:0}
 .slide-table.slide-dense td:last-child {padding-right:0}
 .slide-table .num {text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
 .slide-table .is-best td {color:var(--coral-strong)}
+/* a row's icon, e.g. in a legend: pixel art kept crisp, sitting on the text's line */
+.slide-icon {display:inline-block;width:1.6em;height:1.6em;margin-right:.5em;vertical-align:middle;image-rendering:pixelated}
 .slide-table .is-best td:first-child::before {content:'▸ ';content:'▸ ' / ''}
 
 /* stats */
@@ -264,3 +277,42 @@ body:has(> .deck) {margin:0}
 .slide-mermaid {margin:0;display:flex;justify-content:center;min-height:0}
 .slide-mermaid svg {width:100%;height:auto;max-height:24em}
 .slide-mermaid > .slide-pre {width:100%}
+/* Edit mode (slides.js, only under scripts/edit-server.mjs): the pencil (bottom right) or E
+   opens the slide's Markdown in a panel beside the slide, or below it on phones */
+.deck-edit-toggle {position:fixed;z-index:20;right:12px;bottom:12px;--theme-size:44px;font-size:22px;opacity:.6}
+.deck-edit-toggle:hover,.deck-edit-toggle:focus-visible {opacity:1}
+:root:has(.deck[data-blackout]) .deck-edit-toggle,:root[data-editing] .deck-edit-toggle {display:none}
+:root[data-editing] {--edit-width:clamp(320px,38vw,640px)}
+:root[data-editing] .deck[data-mode='present'] {width:calc(100% - var(--edit-width));--slide-width:min(calc(100vw - var(--edit-width)),177.78vh)}
+@supports (height:100dvh) {:root[data-editing] .deck[data-mode='present'] {--slide-width:min(calc(100vw - var(--edit-width)),177.78dvh)}}
+.deck-edit {
+  position:fixed;z-index:30;top:0;right:0;bottom:0;width:var(--edit-width);display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+  background:var(--surface);color:var(--ink);border-left:var(--border) solid var(--line);font:var(--text-body)/1.5 var(--body)
+}
+.deck-edit[hidden] {display:none}
+.deck-edit-bar {display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:var(--border) solid var(--line)}
+.deck-edit-heading {flex:1;min-width:0;margin:0;font:var(--text-sm)/1.3 var(--mono);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--muted);overflow-wrap:anywhere}
+.deck-edit-source {
+  display:block;width:100%;height:100%;margin:0;padding:16px;resize:none;border:0;background:var(--paper);color:var(--ink);
+  font:var(--text-base)/1.6 var(--mono);tab-size:2;outline-offset:-3px
+}
+.deck-edit-source:focus-visible {outline:var(--border-strong) solid var(--coral)}
+.deck-edit-status {margin:0;padding:8px 16px;border-top:var(--border) solid var(--line);font:var(--text-xs)/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere}
+.deck-edit-status[data-tone='ok'] {color:var(--teal)}
+.deck-edit-status[data-tone='error'] {color:var(--coral-strong)}
+/* phones: the slide on top, the Markdown in the lower part of the screen */
+@media(max-width:750px) {
+  :root[data-editing] {--edit-height:55vh}
+  @supports (height:100dvh) {:root[data-editing] {--edit-height:55dvh}}
+  .deck-edit {top:auto;left:0;width:auto;height:var(--edit-height);border-left:0;border-top:var(--border) solid var(--line)}
+  .deck-edit-bar {padding:8px 12px}
+  .deck-edit-file {display:none}
+  .deck-edit-source {padding:12px;font-size:var(--text-body)}
+  :root[data-editing] .deck[data-mode='present'] {width:100%;height:calc(100vh - var(--edit-height));--slide-width:min(100vw,calc(1.7778 * (100vh - var(--edit-height))))}
+  @supports (height:100dvh) {:root[data-editing] .deck[data-mode='present'] {height:calc(100dvh - var(--edit-height));--slide-width:min(100vw,calc(1.7778 * (100dvh - var(--edit-height))))}}
+  :root[data-editing] .deck[data-mode='present']::before {content:none}
+}
+@media print {
+  .deck-edit,.deck-edit-toggle {display:none!important}
+  :root[data-editing] .deck[data-mode] {width:auto}
+}

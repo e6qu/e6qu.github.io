@@ -27,6 +27,7 @@ Behaviour that goes with components:
 | `assets/slides.js` | Decks: ←/→ or click to move, O overview, B black out, T theme, P print to PDF. |
 | `assets/deck-markdown.js` | Renders Markdown decks into sheets, in the browser. |
 | `assets/deck-editor.js`, `assets/deck-viewer.js` | The editor and viewer pages. |
+| `scripts/edit-server.mjs` | Local server that saves and commits slides edited in a deck (edit mode, E). |
 
 | Content | Holds |
 | --- | --- |
@@ -150,6 +151,27 @@ whole deck, compressed, in the link (`viewer/#md=…`), so sharing needs no
 server. The **viewer** (`/presentations/viewer/`) presents a pasted or dropped
 `.md` file, `?src=<path>`, or a share link, with the same keys as any deck.
 
+### Editing a deck while presenting
+
+To fix a slide while presenting or rehearsing locally, serve the site with the
+edit server (Node built-ins only, bound to 127.0.0.1):
+
+```sh
+node scripts/edit-server.mjs            # --port 8766 by default
+```
+
+Open `http://127.0.0.1:8766/presentations/<deck>/` and press **E** (or the ✎
+button, bottom right) on a slide. Its Markdown opens beside the slide (below
+it on phones) and the slide re-renders as you type. **Ctrl/Cmd+S** or Save
+writes it to the deck's `slides.md`, regenerates `talk.json` with
+`scripts/talk-json.mjs` if the deck has one, and commits just those two files
+on the current branch as "Edit slide <n> of <deck>: <title>" (nothing is
+pushed). **Esc** or Cancel puts the slide back. A save is refused if the slide
+would contain a `---` separator or an unclosed code fence, names an unknown
+sheet, or if `slides.md` changed on disk since the page loaded it (reload to
+pick up the new version). Served any other way, including on GitHub Pages,
+decks have no edit mode. `tests/edit-server.test.mjs` covers the server.
+
 ## Accessibility
 
 The site, the decks, the editor and viewer, and every Storybook story meet
@@ -201,6 +223,8 @@ npm run storybook          # http://localhost:6006, regenerates fixtures first
 npm run build-storybook    # writes _site/storybook
 python3 scripts/build.py   # writes _site, including _site/presentations
 npm run test:a11y          # audits _site (build Storybook first to include the stories)
+node scripts/edit-server.mjs   # http://127.0.0.1:8766: edit slides in place, saved and committed
+node --test tests/*.test.cjs tests/*.test.mjs
 ```
 
 Stories never copy markup by hand: site components come from the rendered

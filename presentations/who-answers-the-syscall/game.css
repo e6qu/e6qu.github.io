@@ -1,0 +1,46 @@
+/* The platformer layer of this deck (game.js): the HUD written into each slide, and the
+   transition stage drawn over the presented slide. Sprites are Regular Mario's original
+   castaway art (assets/mario), scaled in whole game pixels (--px) and never smoothed. */
+@font-face{font-family:PressStart;src:url('../../assets/fonts/press-start-2p.ttf') format('truetype');font-display:swap}
+@property --iris {syntax:'<length>';inherits:false;initial-value:0px}
+
+/* the HUD replaces the list of parts at the top of each slide */
+.slide-part {display:none}
+.game-hud {
+  position:absolute;left:8.75em;right:8.75em;top:3.2em;display:flex;justify-content:space-between;align-items:center;gap:2em;
+  font:.7em/1 PressStart,var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--ink);white-space:nowrap
+}
+.slide-section .game-hud {color:var(--section-ink)}
+.game-hud b {font-weight:400;margin-left:1.2em}
+.game-hud-lives {display:inline-flex;align-items:center;gap:.6em}
+.game-hud img {width:2em;height:2em;image-rendering:pixelated}
+
+/* the stage */
+.game-layer {position:fixed;z-index:50;overflow:hidden;pointer-events:none}
+.game-sprite {position:absolute;left:0;top:0;width:calc(var(--px) * 16);height:calc(var(--px) * 16);image-rendering:pixelated}
+.game-iris {
+  position:absolute;inset:0;
+  background:radial-gradient(circle at var(--x) var(--y),transparent var(--iris),#000 calc(var(--iris) + .5px))
+}
+/* the strip the castaway pulls across: a dusk sky over a row of crates */
+.game-curtain {
+  position:absolute;inset:0;
+  background:url('../../assets/mario/tile-crate.png') left bottom / calc(var(--px) * 16) repeat-x,
+    linear-gradient(#1d3b5a,#3f6f8f 70%,#e2a76f);
+  image-rendering:pixelated
+}
+/* the pipe, in teal rather than the genre's usual green */
+.game-pipe {
+  position:absolute;bottom:0;display:grid;grid-template-columns:repeat(2,calc(var(--px) * 16));
+  filter:hue-rotate(55deg) saturate(.9)
+}
+.game-pipe img {width:calc(var(--px) * 16);height:calc(var(--px) * 16);image-rendering:pixelated;display:block}
+.game-card {
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6em;
+  background:#000;color:#fff;font:calc(var(--px) * 5)/1.2 PressStart,var(--mono);text-transform:uppercase;letter-spacing:.06em
+}
+.game-card p {margin:0}
+.game-card-name {font-size:1.4em}
+.game-card-lives {display:inline-flex;align-items:center;gap:1em}
+.game-card img {width:calc(var(--px) * 16);height:calc(var(--px) * 16);image-rendering:pixelated}
+.game-flash {position:absolute;inset:0;background:#fff}

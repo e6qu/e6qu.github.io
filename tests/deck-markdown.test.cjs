@@ -11,7 +11,7 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const context = {Blob, Response, CompressionStream, DecompressionStream, btoa, atob};
 context.globalThis = context;
 vm.runInNewContext(read('assets/deck-markdown.js'), context);
-const {render, slideAt, pack, unpack, TEMPLATES} = context.DeckMarkdown;
+const {render, slideAt, sources, replaceSlide, pack, unpack, TEMPLATES} = context.DeckMarkdown;
 const htmlTemplates = [...read('presentations/template/index.html').matchAll(/data-template="([\w-]+)"/g)].map(m => m[1]);
 
 test('both Markdown decks use every sheet, in the HTML template order', () => {
@@ -143,4 +143,55 @@ test('a diagram sheet with a ```mermaid block draws it instead of the step list'
   const {slides} = render('---\n\n:: diagram\n\n## Flow\n\n```mermaid\nflowchart LR\n  a --> b\n```');
   assert.match(slides[0].html, /<h2>Flow<\/h2><figure class="slide-mermaid" data-mermaid role="img" aria-label="Diagram">/);
   assert.doesNotMatch(slides[0].html, /slide-flow/);
+});
+
+test('transition, world, day and lives become escaped data attributes on the slide frame', () => {
+  const {html} = render(':: section world="3 Kernel <Caverns>" day=2 transition=card\n\n## Kernel Caverns\n\n---\n\n## Plain');
+  assert.match(html, /<div class="slide-frame" data-transition="card" data-world="3 Kernel &lt;Caverns&gt;" data-day="2">/);
+  assert.match(html, /<div class="slide-frame"><section/);
+});
+
+test('sources gives each slide its own lines, and replaceSlide swaps one keeping the rest', () => {
+  const deck = '---\ntitle: T\n---\n\n# T.\n\n---\n\n\n## A\n\n???\nnote\n\n---\n\n## B\n';
+  assert.deepEqual(plain(sources(deck)), [{start: 4, end: 5, text: '# T.'}, {start: 9, end: 13, text: '## A\n\n???\nnote'}, {start: 16, end: 17, text: '## B'}]);
+  assert.equal(replaceSlide(deck, 1, '\n## A2\n\n'), deck.replace('## A\n\n???\nnote', '## A2'));
+  assert.throws(() => replaceSlide(deck, 3, '## X'), /no slide 4/);
+});
+
+test('a table cell can open with an icon, and a dialogue slide marks its class', () => {
+  const {html} = render([':: table', '## Key', '| Game | Talk |', '| --- | --- |',
+    '| ![](icons/ghost.svg) A ghost house | fake security |', '| ![x](javascript:alert(1)) Bad | row |'].join('\n'));
+  assert.match(html, /<img class="slide-icon" src="icons\/ghost.svg" alt=""> A ghost house/);
+  assert.doesNotMatch(html, /javascript:/);
+  const script = render([':: content dialogue', '## Talk', '- **Boss:** [“Ship it.”](https://example.com/)'].join('\n')).html;
+  assert.match(script, /class="slide slide-content slide-dialogue"/);
+  assert.match(script, /<strong>Boss:<\/strong> <a href="https:\/\/example.com\/">“Ship it.”<\/a>/);
+});
+
+test('a link label can hold code, and a code span keeps its brackets', () => {
+  const {html} = render([':: content', '## Links', '- [Feb 2026: it ran `terraform destroy`](https://example.com/)', '- `[a](b)` stays code'].join('\n'));
+  assert.match(html, /<a href="https:\/\/example.com\/">Feb 2026: it ran <code>terraform destroy<\/code><\/a>/);
+  assert.match(html, /<code>\[a\]\(b\)<\/code> stays code/);
+});
+
+test('emphasis can wrap a link, as a dialogue speaker does', () => {
+  const {html} = render([':: content dialogue', '## Talk', '- **[Founder](https://example.com/):** “Ship it.”'].join('\n'));
+  assert.match(html, /<strong><a href="https:\/\/example.com\/">Founder<\/a>:<\/strong> “Ship it.”/);
+});
+
+test('a section shows an image under its title as its picture', () => {
+  const {html} = render([':: section number=none', '## Kernel Caverns', '', '![A cave painting](pictures/cave-painting.svg)'].join('\n'));
+  assert.match(html, /<\/h2><figure class="slide-picture"><img src="pictures\/cave-painting.svg" alt="A cave painting"><\/figure>/);
+  assert.doesNotMatch(html, /slide-lead/);
+});
+
+test('a content slide shows an image on its own line as its picture', () => {
+  const {html} = render([':: content', '## Ships', '', '- a bullet', '', '![A fleet](pictures/container-fleet.svg)'].join('\n'));
+  assert.match(html, /<figure class="slide-picture"><img src="pictures\/container-fleet.svg" alt="A fleet"><\/figure>/);
+});
+
+test('a section can drop its number and show a one-line bridge', () => {
+  const {html} = render([':: section number=none', '## Chaos Plains', '', 'What have coding agents already broken?'].join('\n'));
+  assert.doesNotMatch(html, /slide-number/);
+  assert.match(html, /<h2>Chaos Plains<span class="slide-mark"> ✳<\/span><\/h2><p class="slide-lead">What have coding agents already broken\?<\/p>/);
 });

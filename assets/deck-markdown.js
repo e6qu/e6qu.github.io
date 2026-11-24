@@ -29,20 +29,34 @@
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*\w])\*(?!\s)(.+?)\*(?!\w)/g, '$1<em>$2</em>');
 
-  function links(text) {
-    let html = '';
+  // Inline Markdown: `code`, **bold**, *emphasis*, ~~strikethrough~~, [links](url) and
+  // ![icons](url). Code spans, icons and the link tags are set aside first, so brackets
+  // inside code stay text, a link's label may hold code, and emphasis may wrap a link
+  // (a dialogue's **[Speaker](url):**).
+  function inline(text) {
+    const held = [];
+    const hold = html => `\u0000${held.push(html) - 1}\u0000`;
+    const codeIn = part => part.split(/(`[^`]+`)/).map((piece, i) => i % 2 ? hold(`<code>${esc(piece.slice(1, -1))}</code>`) : piece).join('');
+    let out = '';
     let last = 0;
-    for (const match of text.matchAll(/\[([^\]]+)\]\(((?:[^()\s]|\([^()\s]*\))+)\)/g)) {
-      html += emphasis(esc(text.slice(last, match.index)));
-      const url = safeUrl(match[2]);
-      html += url ? `<a href="${esc(url)}">${emphasis(esc(match[1]))}</a>` : emphasis(esc(match[1]));
-      last = match.index + match[0].length;
+    for (const match of text.matchAll(/`[^`]+`|(!?)\[((?:[^\]`]|`[^`]*`)*)\]\(((?:[^()\s]|\([^()\s]*\))+)\)/g)) {
+      const [whole, bang, label, target] = match;
+      out += text.slice(last, match.index);
+      last = match.index + whole.length;
+      if (target === undefined) { out += codeIn(whole); continue; }
+      if (bang) {
+        // an inline image, e.g. a row's icon in a table: small, pixel-crisp
+        const src = safeUrl(target, true);
+        out += src ? hold(`<img class="slide-icon" src="${esc(src)}" alt="${esc(label)}">`) : '';
+        continue;
+      }
+      if (!label) { out += whole; continue; }
+      const url = safeUrl(target);
+      out += url ? hold(`<a href="${esc(url)}">`) + codeIn(label) + hold('</a>') : codeIn(label);
     }
-    return html + emphasis(esc(text.slice(last)));
+    out += text.slice(last);
+    return emphasis(esc(out)).replace(/\u0000(\d+)\u0000/g, (_, i) => held[Number(i)]);
   }
-
-  // Inline Markdown: `code`, **bold**, *emphasis*, ~~strikethrough~~ and [links](url).
-  const inline = text => text.split(/(`[^`]+`)/).map((part, i) => i % 2 ? `<code>${esc(part.slice(1, -1))}</code>` : links(part)).join('');
 
   function blocks(lines) {
     const out = [];
@@ -121,12 +135,14 @@
       const marker = line.match(/^(`{3,}|~{3,})/);
       if (marker) fence = fence ? (line.startsWith(fence) ? null : fence) : marker[1];
       if (!fence && /^---\s*$/.test(line)) {
+        current.end = i;
         slides.push(current);
         current = {start: i + 1, lines: []};
       } else {
         current.lines.push(line);
       }
     }
+    current.end = lines.length;
     slides.push(current);
     // A line of "???" ends the slide and starts its speaker notes, which only the notes view shows.
     for (const slide of slides) {
@@ -280,10 +296,17 @@
         case 'section': {
           sections++;
           const title = heading(2) ?? heading(1) ?? '';
-          part = `${args.number || pad(sections)} · ${title}`;
+          part = args.number === 'none' ? title : `${args.number || pad(sections)} · ${title}`;
           parts.push(typeof args.short === 'string' ? args.short : title);  // short="…" names the part in the list
           subpart = '';
-          body = `<p class="slide-number">${esc(args.number || pad(sections))}</p><h2>${inline(title)}<span class="slide-mark"> ✳</span></h2>`;
+          // number=none: a break with no number; a paragraph under the title is its one-line bridge
+          const number = args.number === 'none' ? '' : `<p class="slide-number">${esc(args.number || pad(sections))}</p>`;
+          const bridge = take('paragraph');
+          // an image under the title is the section's picture, drawn pixel-crisp
+          const image = take('image');
+          const url = image && safeUrl(image.src, true);
+          body = `${number}<h2>${inline(title)}<span class="slide-mark"> ✳</span></h2>${bridge ? `<p class="slide-lead">${inline(bridge.text)}</p>` : ''}` +
+            (url ? `<figure class="slide-picture"><img src="${esc(url)}" alt="${esc(image.alt)}"></figure>` : '');
           break;
         }
         case 'comparison': {
@@ -408,6 +431,8 @@
             if (block.type === 'paragraph') return `<p class="${seenList ? 'slide-note' : 'slide-lead'}">${inline(block.text)}</p>`;
             if (block.type === 'code') return codeBlock(block);
             if (block.type === 'quote') return `<p class="slide-lead">${inline(block.lines.join(' '))}</p>`;
+            // an image on its own line: the slide's picture, beside the text
+            if (block.type === 'image') { const url = safeUrl(block.src, true); return url ? `<figure class="slide-picture"><img src="${esc(url)}" alt="${esc(block.alt)}"></figure>` : ''; }
             return '';
           }).join('');
         }
@@ -423,7 +448,12 @@
       const footerText = args.footer ?? meta.footer ?? meta.title;
       const footer = NO_FOOTER.includes(template) || !footerText ? '' : `<footer class="slide-footer"><span>${inline(footerText)}</span></footer>`;
       body = body.includes('\u0000footer\u0000') ? body.replace('\u0000footer\u0000', footer) : body + footer;
-      return {template, line: slide.start, notes: notesHtml(slide.notes), html: `<div class="slide-frame"><section class="slide slide-${template}${args.dense ? ' slide-dense' : ''}" data-template="${template}">${body}</section></div>`};
+      // transition=name plays a transition registered in Slides.transitions when this slide is
+      // reached going forward; world, day and lives are free-form fields a deck's script may show.
+      const frameData = ['transition', 'world', 'day', 'lives']
+        .filter(key => typeof args[key] === 'string')
+        .map(key => ` data-${key}="${esc(args[key])}"`).join('');
+      return {template, line: slide.start, notes: notesHtml(slide.notes), html: `<div class="slide-frame"${frameData}><section class="slide slide-${template}${args.dense ? ' slide-dense' : ''}${args.dialogue ? ' slide-dialogue' : ''}" data-template="${template}">${body}</section></div>`};
     });
     const partList = (current, service) => `<ol class="slide-part" aria-label="Parts">${parts.map((title, i) => i === current
       ? `<li aria-current="step">${inline(title)}${service ? ` · ${inline(service)}` : ''}</li>`
@@ -439,6 +469,32 @@
     let index = 0;
     slides.forEach((slide, i) => { if (slide.start <= line) index = i; });
     return index;
+  }
+
+  // Each slide's own source: its lines (directive, content and ??? notes) without the blank
+  // lines around it, as a [start, end) line range and as text. Edit mode (slides.js, with
+  // scripts/edit-server.mjs) shows and replaces one slide's source.
+  function sources(markdown) {
+    const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
+    return split(markdown).slides.map(slide => {
+      let {start, end} = slide;
+      while (start < end && !lines[start].trim()) start++;
+      while (end > start && !lines[end - 1].trim()) end--;
+      return {start, end, text: lines.slice(start, end).join('\n')};
+    });
+  }
+
+  // The deck with slide `index` replaced by `source`. Every other byte is kept, line endings
+  // included; the new lines take the file's first line ending.
+  function replaceSlide(markdown, index, source) {
+    const range = sources(markdown)[index];
+    if (!range) throw new RangeError(`There is no slide ${index + 1}`);
+    const lines = source.replace(/\r\n?/g, '\n').split('\n');
+    while (lines.length && !lines[0].trim()) lines.shift();
+    while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+    if (!lines.length) throw new RangeError('A slide cannot be empty');
+    const parts = markdown.split(/(\r\n|\r|\n)/);  // line, ending, line, ending, …, last line
+    return parts.slice(0, range.start * 2).join('') + lines.join(parts[1] || '\n') + parts.slice(range.end * 2 - 1).join('');
   }
 
   // Compressed, URL-safe form of a deck for share links (#md=…); nothing leaves the browser.
@@ -459,7 +515,7 @@
   // The page heading a presented deck needs: its title, for screen readers only.
   const heading = title => `<h1 class="sr-only" id="deck-title">${esc(title)}</h1>`;
 
-  globalThis.DeckMarkdown = {TEMPLATES, render, heading, slideAt, pack, unpack};
+  globalThis.DeckMarkdown = {TEMPLATES, render, heading, slideAt, sources, replaceSlide, pack, unpack};
 
   // <body class="deck" data-markdown="slides.md"> loads and presents a Markdown deck.
   if (typeof document === 'undefined') return;
@@ -468,6 +524,8 @@
   fetch(deck.dataset.markdown)
     .then(response => response.ok ? response.text() : Promise.reject(new Error(`HTTP ${response.status}`)))
     .then(markdown => {
+      // kept for edit mode, which edits the file this page was rendered from
+      globalThis.DeckMarkdown.source = markdown;
       const result = render(markdown);
       deck.innerHTML = heading(result.title || document.title) + result.html;
       deck.setAttribute('aria-labelledby', 'deck-title');
