@@ -1,6 +1,13 @@
-// The deck as a platformer: a HUD on every slide (world, day of the week, data lives) and
-// short game-style transitions between slides, drawn with Regular Mario's original castaway
-// art (assets/mario). Slides opt in from slides.md:
+// The deck as a platformer, for decks whose front matter says "game: mario"
+// (docs/deck-format.md). Two layers:
+// - Classic mode, the slides: a HUD on every slide (world, day of the week, data lives)
+//   and short game-style transitions between slides, drawn with Regular Mario's original
+//   castaway art (assets/mario).
+// - Mario mode: the overview's "Play as a game" (or #mode=mario in the URL) hides the
+//   slides and mounts the same talk as a level, from the regular-mario library. A bundled
+//   deck (scripts/build-decks.mjs) defines globalThis.DeckGame, which loads the library
+//   and the deck's talk script on demand; an unbundled page has no Mario mode.
+// Slides opt in to the HUD and transitions from slides.md:
 //   :: section world="3 Kernel Caverns" day=2 transition=card
 //   :: content transition=ouch     (an incident: costs one data life)
 // Transitions: card (world intro card), run (the castaway wipes the slide), iris (a circle
@@ -10,18 +17,16 @@
 (() => {
   const deck = document.querySelector('.deck');
   if (!deck || !globalThis.Slides) return;
-  const art = new URL('../../assets/mario/', location.href);
+  const art = new URL('mario/', document.currentScript?.src ?? new URL('/assets/', location.href));
   const src = name => new URL(`${name}.png`, art).href;
   const WALK = ['walk-1', 'walk-1-bob', 'walk-1-sway', 'walk-2', 'walk-2-bob', 'walk-2-sway'].map(pose => `castaway-${pose}`);
   const LIVES = 5;
-  // "Play as a game" opens Regular Mario's talk mode at the slide on screen (play/#N).
-  document.querySelector('#play-game')?.addEventListener('click', event => {
-    event.currentTarget.href = `play/${location.hash}`;
-  });
   const DAYS = 7;
 
-  // Decode every image once, so no transition waits on the network.
-  const preload = Promise.all([...WALK, 'castaway-idle', 'castaway-jump', 'castaway-ouch', 'castaway-crouch',
+  // Decode every image once (on a game deck's first slide), so no transition waits on the
+  // network.
+  let preloaded = null;
+  const preload = () => preloaded ||= Promise.all([...WALK, 'castaway-idle', 'castaway-jump', 'castaway-ouch', 'castaway-crouch',
     'grumbler-idle', 'tile-crate', 'tile-pipe-top-left', 'tile-pipe-top-right', 'tile-pipe-left', 'tile-pipe-right',
     'scenery-cloud-left', 'scenery-cloud-middle', 'scenery-cloud-right']
     .map(name => { const image = new Image(); image.src = src(name); return image.decode().catch(() => {}); }));
@@ -52,9 +57,20 @@
   }
   const esc = text => String(text).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]);
   let built = false;
-  deck.addEventListener('slidechange', () => { if (!built) { built = true; hud(); } });
+  const isGame = () => deck.dataset.game === 'mario';
+  deck.addEventListener('slidechange', () => {
+    if (built || !isGame()) return;
+    built = true;
+    preload();
+    hud();
+    offerGame();
+  });
   // an edited slide is re-rendered without its HUD: redraw them all
-  deck.addEventListener('slidesupdate', () => { for (const bar of deck.querySelectorAll('.game-hud')) bar.remove(); hud(); });
+  deck.addEventListener('slidesupdate', () => {
+    if (!isGame()) return;
+    for (const bar of deck.querySelectorAll('.game-hud')) bar.remove();
+    hud();
+  });
 
   // ---- the stage: a layer over the presented slide, in its pixels ----
   function stage(frame, signal) {
@@ -121,7 +137,7 @@
   }
 
   async function play(from, signal, body) {
-    await preload;
+    await preload();
     if (signal.aborted) return;
     const scene = stage(from, signal);
     try { await body(scene); } finally { scene.done(); }
@@ -233,4 +249,77 @@
     enemy.remove();
     await scene.iris(scene.w / 2, scene.h / 2, false, 320);
   });
+
+  // ---- Mario mode: the talk as a level (the regular-mario library) ----
+  // The slide on screen, from the hash (#12, or slide=12 beside other fields).
+  const hashFields = () => new URLSearchParams(location.hash.slice(1).replace(/^(\d+)$/, 'slide=$1'));
+  const slideNow = () => Math.max(1, Number(hashFields().get('slide')) || 1);
+  let playing = null;
+
+  function offerGame() {
+    const loader = globalThis.DeckGame;
+    const controls = document.querySelector('.page-controls');
+    if (!loader || !controls || controls.querySelector('#play-game')) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'button when-overview';
+    button.id = 'play-game';
+    button.textContent = 'Play as a game';
+    button.addEventListener('click', () => openGame(slideNow()));
+    controls.prepend(button);
+    addEventListener('hashchange', () => { if (!playing && hashFields().get('mode') === 'mario') openGame(slideNow()); });
+    if (hashFields().get('mode') === 'mario') openGame(slideNow());
+  }
+
+  async function openGame(slide) {
+    if (playing) return;
+    const view = document.createElement('div');
+    view.className = 'game-mode';
+    view.setAttribute('role', 'region');
+    view.setAttribute('aria-label', 'The talk as a game');
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'button game-mode-back';
+    back.textContent = 'Back to slides';
+    const stage = document.createElement('div');
+    stage.className = 'game-mode-stage';
+    view.append(back, stage);
+    document.body.append(view);
+    deck.hidden = true;
+    document.documentElement.dataset.gameMode = '';
+    let current = slide;
+    const mark = () => history.replaceState(null, '', `#slide=${current}&mode=mario`);
+    mark();
+    const state = {talk: null, closed: false};
+    playing = state;
+    const close = () => {
+      if (state.closed) return;
+      state.closed = true;
+      state.talk?.dispose();
+      view.remove();
+      delete document.documentElement.dataset.gameMode;
+      deck.hidden = false;
+      playing = null;
+      // through the hash, so the slides show where the castaway stopped
+      history.replaceState(null, '', location.pathname + location.search);
+      location.hash = String(current);
+      document.querySelector('#play-game')?.focus();
+    };
+    back.addEventListener('click', close);
+    try {
+      const [library, script] = await Promise.all([globalThis.DeckGame.library(), globalThis.DeckGame.talk()]);
+      if (state.closed) return;
+      state.talk = await library.mountTalk(stage, script, {
+        slide,
+        onSlideChange: n => { current = n; mark(); },
+        onExit: close,
+      });
+      if (state.closed) state.talk.dispose();
+    } catch (error) {
+      const message = document.createElement('p');
+      message.className = 'game-mode-error';
+      message.textContent = `The game could not start: ${error.message}`;
+      stage.replaceChildren(message);
+    }
+  }
 })();

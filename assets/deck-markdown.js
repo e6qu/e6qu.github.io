@@ -459,7 +459,7 @@
       ? `<li aria-current="step">${inline(title)}${service ? ` · ${inline(service)}` : ''}</li>`
       : `<li>${inline(title)}</li>`).join('')}</ol>`;
     for (const slide of rendered) slide.html = slide.html.replace(/\u0000parts:(\d+):([^\u0000]*)\u0000/, (_, current, service) => partList(Number(current), service));
-    return {title: meta.title || firstTitle, slides: rendered, html: rendered.map(slide => slide.html).join('\n')};
+    return {title: meta.title || firstTitle, meta, slides: rendered, html: rendered.map(slide => slide.html).join('\n')};
   }
 
   // Index of the slide that contains a character offset, for editor cursor sync.
@@ -529,6 +529,8 @@
       const result = render(markdown);
       deck.innerHTML = heading(result.title || document.title) + result.html;
       deck.setAttribute('aria-labelledby', 'deck-title');
+      // front matter "game: mario" turns on the platformer layer (deck-game.js)
+      if (result.meta.game) deck.dataset.game = result.meta.game;
       const editor = document.querySelector('#edit-deck');
       if (editor) {
         editor.href = new URL(`../editor/?src=${encodeURIComponent(new URL(deck.dataset.markdown, location.href).pathname)}`, location.href).href;

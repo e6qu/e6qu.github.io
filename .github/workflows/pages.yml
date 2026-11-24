@@ -30,6 +30,14 @@ jobs:
         run: |
           curl --fail --location --retry 3 https://github.com/AlDanial/cloc/releases/download/v2.10/cloc-2.10.pl --output /tmp/cloc.pl
           echo 'bf59272455172108072a0a106379f7509fd4349bdcfd85203bac038ccd286d83  /tmp/cloc.pl' | sha256sum --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      # Vite bundles the decks and Storybook; regular-mario (pinned to its release
+      # tarball) and Phaser are Mario mode's chunk.
+      - name: Install Node tools
+        run: npm ci
       - name: Test collection and rendering
         run: |
           python -m unittest discover -s tests -v
@@ -47,26 +55,19 @@ jobs:
           node --check assets/deck-notes.js
           node --check scripts/edit-server.mjs
           node --check scripts/talk-json.mjs
-          node --check presentations/who-answers-the-syscall/game.js
-          node --test tests/termites.test.cjs tests/deck-markdown.test.cjs tests/edit-server.test.mjs tests/talk-json.test.mjs
-      # Regular Mario's talk mode (published at /regular-mario/) plays the committed talk.json,
-      # so it must match slides.md.
-      - name: Check the game's talk.json matches slides.md
-        run: |
-          node scripts/talk-json.mjs presentations/who-answers-the-syscall/slides.md
-          git diff --exit-code presentations/who-answers-the-syscall/talk.json
+          node --check scripts/build-decks.mjs
+          node --check assets/deck-game.js
+          node --test tests/termites.test.cjs tests/deck-markdown.test.cjs tests/edit-server.test.mjs tests/talk-json.test.mjs tests/build-decks.test.mjs
       - name: Refresh public projects and measure source and tests
         env:
           GH_TOKEN: ${{ github.token }}
         run: python scripts/collect.py --cloc /tmp/cloc.pl --output data.json
       - name: Build static pages
         run: python scripts/build.py
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-      - name: Install Storybook and audit tools
-        run: npm ci
+      # Each Markdown deck becomes one minified bundle (classic mode), plus Mario mode's
+      # lazily loaded chunk for decks with "game: mario".
+      - name: Bundle the decks
+        run: npm run build:decks
       # Every deploy replaces the whole site, so Storybook is rebuilt on each run.
       - name: Build design system Storybook into /storybook
         run: npm run build-storybook

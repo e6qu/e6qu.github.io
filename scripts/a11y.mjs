@@ -169,6 +169,29 @@ for (const theme of ['light', 'dark']) {
   expect(label, await page.evaluate(() => document.documentElement.dataset.theme === 'light'), 'T does not switch the theme while presenting');
   await page.context().close();
 
+  // Mario mode (a bundled "game: mario" deck): reachable from the overview by keyboard,
+  // its controls pass axe, Back returns to the slide the castaway reached, focus returns
+  // to the button that opened it.
+  const game = await open('/presentations/who-answers-the-syscall/#5', 'light');
+  await game.waitForFunction(() => document.querySelector('.slide-frame'));
+  const gameLabel = 'keyboard Mario mode';
+  await game.keyboard.press('Escape');
+  expect(gameLabel, await game.isVisible('#play-game'), 'the overview does not offer Play as a game');
+  await game.focus('#play-game');
+  await game.keyboard.press('Enter');
+  await game.waitForSelector('.game-mode canvas', {timeout: 30000});
+  expect(gameLabel, await game.evaluate(() => document.querySelector('.deck').hidden && location.hash === '#slide=5&mode=mario'),
+    'Mario mode did not replace the slides at slide 5');
+  expect(gameLabel, await game.evaluate(() => document.activeElement?.tagName === 'CANVAS'), 'the game canvas does not take focus');
+  await audit(game, `light ${gameLabel}`, '.game-mode');
+  await game.keyboard.press('PageDown');
+  await game.waitForFunction(() => location.hash === '#slide=6&mode=mario', null, {timeout: 10000}).catch(() => {});
+  await game.click('.game-mode-back');
+  expect(gameLabel, await game.evaluate(() => !document.querySelector('.game-mode') && !document.querySelector('.deck').hidden
+    && location.hash === '#6' && document.activeElement?.id === 'play-game'),
+    'Back to slides did not return to slide 6 with focus on Play as a game');
+  await game.context().close();
+
   const editor = await open('/presentations/editor/', 'light');
   await editor.waitForFunction(() => document.querySelectorAll('#preview .slide-frame').length > 0);
   await editor.focus('#source');

@@ -1,11 +1,12 @@
-/* The platformer layer of this deck (game.js): the HUD written into each slide, and the
-   transition stage drawn over the presented slide. Sprites are Regular Mario's original
-   castaway art (assets/mario), scaled in whole game pixels (--px) and never smoothed. */
-@font-face{font-family:PressStart;src:url('../../assets/fonts/press-start-2p.ttf') format('truetype');font-display:swap}
+/* The platformer layer of a "game: mario" deck (deck-game.js): the HUD written into each
+   slide, the transition stage drawn over the presented slide, and Mario mode's full-window
+   view. Sprites are Regular Mario's original castaway art (assets/mario), scaled in whole
+   game pixels (--px) and never smoothed. */
+@font-face{font-family:PressStart;src:url('fonts/press-start-2p.ttf') format('truetype');font-display:swap}
 @property --iris {syntax:'<length>';inherits:false;initial-value:0px}
 
 /* the HUD replaces the list of parts at the top of each slide */
-.slide-part {display:none}
+.deck[data-game='mario'] .slide-part {display:none}
 .game-hud {
   position:absolute;left:8.75em;right:8.75em;top:3.2em;display:flex;justify-content:space-between;align-items:center;gap:2em;
   font:.7em/1 PressStart,var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--ink);white-space:nowrap
@@ -25,7 +26,7 @@
 /* the strip the castaway pulls across: a dusk sky over a row of crates */
 .game-curtain {
   position:absolute;inset:0;
-  background:url('../../assets/mario/tile-crate.png') left bottom / calc(var(--px) * 16) repeat-x,
+  background:url('mario/tile-crate.png') left bottom / calc(var(--px) * 16) repeat-x,
     linear-gradient(#1d3b5a,#3f6f8f 70%,#e2a76f);
   image-rendering:pixelated
 }
@@ -44,3 +45,10 @@
 .game-card-lives {display:inline-flex;align-items:center;gap:1em}
 .game-card img {width:calc(var(--px) * 16);height:calc(var(--px) * 16);image-rendering:pixelated}
 .game-flash {position:absolute;inset:0;background:#fff}
+
+/* Mario mode: the game fills the window; the slides wait, hidden, underneath */
+.game-mode {position:fixed;inset:0;z-index:100;background:#000}
+.game-mode-stage {position:absolute;inset:0}
+.game-mode-back {position:absolute;z-index:1;bottom:12px;left:12px}
+.game-mode-error {margin:0;padding:4em 2em;color:#fff;font:1rem/1.5 var(--body)}
+:root[data-game-mode] .page-controls {display:none}

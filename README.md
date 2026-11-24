@@ -38,10 +38,12 @@ presents any pasted Markdown deck entirely in the browser. To edit slides in
 place while rehearsing, run `node scripts/edit-server.mjs` and open
 `http://127.0.0.1:8766/presentations/<deck>/`: E edits the current slide, and
 Ctrl/Cmd+S saves it to `slides.md` and commits it (see the design system doc).
-"Who answers the syscall?" also plays as a game: `node scripts/talk-json.mjs
-presentations/who-answers-the-syscall/slides.md` writes its `talk.json`, which
-[Regular Mario](https://e6qu.github.io/regular-mario/)'s talk mode plays from
-`/presentations/who-answers-the-syscall/play/`. Run Storybook
+The site build bundles each deck into one minified page (`npm run build:decks`,
+after `scripts/build.py`). A deck whose front matter says `game: mario`, like
+"Who answers the syscall?", also plays as a game: its Mario mode comes from
+[regular-mario](https://github.com/e6qu/regular-mario)'s talk library, loaded
+only when someone presses Play. [docs/deck-format.md](docs/deck-format.md) is
+the deck format. Run Storybook
 locally with `npm ci && npm run storybook`.
 
 Everything meets WCAG 2.2 AA in light and dark; `npm run test:a11y` audits the

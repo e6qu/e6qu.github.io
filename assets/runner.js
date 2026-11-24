@@ -6,7 +6,7 @@
 // slide. Nothing moves under prefers-reduced-motion or the pause button (motion.js).
 (() => {
   const root = document.documentElement;
-  const base = new URL('mario/', document.currentScript.src);
+  const base = new URL('mario/', document.currentScript?.src ?? new URL('/assets/', location.href));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const poses = ['walk-1', 'walk-1-bob', 'walk-1-sway', 'walk-2', 'walk-2-bob', 'walk-2-sway'];
   const source = pose => new URL(`castaway-${pose}.png`, base).href;

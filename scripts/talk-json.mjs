@@ -16,16 +16,11 @@
 //   %% game icon <actor> <prop>
 // A flowchart with an unplaced node gets no `diagram`: the game shows its list.
 //   node scripts/talk-json.mjs presentations/who-answers-the-syscall/slides.md
-// writes talk.json next to slides.md.
+// writes talk.json next to slides.md; scripts/build-decks.mjs calls talkJson() instead,
+// for decks whose front matter says "game: mario".
 import {readFileSync, writeFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
-
-const source = process.argv[2];
-if (!source) {
-  console.error('usage: node scripts/talk-json.mjs <slides.md>');
-  process.exit(2);
-}
-const markdown = readFileSync(source, 'utf8').replace(/\r\n/g, '\n');
+import {pathToFileURL} from 'node:url';
 
 // --- inline Markdown → text, collecting links ---
 // Each link also records the text it sits in (`context`), so the game links that
@@ -119,91 +114,103 @@ function parseArgs(rest) {
   return args;
 }
 
-let body = markdown;
-const meta = {};
-const front = body.match(/^---\n([\s\S]*?)\n---\n/);
-if (front) {
-  for (const line of front[1].split('\n')) {
-    const kv = line.match(/^(\w+):\s*(.*)$/);
-    if (kv) meta[kv[1]] = kv[2];
-  }
-  body = body.slice(front[0].length);
-}
-
-const slides = [];
-for (const chunk of body.split(/\n---\n/)) {
-  let lines = chunk.replace(/<!--[\s\S]*?-->/g, '').split('\n');
-  const notesAt = lines.findIndex(line => /^\?\?\?\s*$/.test(line));
-  if (notesAt >= 0) lines = lines.slice(0, notesAt);
-  if (!lines.some(line => line.trim())) continue;
-  const slide = {template: 'content', world: null, day: null, transition: null, kicker: null, title: null,
-    lead: [], bullets: [], quote: null, cite: null, columns: [], table: null, links: [], art: null};
-  let column = null;
-  let quote = [];
-  let table = [];
-  // the open fence's language ('' for none), or null outside a fenced block
-  let fence = null;
-  let isDiagram = false;
-  const mermaid = [];
-  for (const raw of lines) {
-    const line = raw.trimEnd();
-    let m;
-    // a fenced code block: each line is shown as it is (fence markers dropped). A
-    // ```mermaid drawing is the deck's alone: the game shows the slide's list instead.
-    if ((m = line.match(/^(?:`{3,}|~{3,})\s*([\w-]*)/))) { fence = fence === null ? m[1].toLowerCase() : null; continue; }
-    if (fence !== null) { if (fence === 'mermaid') mermaid.push(line); else if (line.trim()) slide.lead.push(line.trim().replace(/\s+/g, ' ')); continue; }
-    if ((m = line.match(/^::\s*([\w-]+)(.*)$/))) {
-      // the game has no diagram template: a diagram slide is drawn as content, by its list
-      isDiagram = m[1].toLowerCase() === 'diagram';
-      slide.template = isDiagram ? 'content' : m[1].toLowerCase();
-      const args = parseArgs(m[2]);
-      slide.world = typeof args.world === 'string' ? args.world : null;
-      slide.day = typeof args.day === 'string' ? args.day : null;
-      slide.transition = typeof args.transition === 'string' ? args.transition : null;
-      slide.art = typeof args.art === 'string' ? args.art : null;
-      // `dialogue`: each bullet is `Speaker: words`, drawn as a script
-      if (args.dialogue === true) slide.dialogue = true;
-      if (args.number === 'none') slide.numbered = false;
-    } else if ((m = line.match(/^###\s+(.*)$/)) && !line.startsWith('####')) slide.kicker = plain(m[1], slide.links);
-    else if ((m = line.match(/^####\s+(.*)$/))) { column = {label: plain(m[1], slide.links), bullets: []}; slide.columns.push(column); }
-    else if ((m = line.match(/^#{1,2}\s+(.*)$/))) slide.title = plain(m[1], slide.links);
-    else if ((m = line.match(/^\s*(?:[-*]|\d+\.)\s+(.*)$/))) (column ? column.bullets : slide.bullets).push(plain(m[1], slide.links));
-    else if ((m = line.match(/^>\s?(.*)$/))) quote.push(m[1]);
-    else if (/^\|.*\|$/.test(line)) table.push(line);
-    // a picture, ![alt](pictures/<id>.svg), on a section or content slide: the game draws the
-    // picture of that name. Any other image on a section (e.g. animations/…) is the deck's
-    // alone: the game animates the slide's props in the level instead.
-    else if ((m = line.match(/^!\[[^\]]*\]\(([^)\s]+)\)\s*$/))) {
-      if (slide.template !== 'section' && slide.template !== 'content') throw new Error(`${source}: a picture belongs on a section or content slide: ${line}`);
-      if (m[1].startsWith('pictures/')) slide.picture = m[1].split('/').pop().replace(/\.\w+$/, '');
+// The talk script for `markdown`; `source` names the deck in errors.
+export function talkJson(markdown, source) {
+  let body = markdown.replace(/\r\n/g, '\n');
+  const meta = {};
+  const front = body.match(/^---\n([\s\S]*?)\n---\n/);
+  if (front) {
+    for (const line of front[1].split('\n')) {
+      const kv = line.match(/^(\w+):\s*(.*)$/);
+      if (kv) meta[kv[1]] = kv[2];
     }
-    else if (line.trim()) slide.lead.push(plain(line, slide.links));
+    body = body.slice(front[0].length);
   }
-  quote = quote.filter(text => text.trim());
-  if (quote.length) {
-    const last = quote[quote.length - 1];
-    if (quote.length > 1 && /^\s*(—|--)/.test(last)) { slide.cite = plain(last.replace(/^\s*(—|--)\s*/, ''), slide.links); quote.pop(); }
-    slide.quote = plain(quote.join(' '), slide.links);
+
+  const slides = [];
+  for (const chunk of body.split(/\n---\n/)) {
+    let lines = chunk.replace(/<!--[\s\S]*?-->/g, '').split('\n');
+    const notesAt = lines.findIndex(line => /^\?\?\?\s*$/.test(line));
+    if (notesAt >= 0) lines = lines.slice(0, notesAt);
+    if (!lines.some(line => line.trim())) continue;
+    const slide = {template: 'content', world: null, day: null, transition: null, kicker: null, title: null,
+      lead: [], bullets: [], quote: null, cite: null, columns: [], table: null, links: [], art: null};
+    let column = null;
+    let quote = [];
+    let table = [];
+    // the open fence's language ('' for none), or null outside a fenced block
+    let fence = null;
+    let isDiagram = false;
+    const mermaid = [];
+    for (const raw of lines) {
+      const line = raw.trimEnd();
+      let m;
+      // a fenced code block: each line is shown as it is (fence markers dropped). A
+      // ```mermaid drawing is the deck's alone: the game shows the slide's list instead.
+      if ((m = line.match(/^(?:`{3,}|~{3,})\s*([\w-]*)/))) { fence = fence === null ? m[1].toLowerCase() : null; continue; }
+      if (fence !== null) { if (fence === 'mermaid') mermaid.push(line); else if (line.trim()) slide.lead.push(line.trim().replace(/\s+/g, ' ')); continue; }
+      if ((m = line.match(/^::\s*([\w-]+)(.*)$/))) {
+        // the game has no diagram template: a diagram slide is drawn as content, by its list
+        isDiagram = m[1].toLowerCase() === 'diagram';
+        slide.template = isDiagram ? 'content' : m[1].toLowerCase();
+        const args = parseArgs(m[2]);
+        slide.world = typeof args.world === 'string' ? args.world : null;
+        slide.day = typeof args.day === 'string' ? args.day : null;
+        slide.transition = typeof args.transition === 'string' ? args.transition : null;
+        slide.art = typeof args.art === 'string' ? args.art : null;
+        // `dialogue`: each bullet is `Speaker: words`, drawn as a script
+        if (args.dialogue === true) slide.dialogue = true;
+        if (args.number === 'none') slide.numbered = false;
+      } else if ((m = line.match(/^###\s+(.*)$/)) && !line.startsWith('####')) slide.kicker = plain(m[1], slide.links);
+      else if ((m = line.match(/^####\s+(.*)$/))) { column = {label: plain(m[1], slide.links), bullets: []}; slide.columns.push(column); }
+      else if ((m = line.match(/^#{1,2}\s+(.*)$/))) slide.title = plain(m[1], slide.links);
+      else if ((m = line.match(/^\s*(?:[-*]|\d+\.)\s+(.*)$/))) (column ? column.bullets : slide.bullets).push(plain(m[1], slide.links));
+      else if ((m = line.match(/^>\s?(.*)$/))) quote.push(m[1]);
+      else if (/^\|.*\|$/.test(line)) table.push(line);
+      // a picture, ![alt](pictures/<id>.svg), on a section or content slide: the game draws the
+      // picture of that name. Any other image on a section (e.g. animations/…) is the deck's
+      // alone: the game animates the slide's props in the level instead.
+      else if ((m = line.match(/^!\[[^\]]*\]\(([^)\s]+)\)\s*$/))) {
+        if (slide.template !== 'section' && slide.template !== 'content') throw new Error(`${source}: a picture belongs on a section or content slide: ${line}`);
+        if (m[1].startsWith('pictures/')) slide.picture = m[1].split('/').pop().replace(/\.\w+$/, '');
+      }
+      else if (line.trim()) slide.lead.push(plain(line, slide.links));
+    }
+    quote = quote.filter(text => text.trim());
+    if (quote.length) {
+      const last = quote[quote.length - 1];
+      if (quote.length > 1 && /^\s*(—|--)/.test(last)) { slide.cite = plain(last.replace(/^\s*(—|--)\s*/, ''), slide.links); quote.pop(); }
+      slide.quote = plain(quote.join(' '), slide.links);
+    }
+    if (isDiagram && mermaid.length) {
+      const diagram = parseMermaid(mermaid, `${source}: ${slide.title ?? 'a diagram slide'}`);
+      if (diagram) slide.diagram = diagram;
+    }
+    if (table.length) {
+      const raw = table.filter(row => !/^\|\s*:?-{3,}/.test(row)).map(row => row.slice(1, -1).split('|'));
+      const rows = raw.map(cells => cells.map(cell => plain(cell, slide.links)));
+      slide.table = {head: rows[0], rows: rows.slice(1)};
+      // a row may open with an icon, ![](icons/<prop>.svg): the game draws that prop
+      const icons = raw.slice(1).map(cells => {
+        const m = (cells[0] ?? '').match(/^\s*!\[[^\]]*\]\(([^)\s]+)\)/);
+        return m ? m[1].split('/').pop().replace(/\.\w+$/, '') : null;
+      });
+      if (icons.some(icon => icon !== null)) slide.table.icons = icons;
+    }
+    slides.push(slide);
   }
-  if (isDiagram && mermaid.length) {
-    const diagram = parseMermaid(mermaid, `${source}: ${slide.title ?? 'a diagram slide'}`);
-    if (diagram) slide.diagram = diagram;
-  }
-  if (table.length) {
-    const raw = table.filter(row => !/^\|\s*:?-{3,}/.test(row)).map(row => row.slice(1, -1).split('|'));
-    const rows = raw.map(cells => cells.map(cell => plain(cell, slide.links)));
-    slide.table = {head: rows[0], rows: rows.slice(1)};
-    // a row may open with an icon, ![](icons/<prop>.svg): the game draws that prop
-    const icons = raw.slice(1).map(cells => {
-      const m = (cells[0] ?? '').match(/^\s*!\[[^\]]*\]\(([^)\s]+)\)/);
-      return m ? m[1].split('/').pop().replace(/\.\w+$/, '') : null;
-    });
-    if (icons.some(icon => icon !== null)) slide.table.icons = icons;
-  }
-  slides.push(slide);
+
+  return {title: meta.title ?? slides.find(slide => slide.template === 'title')?.title ?? '', source: source, slides};
 }
 
-const out = {title: meta.title ?? slides.find(slide => slide.template === 'title')?.title ?? '', source: source, slides};
-const target = join(dirname(source), 'talk.json');
-writeFileSync(target, `${JSON.stringify(out, null, 2)}\n`);
-console.log(`${target}: ${slides.length} slides`);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const source = process.argv[2];
+  if (!source) {
+    console.error('usage: node scripts/talk-json.mjs <slides.md>');
+    process.exit(2);
+  }
+  const out = talkJson(readFileSync(source, 'utf8'), source);
+  const target = join(dirname(source), 'talk.json');
+  writeFileSync(target, `${JSON.stringify(out, null, 2)}\n`);
+  console.log(`${target}: ${out.slides.length} slides`);
+}

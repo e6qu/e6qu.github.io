@@ -4,3 +4,7 @@ __pycache__/
 node_modules/
 .DS_Store
 stories/fixtures.json
+presentations/*/talk.json
+.deck-build/
+presentations/*/bundle.html
+presentations/*/bundle-entry.js
