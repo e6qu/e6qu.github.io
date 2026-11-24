@@ -21,7 +21,9 @@
 // file): E or the pencil edits the current slide's Markdown in place and saves it to slides.md.
 (() => {
   const root = document.documentElement;
-  const assets = new URL('.', document.currentScript.src);
+  // this folder; a bundled deck (scripts/build-decks.mjs) has no current script, and is
+  // served from the site root like assets/
+  const assets = new URL('.', document.currentScript?.src ?? new URL('/assets/', location.href));
   const svgs = new Map();
   const typing = 'input, textarea, select, [contenteditable]';
   const interactive = `a, button, summary, ${typing}`;

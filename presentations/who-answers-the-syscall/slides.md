@@ -1,13 +1,13 @@
 ---
 title: Who answers the syscall?
 footer: Who answers the syscall?
+game: mario
 ---
 
 <!--
-Draft skeleton (2026-11-22): the world map from research/sandboxes/talk-outline.md, with
-the game transitions in place. Content is placeholder beyond the opening worlds.
+The world map follows research/sandboxes/talk-outline.md.
 Per slide: world="N Name" day=N set the HUD; transition=card|run|iris|pipe|ouch plays a
-transition going forward (game.js). ouch costs one data life.
+transition going forward (assets/deck-game.js). ouch costs one data life.
 -->
 
 :: quote transition=iris art=sandpit+crate+server-rack

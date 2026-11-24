@@ -4,28 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Who answers the syscall? (the game) — Adrian.Marza</title>
-  <meta name="description" content="The talk played as a platformer in Regular Mario's talk mode.">
+  <meta name="description" content="The talk played as a platformer: the deck's Mario mode.">
   <link rel="icon" href="../../../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../../../assets/tokens.css">
   <link rel="stylesheet" href="../../../assets/base.css">
   <link rel="stylesheet" href="../../../assets/components.css">
   <script>
-    // The talk plays in Regular Mario (published at /regular-mario/ on this origin), which
-    // loads this deck's talk.json. "#12" here opens slide 12, as it does in the deck.
+    // Mario mode is part of the deck now (#mode=mario); this address, from before that,
+    // keeps working. "#12" here opens slide 12.
     (() => {
-      const talk = new URL('../talk.json', location.href).pathname;
       const slide = Number(location.hash.slice(1)) || 1;
-      const game = new URL('../../../regular-mario/', location.href);
-      game.hash = `talk=${talk}&slide=${slide}`;
-      addEventListener('DOMContentLoaded', () => { document.querySelector('#play').href = game.href; });
-      location.replace(game.href);
+      const deck = new URL('../', location.href);
+      deck.hash = `slide=${slide}&mode=mario`;
+      addEventListener('DOMContentLoaded', () => { document.querySelector('#play').href = deck.href; });
+      location.replace(deck.href);
     })();
   </script>
 </head>
 <body>
   <main class="page-shell">
     <h1>Who answers the syscall?</h1>
-    <p>Opening the talk in Regular Mario… If nothing happens, <a id="play" href="../../../regular-mario/#talk=/presentations/who-answers-the-syscall/talk.json&amp;slide=1">play it here</a>, or read the <a href="../">slides</a>.</p>
+    <p>Opening the talk as a game… If nothing happens, <a id="play" href="../#slide=1&amp;mode=mario">play it here</a>, or read the <a href="../">slides</a>.</p>
   </main>
 </body>
 </html>

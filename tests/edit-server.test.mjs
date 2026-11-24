@@ -9,7 +9,7 @@ import {join} from 'node:path';
 import {createEditServer, editDeck, hashOf, slideTitle} from '../scripts/edit-server.mjs';
 
 const DECK = [
-  '---', 'title: Demo', 'footer: Demo', '---', '', '<!-- a comment before the title -->', '', ':: title', '', '# Demo.', '',
+  '---', 'title: Demo', 'footer: Demo', 'game: mario', '---', '', '<!-- a comment before the title -->', '', ':: title', '', '# Demo.', '',
   'A small deck.', '', '---', '', ':: content transition=iris', '', '## First point', '', '- one', '- two', '', '???', 'Notes stay.', '',
   '---', '', '```yaml', '---', 'key: value', '```', '', '---', '', '## Last', '',
 ].join('\n');
@@ -29,11 +29,10 @@ before(async () => {
   mkdirSync(join(root, 'presentations', 'demo'), {recursive: true});
   writeFileSync(join(root, slides), DECK);
   writeFileSync(join(root, 'presentations', 'demo', 'index.html'), '<!doctype html><title>Demo</title>');
-  writeFileSync(join(root, 'presentations', 'demo', 'talk.json'), '{}\n');
   writeFileSync(join(root, 'notes.txt'), 'staged by the user\n');
   git('init', '--quiet', '--initial-branch=main');
   for (const [key, value] of [['user.name', 'Test'], ['user.email', 'test@example.com'], ['commit.gpgsign', 'false']]) git('config', key, value);
-  git('add', '--', slides, 'presentations/demo/index.html', 'presentations/demo/talk.json');
+  git('add', '--', slides, 'presentations/demo/index.html');
   git('commit', '--quiet', '-m', 'Initial deck');
   git('add', '--', 'notes.txt');  // the user's own staged work, which a save must leave alone
   // a deck directory that leads out of the repository
@@ -102,7 +101,7 @@ test('the server serves the site, but not dotfiles', async () => {
   assert.deepEqual(info, {editable: true, deck: slides, hash: hashOf(DECK)});
 });
 
-test('a save rewrites one slide, regenerates talk.json and commits only those two files', async () => {
+test('a save rewrites one slide and commits only slides.md', async () => {
   const before = Number(git('rev-list', '--count', 'HEAD'));
   const {status, body} = await post({deck: slides, index: 1, source: ':: content transition=iris\n\n## Better point\n\n- one\n- two\n\n???\nNotes stay.', hash: hashOf(DECK)});
   assert.equal(status, 200, JSON.stringify(body));
@@ -111,13 +110,10 @@ test('a save rewrites one slide, regenerates talk.json and commits only those tw
   assert.equal(file(slides), DECK.replace('First point', 'Better point'));
   assert.equal(body.markdown, file(slides));
   assert.equal(body.hash, current());
-  const talk = JSON.parse(file('presentations/demo/talk.json'));
-  assert.equal(talk.slides[1].title, 'Better point');
-  assert.equal(talk.source, slides);
   assert.equal(Number(git('rev-list', '--count', 'HEAD')), before + 1);
   assert.equal(git('log', '-1', '--format=%s'), 'Edit slide 2 of demo: Better point');
   assert.equal(git('rev-parse', '--short', 'HEAD'), body.commit);
-  assert.deepEqual(git('show', '--name-only', '--format=', 'HEAD').split('\n').sort(), [slides, 'presentations/demo/talk.json']);
+  assert.deepEqual(git('show', '--name-only', '--format=', 'HEAD').split('\n'), [slides]);
   // the user's staged file is still staged, and nothing else is
   assert.equal(git('diff', '--cached', '--name-only'), 'notes.txt');
   assert.equal(git('status', '--porcelain', '--', 'presentations/demo'), '');
@@ -156,6 +152,16 @@ test('a refused edit changes nothing on disk or in git', async () => {
   assert.equal(git('rev-parse', 'HEAD'), head);
 });
 
+test('a game deck refuses an edit Mario mode could not play, and changes nothing', async () => {
+  const text = file(slides);
+  const head = git('rev-parse', 'HEAD');
+  const {status, body} = await post({deck: slides, index: 3, source: ':: quote\n\n![A picture](pictures/a.svg)\n\n> Words.', hash: current()});
+  assert.equal(status, 400);
+  assert.match(body.error, /Mario mode can't play this: .*a picture belongs on a section or content slide/);
+  assert.equal(file(slides), text);
+  assert.equal(git('rev-parse', 'HEAD'), head);
+});
+
 test('when the commit fails, the files and the index are put back', async () => {
   const hooks = join(dir, 'hooks');
   mkdirSync(hooks, {recursive: true});
@@ -163,12 +169,10 @@ test('when the commit fails, the files and the index are put back', async () => 
   git('config', 'core.hooksPath', hooks);
   try {
     const text = file(slides);
-    const talk = file('presentations/demo/talk.json');
     const {status, body} = await post({deck: slides, index: 3, source: '## Refused by the hook', hash: current()});
     assert.equal(status, 500);
     assert.match(body.error, /hook says no/);
     assert.equal(file(slides), text);
-    assert.equal(file('presentations/demo/talk.json'), talk);
     assert.equal(git('diff', '--cached', '--name-only'), 'notes.txt');
     assert.equal(git('status', '--porcelain', '--', 'presentations/demo'), '');
   } finally {

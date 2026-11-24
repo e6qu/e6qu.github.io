@@ -137,7 +137,10 @@ A one-line subtitle.
   relative URLs (plus data: images) are used.
 
 A talk on the site is a directory under `presentations/` with a `slides.md`
-and an `index.html` like the sample's (`<div class="deck" data-markdown="slides.md">`).
+and an `index.html` like the sample's (`<main class="deck" data-markdown="slides.md">`).
+The site build bundles each one; front matter `game: mario` adds the platformer
+HUD, transitions and Mario mode. [deck-format.md](deck-format.md) is the full
+format, including the fields the game reads.
 
 The **editor** (`/presentations/editor/`) shows the slide under the cursor,
 and clicking a slide jumps to its Markdown. Nothing is stored on a server: the deck lives in the address (`#md=`, compressed),
@@ -163,10 +166,9 @@ node scripts/edit-server.mjs            # --port 8766 by default
 Open `http://127.0.0.1:8766/presentations/<deck>/` and press **E** (or the ✎
 button, bottom right) on a slide. Its Markdown opens beside the slide (below
 it on phones) and the slide re-renders as you type. **Ctrl/Cmd+S** or Save
-writes it to the deck's `slides.md`, regenerates `talk.json` with
-`scripts/talk-json.mjs` if the deck has one, and commits just those two files
-on the current branch as "Edit slide <n> of <deck>: <title>" (nothing is
-pushed). **Esc** or Cancel puts the slide back. A save is refused if the slide
+writes it to the deck's `slides.md` and commits just that file on the current
+branch as "Edit slide <n> of <deck>: <title>" (nothing is pushed). In a
+`game: mario` deck the save is refused if Mario mode could not play the result. **Esc** or Cancel puts the slide back. A save is refused if the slide
 would contain a `---` separator or an unclosed code fence, names an unknown
 sheet, or if `slides.md` changed on disk since the page loaded it (reload to
 pick up the new version). Served any other way, including on GitHub Pages,

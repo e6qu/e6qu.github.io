@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Serves the site on 127.0.0.1 with edit mode for Markdown decks: while presenting or
 // rehearsing, press E on a slide, change its Markdown, and Ctrl/Cmd+S writes it to the
-// deck's slides.md, regenerates talk.json (if the deck has one) and commits both.
+// deck's slides.md and commits it. A deck with "game: mario" must still convert to its
+// talk script (talk-json.mjs), or the save is refused: the site build would fail on it.
 //   node scripts/edit-server.mjs [--port 8766] [--root <repo>]
 // then open http://127.0.0.1:8766/presentations/<deck>/
 //
@@ -9,8 +10,8 @@
 // POST /api/slide {deck, index, source, hash}          → {ok, commit, hash, markdown} or {ok: false, error}
 // `index` is the 0-based slide, `source` its new Markdown, `hash` the SHA-256 of the file
 // the page was rendered from: if slides.md has changed since, the save is refused (409).
-// Saves run one at a time. Each commits only slides.md and talk.json, on the current
-// branch; nothing is pushed. Node built-ins only.
+// Saves run one at a time. Each commits only slides.md, on the current branch; nothing
+// is pushed. Node built-ins only.
 import {createServer} from 'node:http';
 import {createHash} from 'node:crypto';
 import {execFile} from 'node:child_process';
@@ -18,12 +19,12 @@ import {existsSync, readFileSync, realpathSync, statSync, writeFileSync} from 'n
 import {readFile} from 'node:fs/promises';
 import {dirname, extname, join, relative, resolve, sep} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
+import {talkJson} from './talk-json.mjs';
 import {promisify} from 'node:util';
 import vm from 'node:vm';
 
 const run = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
-const TALK_JSON = join(here, 'talk-json.mjs');
 
 // The renderer the pages use, so the server parses a slide exactly as the browser does.
 const context = {};
@@ -129,8 +130,12 @@ async function busy(root) {
   return null;
 }
 
-// Saves one slide: check, write, regenerate talk.json, commit. On any failure the files,
-// and what the index held for them, are put back as they were.
+// The deck's front matter: the lines between a leading pair of "---" lines.
+const frontMatter = markdown =>
+  markdown.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '';
+
+// Saves one slide: check, write, commit. On any failure the file, and what the index held
+// for it, are put back as they were.
 export async function saveSlide(root, {deck, index, source, hash}) {
   const file = deckPath(root, deck);
   const markdown = readFileSync(file, 'utf8');
@@ -141,21 +146,17 @@ export async function saveSlide(root, {deck, index, source, hash}) {
   if (next === markdown) return {ok: true, commit: null, unchanged: true, hash, markdown: markdown.replace(/^﻿/, '')};
   const during = await busy(root);
   if (during) throw new EditError(409, `Git is in the middle of ${during}; finish it before saving slides`);
-  const talkPath = deck.replace(/slides\.md$/, 'talk.json');
-  const talk = join(root, talkPath);
-  const hasTalk = existsSync(talk);
-  const talkBefore = hasTalk ? readFileSync(talk) : null;
-  const paths = [deck, ...(hasTalk ? [talkPath] : [])];
+  if (/^game\s*:\s*mario\s*$/im.test(frontMatter(next))) {
+    try {
+      talkJson(next, deck);
+    } catch (error) {
+      throw new EditError(400, `Mario mode can't play this: ${error.message}`);
+    }
+  }
+  const paths = [deck];
   const staged = await Promise.all(paths.map(path => git(root, ['ls-files', '--stage', '--', path])));
   writeFileSync(file, next);
   try {
-    if (hasTalk) {
-      try {
-        await run(process.execPath, [TALK_JSON, deck], {cwd: root});
-      } catch (error) {
-        throw new EditError(500, `talk-json.mjs failed: ${(error.stderr || error.message).trim()}`);
-      }
-    }
     await git(root, ['add', '--', ...paths]);
     const name = deck.split('/')[1];
     await git(root, ['commit', '--quiet', '-m', `Edit slide ${index + 1} of ${name}: ${slideTitle(source)}`, '--only', '--', ...paths]);
@@ -163,7 +164,6 @@ export async function saveSlide(root, {deck, index, source, hash}) {
     return {ok: true, commit, hash: hashOf(next), markdown: next.replace(/^﻿/, '')};
   } catch (error) {
     writeFileSync(file, markdown);
-    if (hasTalk) writeFileSync(talk, talkBefore);
     for (const [i, path] of paths.entries()) {
       const entry = staged[i].match(/^(\d+) ([0-9a-f]+) 0\t/);
       await run('git', entry ? ['update-index', '--cacheinfo', `${entry[1]},${entry[2]},${path}`]
