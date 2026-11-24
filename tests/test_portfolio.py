@@ -5,11 +5,21 @@ import unittest
 import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from collect import eligible, ignored, is_test, split_rust, detect_frameworks
+from collect import count_or_keep, eligible, ignored, is_test, split_rust, detect_frameworks
 from build import row, build, featured
 
 
 class PortfolioTests(unittest.TestCase):
+    def test_a_repo_that_cannot_be_counted_keeps_its_last_counts(self):
+        import subprocess
+        def slow(repo, cloc, excluded):
+            raise subprocess.TimeoutExpired(['git', 'clone'], 180)
+        last = {'big': {'source_lines': 10, 'test_lines': 4, 'counted_commit': 'abc'}}
+        self.assertEqual(count_or_keep({'name': 'big'}, None, [], last, slow), last['big'])
+        self.assertEqual(count_or_keep({'name': 'new'}, None, [], last, slow)['source_lines'], None)
+        counted = {'source_lines': 1, 'test_lines': 1, 'counted_commit': 'def'}
+        self.assertEqual(count_or_keep({'name': 'big'}, None, [], last, lambda *a: counted), counted)
+
     def test_showcase_keeps_the_complete_project_list(self):
         snapshot = json.loads((Path(__file__).resolve().parents[1] / 'data.json').read_text())
         config = json.loads((Path(__file__).resolve().parents[1] / 'portfolio.json').read_text())
