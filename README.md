@@ -34,7 +34,14 @@ and published as a Storybook at https://e6qu.github.io/storybook/. Slide decks
 live in `presentations/` and are published at https://e6qu.github.io/presentations/.
 Talks are written in Markdown (`slides.md`); the dual-pane editor at
 `/presentations/editor/` previews them live, and `/presentations/viewer/`
-presents any pasted Markdown deck entirely in the browser. Run Storybook
+presents any pasted Markdown deck entirely in the browser. To edit slides in
+place while rehearsing, run `node scripts/edit-server.mjs` and open
+`http://127.0.0.1:8766/presentations/<deck>/`: E edits the current slide, and
+Ctrl/Cmd+S saves it to `slides.md` and commits it (see the design system doc).
+"Who answers the syscall?" also plays as a game: `node scripts/talk-json.mjs
+presentations/who-answers-the-syscall/slides.md` writes its `talk.json`, which
+[Regular Mario](https://e6qu.github.io/regular-mario/)'s talk mode plays from
+`/presentations/who-answers-the-syscall/play/`. Run Storybook
 locally with `npm ci && npm run storybook`.
 
 Everything meets WCAG 2.2 AA in light and dark; `npm run test:a11y` audits the

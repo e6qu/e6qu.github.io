@@ -45,7 +45,16 @@ jobs:
           node --check assets/deck-editor.js
           node --check assets/deck-viewer.js
           node --check assets/deck-notes.js
-          node --test tests/termites.test.cjs tests/deck-markdown.test.cjs
+          node --check scripts/edit-server.mjs
+          node --check scripts/talk-json.mjs
+          node --check presentations/who-answers-the-syscall/game.js
+          node --test tests/termites.test.cjs tests/deck-markdown.test.cjs tests/edit-server.test.mjs tests/talk-json.test.mjs
+      # Regular Mario's talk mode (published at /regular-mario/) plays the committed talk.json,
+      # so it must match slides.md.
+      - name: Check the game's talk.json matches slides.md
+        run: |
+          node scripts/talk-json.mjs presentations/who-answers-the-syscall/slides.md
+          git diff --exit-code presentations/who-answers-the-syscall/talk.json
       - name: Refresh public projects and measure source and tests
         env:
           GH_TOKEN: ${{ github.token }}
