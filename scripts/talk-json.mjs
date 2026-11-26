@@ -16,11 +16,12 @@
 //   %% game icon <actor> <prop>
 // A flowchart with an unplaced node gets no `diagram`: the game shows its list.
 //   node scripts/talk-json.mjs presentations/who-answers-the-syscall/slides.md
-// writes talk.json next to slides.md; scripts/build-decks.mjs calls talkJson() instead,
-// for decks whose front matter says "game: mario".
+// writes talk.json next to slides.md, unchecked. For decks whose front matter says
+// "game: mario", scripts/build-decks.mjs and the edit server call checkedTalkJson().
 import {readFileSync, writeFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {checkTalkSigns, parseTalkScript} from 'regular-mario/talk-script';
 
 // --- inline Markdown → text, collecting links ---
 // Each link also records the text it sits in (`context`), so the game links that
@@ -112,6 +113,19 @@ function parseArgs(rest) {
   const args = {};
   for (const match of rest.matchAll(/(\w+)(?:=(?:"([^"]*)"|(\S+)))?/g)) args[match[1].toLowerCase()] = match[2] ?? match[3] ?? true;
   return args;
+}
+
+// The talk script for `markdown`, checked as the game will play it: the format by the
+// library's parser, then every slide's sign by its own layout (text that overflows a
+// sign, a slide without art). Throws an Error naming `source` and what is wrong.
+export function checkedTalkJson(markdown, source) {
+  const script = talkJson(markdown, source);
+  try {
+    checkTalkSigns(parseTalkScript(script));
+  } catch (error) {
+    throw new Error(`${source}: ${error.message}`, {cause: error});
+  }
+  return script;
 }
 
 // The talk script for `markdown`; `source` names the deck in errors.

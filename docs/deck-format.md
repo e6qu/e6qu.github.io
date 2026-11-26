@@ -50,10 +50,17 @@ Also read by the game:
   game as the slide's list.
 - `dialogue` (`Speaker: words` bullets) and `number=none` carry over.
 
-`scripts/talk-json.mjs` turns `slides.md` into the talk script, and the build
-checks it with the library's own parser (`regular-mario/talk-script`), so a
-deck the game can't play fails the build with the field at fault. The edit
-server refuses such a save too.
+`scripts/talk-json.mjs` turns `slides.md` into the talk script. The build
+checks it with the library itself (`regular-mario/talk-script`):
+`parseTalkScript` for the format, then `checkTalkSigns`, which lays out every
+slide's sign as the game draws it. A deck the game can't play fails the build,
+naming the deck and the problem:
+
+- a bad field;
+- a slide whose text overflows its sign, with the overflow in pixels;
+- a slide without `art`.
+
+The edit server refuses such a save too.
 
 ## Modes and addresses
 
