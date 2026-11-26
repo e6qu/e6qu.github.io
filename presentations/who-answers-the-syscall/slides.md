@@ -404,7 +404,7 @@ In short: a sandbox is a policy outside the code, checked on every call.
 
 You have discovered the scrolls of ancient wisdom.
 
-![A scroll of ancient wisdom between two marble columns](pictures/ancient-scroll.svg)
+![A papyrus scroll of ancient wisdom between two marble columns](pictures/ancient-scroll.svg)
 
 ---
 

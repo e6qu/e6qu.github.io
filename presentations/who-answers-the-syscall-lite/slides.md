@@ -251,7 +251,7 @@ In short: a sandbox is a policy outside the code, checked on every call.
 
 You have discovered the scrolls of ancient wisdom.
 
-![A scroll of ancient wisdom between two marble columns](pictures/ancient-scroll.svg)
+![A papyrus scroll of ancient wisdom between two marble columns](pictures/ancient-scroll.svg)
 
 ---
 
@@ -702,7 +702,7 @@ Three defaults for every team.
 
 ### Switches 1 and 2
 
-## Write little, leave by one door
+## Lock things down
 
 - Switch 1: grant write to just the agent's workspace, the project folder
 - Snapshot every session, out of the agent's reach
