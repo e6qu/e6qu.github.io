@@ -1470,7 +1470,7 @@ An agent judge reads the whole trace, not just the answer. In one [study](https:
 
 :: content transition=run art=stop-button+alarm-bell
 
-### HURRY UP!
+### Keep control
 
 ## The kill switch must be deterministic
 

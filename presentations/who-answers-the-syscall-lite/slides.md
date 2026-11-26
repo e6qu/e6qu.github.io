@@ -837,7 +837,7 @@ The platform has to improve on its own.
 
 :: content transition=run art=stop-button+alarm-bell
 
-### HURRY UP!
+### Keep control
 
 ## The kill switch must be deterministic
 
