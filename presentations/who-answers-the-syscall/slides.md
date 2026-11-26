@@ -494,8 +494,10 @@ Sources (research/sandboxes/original_sources/):
 
 ## Lampson's confinement problem
 
-- His [paper](https://dl.acm.org/doi/10.1145/362375.362389): a service runs on a customer's data; blocking its access is “known how to [solve](https://www.cs.cornell.edu/andru/cs711/2003fa/reading/lampson73note.pdf)”
-- The hard part: a leak to the service's owner leaves “no indication”
+- His [paper](https://dl.acm.org/doi/10.1145/362375.362389): a customer runs a service on the customer's data
+- Blocking its access is “known how to [solve](https://www.cs.cornell.edu/andru/cs711/2003fa/reading/lampson73note.pdf)”
+- The hard part: the service may leak the data to its owner
+- A wrong answer leaves evidence; a leak leaves “no indication”
 - No network is not no channel: DNS, a package mirror
 
 ???
@@ -548,10 +550,6 @@ Sources (research/sandboxes/original_sources/):
 | ![](icons/box-in-box.svg) Transitivity | an untrusted program it calls is confined too | child processes inherit the sandbox |
 | ![](icons/funnel.svg) Masking | the caller sets every input to legitimate or covert channels | the platform sets egress |
 | ![](icons/shield.svg) Enforcement | covert channels conform to the caller's specification | the egress proxy checks each request |
-
-First, a confined program must be memoryless.
-
-In short: every boundary agents use today is older than they are.
 
 ???
 - Total isolation is sufficient but "quite impractical": even paging or time-slicing can leak (example 6).
