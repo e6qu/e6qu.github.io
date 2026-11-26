@@ -184,7 +184,7 @@ In short: the damage came through whatever the agent could reach.
 
 :: table transition=run dense art=cpu-chip+server-rack+crate+hex-block
 
-### The words, part 1
+### Terminology, part 1
 
 ## Building Blocks of a Sandbox
 
@@ -209,7 +209,7 @@ In short: the damage came through whatever the agent could reach.
 
 :: table transition=run dense art=rulebook+funnel+keyring
 
-### The words, part 2
+### Terminology, part 2
 
 ## Some terminology
 
@@ -508,7 +508,7 @@ How are coding agents sandboxed today?
 
 ???
 - Cut from the slide: the WSL2 row, "the Linux recipe", where "[/run/WSL](https://github.com/openai/codex/blob/main/codex-rs/linux-sandbox/src/bwrap.rs) starts Windows programs outside it"; "Two libraries do most of it: Anthropic's [sandbox-runtime](https://github.com/anthropics/sandbox-runtime), Microsoft's [MXC](https://github.com/microsoft/mxc)."
-- The words for this slide (formerly "The words, part 4"), all OS-level: the agent's commands still run on the host's kernel.
+- The terms for this slide (formerly "Terminology, part 4"), all OS-level: the agent's commands still run on the host's kernel.
   - Seatbelt: macOS's built-in sandbox; a profile lists what a process may do.
   - bubblewrap: a small Linux tool that builds a sandbox from namespaces.
   - seccomp: a Linux filter on which system calls a process may make.
