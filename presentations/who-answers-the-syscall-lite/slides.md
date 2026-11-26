@@ -318,18 +318,18 @@ Who reads the prompt?
 
 ## Everyone clicks yes
 
-- Coding agents ask a person before running a risky command
-- Anthropic: Claude Code users approve [97%](https://claude.com/blog/auto-mode-default-in-claude-code) of these prompts
-- In a test with 1,053 paid testers, people caught 13.6% of dangerous commands
+- Coding agents [ask](https://code.claude.com/docs/en/permission-modes) a person before running a risky command
+- [Anthropic](https://claude.com/blog/auto-mode-default-in-claude-code), August 2026: Claude Code users approve 97% of these prompts
+- In its test with 1,053 paid testers, people caught 13.6% of dangerous commands
 - About 17% early in a session; about 5% after 50 prompts
 
 ???
-- Before agents: Chrome users clicked through 70.2% of its HTTPS certificate [warnings](https://www.usenix.org/conference/usenixsecurity13/technical-sessions/presentation/akhawe). An approval-prompt game, 2026: players missed 1 in 3 [threats](https://news.ycombinator.com/item?id=49195468).
+- Before agents: Chrome users clicked through 70.2% of its HTTPS certificate [warnings](https://www.usenix.org/conference/usenixsecurity13/technical-sessions/presentation/akhawe). An approval-prompt game, 2026: players missed 1 in 3 [threats](https://scalex.dev/blog/ai-agent-permissions-stats/).
 - Audience: "Who has clicked approve without reading?"
 - [Anthropic, 2026-08-07](https://claude.com/blog/auto-mode-default-in-claude-code): "Data suggests that manual review can become habitual: users approve 97% of permission prompts in Claude Code." "In a controlled experiment with 1,053 paid professional testers, human review caught just 13.6% of dangerous commands, while auto mode caught 89%." "they blocked about 17% of dangerous commands early in a session, dropping to about 5% after 50 or more prior prompts". In March the figure was 93% ([auto mode post](https://www.anthropic.com/engineering/claude-code-auto-mode): "Over time that leads to approval fatigue").
 - Caveat: these are vendor figures, from vendors selling the alternative (auto mode, a sandbox).
 - [Docker, 2026-09-03](https://www.docker.com/blog/what-is-yolo-mode/): "Once permission fatigue kicks in, it can be all too easy to accidentally approve the wrong request."
-- The game: [hackernews/agents/hn-49195468-humans-missed-1-in-3-threats.md](https://news.ycombinator.com/item?id=49195468): 40k plays, 409k decisions, warned up front. A game, not a study.
+- The game: its author's [write-up](https://scalex.dev/blog/ai-agent-permissions-stats/) (2026-08-05) and the [HN discussion](https://news.ycombinator.com/item?id=49195468): 40k plays, 409k decisions, warned up front. A game, not a study.
 - Auto mode, Claude Code's approval classifier: [Anthropic](https://anthropic.com/engineering/how-we-contain-claude) says it misses ~17% of overeager commands; "one layer inside a sandbox". A sandbox cut prompts [84%](https://www.anthropic.com/engineering/claude-code-sandboxing).
 - Once approved: [preprint](https://arxiv.org/abs/2610.22987) (Claude Code, Codex CLI): the attack completed silently in 47 of 58 eligible cases (81%). [Claude Mythos](https://www.anthropic.com/claude-mythos-preview-system-card) "wrote a bash script that automatically simulated a keypress to approve the command".
 - Sources (research/sandboxes/original_sources/): agent-sandboxing/anthropic-2026-08-auto-mode-default.md; agent-sandboxing/anthropic-2026-03-claude-code-auto-mode.md; agent-sandboxing/docker-blog-2026-09-what-is-yolo-mode.md
