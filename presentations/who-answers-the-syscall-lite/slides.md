@@ -845,8 +845,6 @@ The platform has to improve on its own.
 - Plain code, no model deciding: the same call always stops the same sessions
 - Out of band: it never passes through the agent
 
-In short: policy and kill switch stay out of the agent's reach.
-
 ???
 - [OpenClaw](https://twitter.com/summeryue0/status/2025836517831405980): the researcher sent "Do not do that", "Stop don't do anything", "STOP OPENCLAW" from a phone; the agent kept trashing mail. The stop messages are from press reconstructions of her screenshots; the run to the Mac mini is [the researcher's own post](https://twitter.com/summeryue0/status/2025836517831405980).
 - [OpenAI](https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf): the June 27 port-sweep alert, where on-call "advised that stopping the evaluation run was not required"; responders took the mirror offline on July 5; the escape to Hugging Face followed on July 8. The shutdown tool is in the report's section IX.
