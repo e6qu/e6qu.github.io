@@ -288,11 +288,11 @@ You have discovered the scrolls of ancient wisdom.
 
 ## Lampson's confinement problem
 
-- His [paper](https://dl.acm.org/doi/10.1145/362375.362389): a service runs on a customer's data; blocking its access is “known how to [solve](https://www.cs.cornell.edu/andru/cs711/2003fa/reading/lampson73note.pdf)”
-- The hard part: a leak to the service's owner leaves “no indication”
+- His [paper](https://dl.acm.org/doi/10.1145/362375.362389): a customer runs a service on the customer's data
+- Blocking its access is “known how to [solve](https://www.cs.cornell.edu/andru/cs711/2003fa/reading/lampson73note.pdf)”
+- The hard part: the service may leak the data to its owner
+- A wrong answer leaves evidence; a leak leaves “no indication”
 - No network is not no channel: DNS, a package mirror
-
-In short: every boundary agents use today is older than they are.
 
 ???
 - "A Note on the Confinement Problem", Butler Lampson, Xerox PARC; Communications of the ACM 16(10), October 1973. Received July 1972.
@@ -301,6 +301,59 @@ In short: every boundary agents use today is older than they are.
 - The paper lists covert channels: file locks, timing, resource usage on the bill. "There is not likely to be any rigorous way of identifying every channel." This is the first published use of "covert channel".
 - Today's versions: a file or a socket the agent can reach; data hidden in an allowed request; timing.
 - Sources: [ACM](https://dl.acm.org/doi/10.1145/362375.362389); [the author's reprint](https://www.cs.cornell.edu/andru/cs711/2003fa/reading/lampson73note.pdf); [history/lampson-1973-confinement-problem.md](https://dl.acm.org/doi/10.1145/362375.362389)
+
+---
+
+:: table transition=run dense art=memory-chip+receipt+hourglass
+
+### Lampson, 1973
+
+## Seven ways to leak
+
+| # | The service leaks through |
+| --- | --- |
+| ![](icons/memory-chip.svg) 0 | memory kept from one call to the next |
+| ![](icons/floppy-disk.svg) 1 | a permanent file in its owner's directory |
+| ![](icons/sticky-note.svg) 2 | a temporary file its owner polls |
+| ![](icons/envelope.svg) 3 | a message to its owner's process |
+| ![](icons/receipt.svg) 4 | the bill: data hidden in the charges |
+| ![](icons/padlock.svg) 5 | a file lock, read as one bit |
+| ![](icons/hourglass.svg) 6 | its effect on system load |
+
+“There is not likely to be any rigorous way of identifying every [channel](https://www.cs.cornell.edu/andru/cs711/2003fa/reading/lampson73note.pdf)”.
+
+???
+- The paper numbers its examples 0–6. It credits the last two to A.G. Fraser of Bell Labs.
+- 4: data hidden in the bill, or in the time charged; "Reducing it to zero, however, requires more far-reaching measures."
+- 5: two programs signal through a file's open-for-writing interlock, a bit at a time, with two more files as clocks.
+- 6: varying the paging rate or the ratio of computing to I/O; noisy, but "the techniques of information theory can be used" to get the data through.
+- Lampson's own names for the three kinds: storage, legitimate (an output the service has to produce, such as the bill) and covert: "those not intended for information transfer at all". This is the first published use of "covert channel".
+- Today's versions: 1–3 are a file or a socket the agent can reach; 4 is data hidden in an allowed request; 6 is timing.
+- Sources: [ACM](https://dl.acm.org/doi/10.1145/362375.362389); [the author's reprint](https://www.cs.cornell.edu/andru/cs711/2003fa/reading/lampson73note.pdf)
+
+---
+
+:: table transition=run dense art=rulebook+cage
+
+### Lampson, 1973
+
+## Four rules
+
+| Rule | Lampson | For an agent |
+| --- | --- | --- |
+| ![](icons/cage.svg) Total isolation | “no [calls](https://www.cs.cornell.edu/andru/cs711/2003fa/reading/lampson73note.pdf) on any other program” | no tools at all |
+| ![](icons/box-in-box.svg) Transitivity | an untrusted program it calls is confined too | child processes inherit the sandbox |
+| ![](icons/funnel.svg) Masking | the caller sets every input to legitimate or covert channels | the platform sets egress |
+| ![](icons/shield.svg) Enforcement | covert channels conform to the caller's specification | the egress proxy checks each request |
+
+???
+- Total isolation is sufficient but "quite impractical": even paging or time-slicing can leak (example 6).
+- Transitivity needs a trusted supervisor; "it is hard to write a trustworthy supervisor".
+- Masking, for the bill: the customer computes it from the vendor's published specification, like a purchase order.
+- Enforcement "may require slowing the program down, generating spurious disk references, or whatever".
+- The cheaper alternative, if some leakage is acceptable: "bound the capacity of the covert channels". Gemini CLI's Windows sandbox sets a bandwidth limit of 1 (World 6).
+- The "For an agent" column is this talk's reading, not Lampson's.
+- Sources: [ACM](https://dl.acm.org/doi/10.1145/362375.362389); [the author's reprint](https://www.cs.cornell.edu/andru/cs711/2003fa/reading/lampson73note.pdf)
 
 ---
 
