@@ -4,7 +4,7 @@ footer: So you want to code your own cloud
 ---
 
 <!--
-A technical talk: 45 minutes, 49 slides, about a minute per slide.
+A technical talk: 45 minutes.
 The story: why people keep rebuilding the cloud, the smallest cloud worth building and
 its front door, its services, then VMs, compatibility and scaling; it ends with: do it yourself.
 Code links point at sockerless-cloud a614ccf (v3.0.1) and Floci b280a77 (2.3.0),

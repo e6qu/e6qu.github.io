@@ -5,7 +5,7 @@ game: mario
 ---
 
 <!--
-A 47-slide version of ../who-answers-the-syscall/slides.md: the same seven days, fewer examples.
+A shorter version of ../who-answers-the-syscall/slides.md: the same seven days, fewer examples.
 The world map follows research/sandboxes/talk-outline.md.
 Per slide: world="N Name" day=N set the HUD; transition=card|run|iris|pipe|ouch plays a
 transition going forward (assets/deck-game.js). ouch costs one data life.
@@ -145,7 +145,7 @@ What hath the automaton wrought?
 
 **More incidents**
 
-- Twelve more, with their sources: [Who answers the syscall?](../who-answers-the-syscall/#5)
+- More, with their sources: [Who answers the syscall?](../who-answers-the-syscall/#5)
 
 ---
 
