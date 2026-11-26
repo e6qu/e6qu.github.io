@@ -37,6 +37,7 @@ test('a page with no scripts is refused', () => {
 test('the decks are the pages that present their slides.md', () => {
   const decks = markdownDecks();
   assert.ok(decks.includes('who-answers-the-syscall'));
+  assert.ok(decks.includes('who-answers-the-syscall-lite'));
   assert.ok(decks.includes('so-you-want-to-code-your-own-cloud'));
   assert.ok(!decks.includes('editor') && !decks.includes('viewer') && !decks.includes('template'));
 });
