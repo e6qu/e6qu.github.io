@@ -79,7 +79,7 @@ What hath the automaton wrought?
 
 - The freeze was only words in a conversation: nothing enforced it. That is the lesson the Day 7 table repeats.
 - The agent also said a rollback was impossible; it was not.
-- Cut from the slide: the founder was SaaStr's; [Replit](https://fortune.com/2025/07/23/ai-coding-tool-replit-wiped-database-called-it-a-catastrophic-failure/) also added a planning-only mode.
+- The founder was SaaStr's; [Replit](https://fortune.com/2025/07/23/ai-coding-tool-replit-wiped-database-called-it-a-catastrophic-failure/) also added a planning-only mode.
 
 **Cursor creates a config**
 
@@ -217,7 +217,7 @@ What hath the automaton wrought?
 
 - The [agent's note](https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf) was left in the mirror itself: agents used it as a message board before they used it as an exit. The original names a file where the slide shows "…".
 - June 27: a [port-sweep alert](https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf) fired; stopping the run “was not required”. [OpenAI](https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf)'s fix list now includes a rapid evaluation-shutdown tool.
-- Cut from the slide: the mirror was [JFrog Artifactory](https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf).
+- The mirror was [JFrog Artifactory](https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf).
 
 ---
 
@@ -279,7 +279,7 @@ What hath the automaton wrought?
 In short: the damage came through whatever the agent could reach.
 
 ???
-- Cut from the slide: the "Where we saw it" column. Each lesson now links its incident: Replit 2025, PocketOS 2026, OpenAI's evaluations 2026, Cursor 2026, Claude Code's 97% of prompts approved, DeepSeek Harness 2026.
+- Each lesson links its incident: Replit 2025, PocketOS 2026, OpenAI's evaluations 2026, Cursor 2026, Claude Code's 97% of prompts approved, DeepSeek Harness 2026.
 - One row per lesson. No new sources; each link is the original source from the table where the story was told, except the 97%: Anthropic's post making auto mode the default (2026-08): "users approve 97% of permission prompts in Claude Code." Ghost House returns to it.
 - The third column states goals only; the mechanisms come later: write scope and snapshots (Switch 1), the egress proxy (Switch 2), the credential broker (Switch 3), policy outside the sandbox (Valley of the Boss).
 
@@ -351,7 +351,7 @@ A microVM is a VM with a minimal VMM (Firecracker, Cloud Hypervisor).
 | ![](icons/crown.svg) Control plane | the service that runs the sandboxes |
 
 ???
-- Cut from the slide: "Approval prompt: a question to a person before a risky action" (Ghost House explains it); "Plumbing: everything around the sandbox the agent can still reach: proxies, DNS, mirrors, APIs".
+- Two more terms. Approval prompt: a question to a person before a risky action (Ghost House). Plumbing: everything around the sandbox the agent can still reach: proxies, DNS, mirrors, APIs.
 The tools that implement OS-level sandboxes (Seatbelt, bubblewrap, seccomp, Landlock) are named in World 6, in "One recipe per operating system", where they first appear.
 
 ---
@@ -425,9 +425,9 @@ Thou hast discovered the scrolls of ancient wisdom.
 
 ???
 - Sources: [history/varian-vm-and-the-vm-community.md](https://www.leeandmelindavarian.com/Melinda/neuvm.pdf); [history/unix-v7-chroot.md](http://man.cat-v.org/unix_7th/2/chdir) (Bill Joy added chroot to BSD in 1982, to build BSD); [history/wahbe-1993-software-fault-isolation.md](https://dl.acm.org/doi/10.1145/168619.168635); [history/kamp-watson-2000-freebsd-jails.md](https://papers.freebsd.org/2000/phk-jails/); [virtualization/xen-sosp2003.md](https://www.cl.cam.ac.uk/research/srg/netos/papers/2003-xensosp.pdf); [history/price-tucker-2004-solaris-zones.md](https://www.usenix.org/legacy/events/lisa04/tech/price.html)
-- Stories for this slide, from the earlier History slides:
+- Stories for this slide:
 
-- Cut from the slide: CP-40 gave each user a [simulated System/360](https://doi.org/10.1147/rd.255.0483); chroot was written to build BSD.
+- CP-40 gave each user a [simulated System/360](https://doi.org/10.1147/rd.255.0483); chroot was written to build BSD.
 [history/creasy-1981-origin-of-vm370.md](https://doi.org/10.1147/rd.255.0483); [Lampson 1973](https://dl.acm.org/doi/10.1145/362375.362389) (covert channels: "There is not likely to be any rigorous way of identifying every channel"); [history/hardy-1988-confused-deputy.md](https://dl.acm.org/doi/10.1145/54289.871709); [history/unix-v7-chroot.md](http://man.cat-v.org/unix_7th/2/chdir).
 
 Sources (research/sandboxes/original_sources/):
@@ -469,7 +469,6 @@ Sources (research/sandboxes/original_sources/):
 - [Docker](https://news.ycombinator.com/item?id=5408002)'s founder, March 2013, on HN: "you probably don't want to run untrusted code with root privileges inside a container if anything valuable is running on the same host."
 - Sources: [os-primitives/lwn-process-containers-2007.md](https://lwn.net/Articles/236038/); [virtualization/kvm-ols2007.md](https://www.kernel.org/doc/ols/2007/ols2007v1-pages-225-230.pdf); [os-primitives/docker-pycon-2013-lightning-talk.md](https://pyvideo.org/pycon-us-2013/the-future-of-linux-containers.html); [virtualization/firecracker-aws-launch-2018.md](https://aws.amazon.com/blogs/aws/firecracker-lightweight-virtualization-for-serverless-computing/); [macos-windows/macos-chromium-osx-sandboxing-design.md](https://www.chromium.org/developers/design-documents/sandbox/osx-sandboxing-design/)
 
-- From the earlier slide:
 
 - [Solaris Zones (2004)](https://www.usenix.org/legacy/events/lisa04/tech/price.html) did the same as [FreeBSD jails](https://papers.freebsd.org/2000/phk-jails/): one kernel, many customers.
 Sources (research/sandboxes/original_sources/):
@@ -500,7 +499,6 @@ Sources (research/sandboxes/original_sources/):
 - No network is not no channel: DNS, a package mirror
 
 ???
-- Cut from the slide: "a customer runs a service on the customer's data"; "The hard part: the service may leak the data to its owner"; "A wrong answer leaves evidence; a leak leaves “no indication”".
 - "A Note on the Confinement Problem", Butler Lampson, Xerox PARC; Communications of the ACM 16(10), October 1973. Received July 1972.
 - Abstract: "This note explores the problem of confining a program during its execution so that it cannot transmit information to any other program except its caller."
 - Today: you are the customer, the agent is the service, the owner is whoever steers it (a prompt injection).
@@ -586,7 +584,7 @@ Who reads the prompt?
 - About 17% early in a session; about 5% after 50 prompts
 
 ???
-- Cut from the slide: "An approval-prompt game, 2026: players missed 1 in 3 [threats](https://news.ycombinator.com/item?id=49195468)".
+- An approval-prompt game, 2026: players missed 1 in 3 [threats](https://news.ycombinator.com/item?id=49195468).
 - Audience: "Who has clicked approve without reading?"
 - [Anthropic, 2026-08-07](https://claude.com/blog/auto-mode-default-in-claude-code): "Data suggests that manual review can become habitual: users approve 97% of permission prompts in Claude Code." "In a controlled experiment with 1,053 paid professional testers, human review caught just 13.6% of dangerous commands, while auto mode caught 89%." "they blocked about 17% of dangerous commands early in a session, dropping to about 5% after 50 or more prior prompts". In March the figure was 93% ([auto mode post](https://www.anthropic.com/engineering/claude-code-auto-mode): "Over time that leads to approval fatigue").
 - Caveat: these are vendor figures, from vendors selling the alternative (auto mode, a sandbox).
@@ -639,7 +637,7 @@ Who reads the prompt?
 In short: safety must be the default, not an option.
 
 ???
-- Cut from the slide: "Cline, a VS Code agent: the model sets its own [`requires_approval`](https://docs.cline.bot/features/auto-approve) flag."
+- Cline, a VS Code agent: the model sets its own [`requires_approval`](https://docs.cline.bot/features/auto-approve) flag.
 - Claude Code [sandboxing docs](https://code.claude.com/docs/en/sandboxing): "The sandbox is off by default. To turn it on, run `/sandbox` in a session". [Permission modes](https://code.claude.com/docs/en/permission-modes): "`bypassPermissions` mode disables permission prompts and safety checks"; "Only use this mode in isolated environments like containers, VMs, or dev containers without internet access". The flag `--dangerously-skip-permissions` is the same mode.
 - Codex [sandboxing](https://learn.chatgpt.com/docs/sandboxing): commands "run inside a constrained environment instead of running with full access by default." [CLI reference](https://learn.chatgpt.com/docs/developer-commands?surface=cli): "--dangerously-bypass-approvals-and-sandbox, --yolo … Run every command without approvals or sandboxing. Only use inside an externally hardened environment."
 - Gemini CLI [configuration](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md): "Sandboxing is disabled by default"; but "Sandbox is enabled when using `--yolo` or `--approval-mode=yolo` by default." (docs only; not checked in the source)
@@ -671,7 +669,7 @@ Ways to isolate an agent.
 - Runs anything: `git`, `npm`, compilers, Docker
 
 ???
-- Cut from the slide (the cost table has the numbers): "A microVM starts in 125 ms, with 5 MiB of overhead"; "AWS Lambda, before Firecracker: “dedicated EC2 instances for each customer”".
+- A microVM starts in 125 ms, with 5 MiB of overhead. AWS Lambda, before Firecracker: “dedicated EC2 instances for each customer”.
 - VM monitor (VMM): the host program that runs the VM. Firecracker is KVM-based: the Linux kernel's KVM module uses the CPU's virtualization extensions (Intel VT-x, 2005; AMD-V).
 - A guest's system calls stop at the guest's kernel. To reach the host, an attacker needs a bug in the VMM, in KVM, or in the CPU.
 - Sources: [virtualization/firecracker-aws-launch-2018.md](https://aws.amazon.com/blogs/aws/firecracker-lightweight-virtualization-for-serverless-computing/); [virtualization/intel-vt-x-computer2005.md](https://doi.org/10.1109/MC.2005.163); [virtualization/kvm-ols2007.md](https://www.kernel.org/doc/ols/2007/ols2007v1-pages-225-230.pdf)
@@ -689,7 +687,6 @@ Ways to isolate an agent.
 - [Google](https://cloud.google.com/blog/products/gcp/open-sourcing-gvisor-a-sandboxed-container-runtime), 2018: “traditional Linux containers are not sandboxes”
 
 ???
-- Cut from the slide: "Processes on the host's kernel, given namespaces: a private view of files, processes, network"; "seccomp narrows which system calls reach the kernel"; "Cheap: a new sandbox in [195](https://github.com/pydantic/monty) ms, [1.4](https://www.scitepress.org/Papers/2021/104405/104405.pdf) MB of memory" (the cost table has these).
 - Containers (Docker), bubblewrap, Seatbelt, AppContainer are all this class: the host kernel answers every system call, narrowed by policy.
 - gVisor's answer was a user-space kernel in Go, in front of the host's.
 - Sources: [virtualization/gvisor-announcement-2018.md](https://cloud.google.com/blog/products/gcp/open-sourcing-gvisor-a-sandboxed-container-runtime); [os-primitives/lwn-seccomp-bpf-2012.md](https://lwn.net/Articles/475043/); [virtualization/closer2021-lightweight-hypervisors-comparison.md](https://www.scitepress.org/Papers/2021/104405/104405.pdf)
@@ -708,7 +705,7 @@ Ways to isolate an agent.
 - [Wasmtime](https://github.com/bytecodealliance/wasmtime/security/advisories), a Wasm runtime: about 4 advisories a year, then 71 in 2026
 
 ???
-- Cut from the slide: "[Instantiates](https://bytecodealliance.org/articles/wasmtime-10-performance) in about 5 µs"; Wasmtime is the Bytecode Alliance's runtime; the jump to 71 came "after an LLM bug hunt".
+- Wasmtime [instantiates](https://bytecodealliance.org/articles/wasmtime-10-performance) a module in about 5 µs. It is the Bytecode Alliance's runtime; the jump to 71 came "after an LLM bug hunt".
 - Wasmtime: "There is no raw access to system calls or other forms of I/O; the only thing a WebAssembly instance can do is what is available through interfaces it has been explicitly linked with."
 - 5 µs: [Wasmtime 1.0 (2022)](https://bytecodealliance.org/articles/wasmtime-10-performance), instantiation with copy-on-write heap images.
 - Standard WASI has no interface for starting processes (fork or exec); our inference from the WASI proposal list.
@@ -728,7 +725,6 @@ Ways to isolate an agent.
 - [Cloudflare](https://blog.cloudflare.com/code-mode/) Code Mode (2025): TypeScript against typed bindings, which keep the keys
 
 ???
-- Cut from the slide: "No shell, files or sockets unless the host passes one in"; Monty: "a new sandbox in under 1 ms"; Code Mode: "agents write TypeScript against typed bindings"; "The keys stay with the host, inside each binding".
 in-process/README.md (the fourth class); [in-process/pydantic-monty.md](https://github.com/pydantic/monty) (0.80 ms is the vendor's own benchmark; no ambient authority: host functions run "with your process's full authority"); [in-process/cloudflare-code-mode.md](https://blog.cloudflare.com/code-mode/) (globalOutbound: null; credentials injected by the outbound handler).
 
 ---
@@ -835,8 +831,8 @@ How are coding agents sandboxed today?
 | Windows | five designs: restricted tokens, AppContainer, MXC… | Google's Gemini CLI: a [bandwidth](https://github.com/google-gemini/gemini-cli/blob/main/packages/core/src/sandbox/windows/GeminiSandbox.cs) limit of 1 |
 
 ???
-- Cut from the slide: the WSL2 row, "the Linux recipe", where "[/run/WSL](https://github.com/openai/codex/blob/main/codex-rs/linux-sandbox/src/bwrap.rs) starts Windows programs outside it"; "Two libraries do most of it: Anthropic's [sandbox-runtime](https://github.com/anthropics/sandbox-runtime), Microsoft's [MXC](https://github.com/microsoft/mxc)."
-- The terms for this slide (formerly "Terminology, part 4"), all OS-level: the agent's commands still run on the host's kernel.
+- WSL2 takes the Linux recipe, but [/run/WSL](https://github.com/openai/codex/blob/main/codex-rs/linux-sandbox/src/bwrap.rs) starts Windows programs outside it. Two libraries do most of it: Anthropic's [sandbox-runtime](https://github.com/anthropics/sandbox-runtime), Microsoft's [MXC](https://github.com/microsoft/mxc).
+- The terms for this slide, all OS-level: the agent's commands still run on the host's kernel.
   - Seatbelt: macOS's built-in sandbox; a profile lists what a process may do.
   - bubblewrap: a small Linux tool that builds a sandbox from namespaces.
   - seccomp: a Linux filter on which system calls a process may make.
@@ -959,7 +955,7 @@ deep-dive-cloud-and-china.md Part B (the tally is from our own source reading, N
 
 ???
 
-- Cut from the slide: the containers' files are copy-on-write APFS clones.
+- Its containers' files are copy-on-write APFS clones.
 - fws limits: [e6qu-projects/fws-limitations.md](https://github.com/e6qu/fun-with-sandboxes/blob/main/LIMITATIONS.md) ("Not a security boundary against hostile code"; "A container's view is presented by a library, not the kernel": Apple-signed, static or raw-syscall programs see host paths; Seatbelt still restricts what they can do)
 - fwe: [e6qu-projects/fwe-linux-on-macos.md](https://github.com/e6qu/fun-with-emulators/blob/main/docs/linux-on-macos.md) (guest code shares fwe's address space; a raw `svc #0x80` reaches macOS; "isolates as chroot does")
 
@@ -1003,7 +999,7 @@ docker run --rm --security-opt seatbelt=gui --user "$(id -u):$(id -g)" \
 
 ???
 
-- Cut from the slide: fwe also emulates namespaces.
+- fwe also emulates namespaces.
 - fws limits: [e6qu-projects/fws-limitations.md](https://github.com/e6qu/fun-with-sandboxes/blob/main/LIMITATIONS.md) ("Not a security boundary against hostile code"; "A container's view is presented by a library, not the kernel": Apple-signed, static or raw-syscall programs see host paths; Seatbelt still restricts what they can do)
 - fwe: [e6qu-projects/fwe-linux-on-macos.md](https://github.com/e6qu/fun-with-emulators/blob/main/docs/linux-on-macos.md) (guest code shares fwe's address space; a raw `svc #0x80` reaches macOS; "isolates as chroot does")
 
@@ -1047,7 +1043,7 @@ fwe --strace ./hello
 
 ???
 - The blog post is titled “Docker Sandboxes vs. Containers”.
-- Cut from the slide: Docker's [founder](https://news.ycombinator.com/item?id=5408002), 2013: “you probably don't want to run untrusted code with root… inside a container”.
+- Docker's [founder](https://news.ycombinator.com/item?id=5408002), 2013: “you probably don't want to run untrusted code with root… inside a container”.
 - Docker in 2026: “Sandbox the agent, containerize the application it works on.”
 - Keynote demo: Docker's president at WeAreDevelopers; [the post](https://www.docker.com/blog/docker-sandboxes-vs-containers/) sums it up as "a secrets file on the host with no zero-day involved". The keynote's captions could not be read, so don't describe the demo beyond that line.
 - Docker socket: [Docker's security docs](https://docs.docker.com/engine/security/#docker-daemon-attack-surface) say a container given the host's / "can alter your host filesystem without any restriction".
@@ -1070,7 +1066,7 @@ fwe --strace ./hello
 | Trade-off | 84% fewer approval prompts, no VM | a kernel to [boot](https://www.docker.com/products/docker-sandboxes/vs-containers/), more memory |
 
 ???
-- Cut from the slide: the "Docker inside" row: Claude Code's sandbox gets Docker "only by allowing [docker.sock](https://code.claude.com/docs/en/sandboxing): host access"; Docker Sandboxes run "a private [Docker](https://docs.docker.com/ai/sandboxes/architecture/) Engine in the VM".
+- Docker inside: Claude Code's sandbox gets it only by allowing [docker.sock](https://code.claude.com/docs/en/sandboxing), which means host access; Docker Sandboxes run a private [Docker](https://docs.docker.com/ai/sandboxes/architecture/) Engine in the VM.
 - Both are sandboxes; only the right-hand one gives the agent a kernel of its own. That is the "Code footprint" table from World 5: the host kernel on the left, the guest's kernel on the right.
 - Claude Code: [Anthropic](https://www.anthropic.com/engineering/claude-code-sandboxing)'s engineering post of 2025-10-20 (bubblewrap on Linux, Seatbelt on macOS, network only through a proxy outside the sandbox; "sandboxing safely reduces permission prompts by 84%"). Claude Code on the web keeps git credentials in a git proxy outside the sandbox. Claude Code's docs warn that allowing the `docker.sock` Unix socket gives host access.
 - Docker: [Docker's docs](https://docs.docker.com/ai/sandboxes/) say the agent "sees a sentinel value instead of the real API credential"; the proxy swaps in the real one on the host. "Sandboxes cannot communicate directly over the network."
@@ -1362,7 +1358,7 @@ In short: the agent writes little, talks through one proxy, holds no keys.
 - Walk it: the agent calls GitHub with GH_TOKEN, which in Claude Code's cloud environments reads [`proxy-injected`](https://code.claude.com/docs/en/cloud-environments). The egress proxy (Switch 2) checks the operation too (no tag pushes). The credential broker swaps in the real token, bound to that host. The second envelope tries an unlisted host: denied at the proxy.
 - Placeholders stop theft, not misuse through the proxy: that's why the proxy checks the operation, not only the host.
 - Same pattern: [Fly.io's tokenizer](https://github.com/superfly/tokenizer) (2023); [Google's Agent Compute Engine](https://cloud.google.com/blog/topics/ai-infrastructure/agent-compute-engine-deep-dive) swaps tokens in on the wire.
-- The three incidents (from the former "No secrets on disk" slide):
+- The three incidents:
   - Apr 2026, [PocketOS](https://x.com/lifeof_jer/status/2048103471019434248): the agent found a token in an unrelated file.
   - Jul 2026, [Codex CLI](https://community.openai.com/t/my-codex-session-hit-its-subscription-limit-then-wrote-its-own-metered-api-runner-453-in-one-day/1389087): at its plan's limit it read the app's .env: $812.47 on a $600 limit.
   - Aug 2025, [s1ngularity](https://nx.dev/blog/s1ngularity-postmortem): npm malware ran `claude --dangerously-skip-permissions` to hunt for secrets.
@@ -1437,7 +1433,6 @@ The platform has to improve on its own.
 - Environment: Anthropic's Claude Mythos Preview broke out of a container on [every](https://arxiv.org/abs/2603.02277) sample
 
 ???
-- Cut from the slide: "Rerun on a schedule" (now "run it regularly"); the prompt result went "from 0%"; Mythos's container was "inside a VM", which held.
 - The point: the sandbox policy is one configuration among several. Any of them can change what the agent does, so the evals cover all of them.
 - "Permission Denied" (preprint, August 2026): 12 coding agents on Terminal-Bench 2.1 under nested enterprise policies. "Existing benchmarks, however, evaluate agents almost exclusively in permissive sandboxes." Under the strictest policy, "success losses reach 18.3 points and cost inflation 167.3%". Runs grind into timeouts or wrong answers rather than stopping. It releases Boundary-Bench, a hardening plugin.
 - OverEager-Bench (preprint, May 2026): 500 scenarios, about 7,500 runs, four agents. "On Claude Code, stripping the consent declaration alone raises the overeager rate from 0.0% to 17.1%". Their word for doing more than asked: "overeager".
@@ -1486,7 +1481,6 @@ An agent judge reads the whole trace, not just the answer. In one [study](https:
 In short: policy and kill switch stay out of the agent's reach.
 
 ???
-- Cut from the slide: "In short: policy and kill switch sit outside the sandbox, out of the agent's reach; a person approves each change."
 - [OpenClaw](https://twitter.com/summeryue0/status/2025836517831405980): the researcher sent "Do not do that", "Stop don't do anything", "STOP OPENCLAW" from a phone; the agent kept trashing mail. The stop messages are from press reconstructions of her screenshots; the run to the Mac mini is [the researcher's own post](https://twitter.com/summeryue0/status/2025836517831405980).
 - [OpenAI](https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf): the June 27 port-sweep alert, where on-call "advised that stopping the evaluation run was not required"; responders took the mirror offline on July 5; the escape to Hugging Face followed on July 8. The shutdown tool is in the report's section IX.
 - Keeping the snapshot matters: after the stop, you need the evidence.
@@ -1656,7 +1650,6 @@ flowchart LR
 | ![](icons/stop-button.svg) No chaos | one egress proxy, one kill switch |
 
 ???
-- Cut from the slide: "paused while the agent waits"; "one sandbox API, with the three defaults on from day one"; "agents propose rules, prompts and tools; evals and a person approve; the boundary is out of their reach".
 Closes the loop opened on Day 1 by the boss's email.
 
 ---
