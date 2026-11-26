@@ -843,7 +843,7 @@ The platform has to improve on its own.
 
 - Default: one control-plane call pauses all sessions, revokes tokens, keeps snapshots
 - Plain code, no model deciding: the same call always stops the same sessions
-- Out of band: it never passes through the agent, so no prompt or summary can lose it
+- Out of band: it never passes through the agent
 
 In short: policy and kill switch stay out of the agent's reach.
 
