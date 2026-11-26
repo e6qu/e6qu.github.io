@@ -1636,7 +1636,7 @@ flowchart LR
 
 ### Day 7
 
-## The brief delivered
+## Delivery
 
 | Monday's brief | What ships |
 | --- | --- |
