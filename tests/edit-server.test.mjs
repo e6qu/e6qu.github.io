@@ -9,9 +9,14 @@ import {join} from 'node:path';
 import {createEditServer, editDeck, hashOf, slideTitle} from '../scripts/edit-server.mjs';
 
 const DECK = [
-  '---', 'title: Demo', 'footer: Demo', 'game: mario', '---', '', '<!-- a comment before the title -->', '', ':: title', '', '# Demo.', '',
+  '---', 'title: Demo', 'footer: Demo', '---', '', '<!-- a comment before the title -->', '', ':: title', '', '# Demo.', '',
   'A small deck.', '', '---', '', ':: content transition=iris', '', '## First point', '', '- one', '- two', '', '???', 'Notes stay.', '',
   '---', '', '```yaml', '---', 'key: value', '```', '', '---', '', '## Last', '',
+].join('\n');
+// a game deck: every slide has art, as Mario mode needs
+const GAME_DECK = [
+  '---', 'title: Game', 'game: mario', '---', '', ':: title art=key', '', '# Game.', '',
+  '---', '', ':: content transition=iris art=coin', '', '## A point', '', '- one', '',
 ].join('\n');
 
 let dir, root, server, base;
@@ -22,6 +27,8 @@ const post = (body, headers = {}) => fetch(`${base}/api/slide`, {method: 'POST',
   headers: {'Content-Type': 'application/json', ...headers}, body: JSON.stringify(body)})
   .then(async response => ({status: response.status, body: await response.json()}));
 const current = () => hashOf(file(slides));
+const game = 'presentations/game/slides.md';
+const currentGame = () => hashOf(file(game));
 
 before(async () => {
   dir = mkdtempSync(join(tmpdir(), 'edit-server-'));
@@ -29,10 +36,12 @@ before(async () => {
   mkdirSync(join(root, 'presentations', 'demo'), {recursive: true});
   writeFileSync(join(root, slides), DECK);
   writeFileSync(join(root, 'presentations', 'demo', 'index.html'), '<!doctype html><title>Demo</title>');
+  mkdirSync(join(root, 'presentations', 'game'), {recursive: true});
+  writeFileSync(join(root, game), GAME_DECK);
   writeFileSync(join(root, 'notes.txt'), 'staged by the user\n');
   git('init', '--quiet', '--initial-branch=main');
   for (const [key, value] of [['user.name', 'Test'], ['user.email', 'test@example.com'], ['commit.gpgsign', 'false']]) git('config', key, value);
-  git('add', '--', slides, 'presentations/demo/index.html');
+  git('add', '--', slides, 'presentations/demo/index.html', game);
   git('commit', '--quiet', '-m', 'Initial deck');
   git('add', '--', 'notes.txt');  // the user's own staged work, which a save must leave alone
   // a deck directory that leads out of the repository
@@ -153,13 +162,27 @@ test('a refused edit changes nothing on disk or in git', async () => {
 });
 
 test('a game deck refuses an edit Mario mode could not play, and changes nothing', async () => {
-  const text = file(slides);
+  const text = file(game);
   const head = git('rev-parse', 'HEAD');
-  const {status, body} = await post({deck: slides, index: 3, source: ':: quote\n\n![A picture](pictures/a.svg)\n\n> Words.', hash: current()});
-  assert.equal(status, 400);
-  assert.match(body.error, /Mario mode can't play this: .*a picture belongs on a section or content slide/);
-  assert.equal(file(slides), text);
+  const picture = await post({deck: game, index: 1, source: ':: quote art=coin\n\n![A picture](pictures/a.svg)\n\n> Words.', hash: currentGame()});
+  assert.equal(picture.status, 400);
+  assert.match(picture.body.error, /Mario mode can't play this: .*a picture belongs on a section or content slide/);
+  const crowded = Array.from({length: 60}, (_, n) => `- bullet number ${n}`).join('\n');
+  const overflow = await post({deck: game, index: 1, source: `:: content art=coin\n\n## Crowded\n\n${crowded}`, hash: currentGame()});
+  assert.equal(overflow.status, 400);
+  assert.match(overflow.body.error, /Mario mode can't play this: .*do not fit their sign: 2 \(\+\d+ px\)/);
+  const bare = await post({deck: game, index: 1, source: ':: content\n\n## No art', hash: currentGame()});
+  assert.equal(bare.status, 400);
+  assert.match(bare.body.error, /Mario mode can't play this: .*no art: 2/);
+  assert.equal(file(game), text);
   assert.equal(git('rev-parse', 'HEAD'), head);
+});
+
+test('a game deck takes an edit Mario mode can play', async () => {
+  const {status, body} = await post({deck: game, index: 1, source: ':: content transition=iris art=coin\n\n## A better point\n\n- one', hash: currentGame()});
+  assert.equal(status, 200);
+  assert.ok(body.commit);
+  assert.match(file(game), /## A better point/);
 });
 
 test('when the commit fails, the files and the index are put back', async () => {

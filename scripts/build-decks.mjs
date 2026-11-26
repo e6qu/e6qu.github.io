@@ -10,15 +10,15 @@
 // hashed CSS file and a hashed script from /assets/bundle/, shared across decks.
 //
 // A deck whose front matter says "game: mario" also gets Mario mode (deck-game.js): its
-// talk script is generated from slides.md here (talkJson), checked against the
-// regular-mario library's own parser, and loaded with the library, Phaser and the
-// castaway's sprites as a separate chunk only when someone switches to the game.
+// talk script is generated from slides.md here, checked with the regular-mario
+// library's own parser and sign layout (checkedTalkJson), and loaded with the library,
+// Phaser and the castaway's sprites as a separate chunk only when someone switches to
+// the game.
 import {cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {build} from 'vite';
-import {parseTalkScript} from 'regular-mario/talk-script';
-import {talkJson} from './talk-json.mjs';
+import {checkedTalkJson} from './talk-json.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const WORK = join(ROOT, '.deck-build');
@@ -78,8 +78,9 @@ async function main(site) {
       const {meta} = render(markdown);
       let talk = null;
       if (meta.game === 'mario') {
-        const script = talkJson(markdown, `presentations/${deck}/slides.md`);
-        parseTalkScript(script);  // throws a TalkScriptError naming the bad field
+        // throws, naming the deck, if the game could not play it: a bad field, a sign
+        // the slide's text overflows, a slide without art
+        const script = checkedTalkJson(markdown, `presentations/${deck}/slides.md`);
         talk = join(WORK, 'talk', `${deck}.json`);
         writeFileSync(talk, JSON.stringify(script));
       } else if (meta.game) {

@@ -19,7 +19,7 @@ import {existsSync, readFileSync, realpathSync, statSync, writeFileSync} from 'n
 import {readFile} from 'node:fs/promises';
 import {dirname, extname, join, relative, resolve, sep} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {talkJson} from './talk-json.mjs';
+import {checkedTalkJson} from './talk-json.mjs';
 import {promisify} from 'node:util';
 import vm from 'node:vm';
 
@@ -148,7 +148,7 @@ export async function saveSlide(root, {deck, index, source, hash}) {
   if (during) throw new EditError(409, `Git is in the middle of ${during}; finish it before saving slides`);
   if (/^game\s*:\s*mario\s*$/im.test(frontMatter(next))) {
     try {
-      talkJson(next, deck);
+      checkedTalkJson(next, deck);
     } catch (error) {
       throw new EditError(400, `Mario mode can't play this: ${error.message}`);
     }
