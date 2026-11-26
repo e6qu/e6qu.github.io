@@ -249,9 +249,9 @@ In short: a sandbox is a policy outside the code, checked on every call.
 
 ## History
 
-Thou hast discovered the scrolls of ancient wisdom.
+You have discovered the scrolls of ancient wisdom.
 
-![A scroll of ancient wisdom between two marble columns](pictures/ancient-scroll.svg)
+![A papyrus scroll of ancient wisdom between two marble columns](pictures/ancient-scroll.svg)
 
 ---
 
@@ -702,7 +702,7 @@ Three defaults for every team.
 
 ### Switches 1 and 2
 
-## Write little, leave by one door
+## Lock things down
 
 - Switch 1: grant write to just the agent's workspace, the project folder
 - Snapshot every session, out of the agent's reach
@@ -837,15 +837,13 @@ The platform has to improve on its own.
 
 :: content transition=run art=stop-button+alarm-bell
 
-### HURRY UP!
+### Keep control
 
 ## The kill switch must be deterministic
 
 - Default: one control-plane call pauses all sessions, revokes tokens, keeps snapshots
 - Plain code, no model deciding: the same call always stops the same sessions
-- Out of band: it never passes through the agent, so no prompt or summary can lose it
-
-In short: policy and kill switch stay out of the agent's reach.
+- Out of band: it never passes through the agent
 
 ???
 - [OpenClaw](https://twitter.com/summeryue0/status/2025836517831405980): the researcher sent "Do not do that", "Stop don't do anything", "STOP OPENCLAW" from a phone; the agent kept trashing mail. The stop messages are from press reconstructions of her screenshots; the run to the Mac mini is [the researcher's own post](https://twitter.com/summeryue0/status/2025836517831405980).
@@ -1004,7 +1002,7 @@ flowchart LR
 
 ### Day 7
 
-## The brief delivered
+## Delivery
 
 | Monday's brief | What ships |
 | --- | --- |

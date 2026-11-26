@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "phaser": "4.2.0",
-    "regular-mario": "https://github.com/e6qu/regular-mario/releases/download/v0.2.0/regular-mario-0.2.0.tgz"
+    "regular-mario": "https://github.com/e6qu/regular-mario/releases/download/v0.2.1/regular-mario-0.2.1.tgz"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "10.6.4",
